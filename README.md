@@ -1,5 +1,7 @@
 # 《数学基础知识丛书》点化学习系统
 
+线上：https://zrx-11.github.io/math-basics-enlighten/ ｜ 仓库：https://github.com/zrx-11/math-basics-enlighten
+
 24 本扫描版数学读物，做成一套可以开学的东西：一个总入口 `index.html`，每本书一份 Markdown 知识库、一份单书学习伴侣 HTML，外加一份「从零推导」交互页。
 
 ## 怎么用
