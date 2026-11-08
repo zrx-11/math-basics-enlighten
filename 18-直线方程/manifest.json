@@ -1,0 +1,356 @@
+{
+ "slug": "line-equations",
+ "title": "直线方程",
+ "subtitle": "把直线写成方程：斜率、五种形式与距离",
+ "book": {
+  "title": "直线方程",
+  "author": "章士藻",
+  "source": [
+   "数学基础知识丛书-18-直线方程 章士藻.pdf"
+  ]
+ },
+ "audience": "零基础",
+ "goal": "掌握倾斜角与斜率、直线方程的各种形式与适用条件，会判断两直线平行、垂直，会求点到直线的距离与夹角。",
+ "learningPath": [
+  {
+   "step": "01",
+   "title": "倾斜角与斜率",
+   "chapterIds": [
+    "ch01"
+   ],
+   "checkpoint": "能由两点求斜率并判断倾斜角范围"
+  },
+  {
+   "step": "02",
+   "title": "直线方程的五种形式",
+   "chapterIds": [
+    "ch02"
+   ],
+   "checkpoint": "能按条件选对形式并注明适用条件"
+  },
+  {
+   "step": "03",
+   "title": "位置关系与距离",
+   "chapterIds": [
+    "ch03"
+   ],
+   "checkpoint": "能用一般式系数判断平行垂直"
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch01",
+   "title": "第 1 章：倾斜角与斜率",
+   "file": "chapters/ch01-slope.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch02",
+   "title": "第 2 章：直线方程的五种形式",
+   "file": "chapters/ch02-forms.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch03",
+   "title": "第 3 章：位置关系与距离",
+   "file": "chapters/ch03-position-distance.md",
+   "difficulty": 3
+  }
+ ],
+ "concepts": [
+  {
+   "id": "c01",
+   "title": "斜率与方向",
+   "file": "concepts/c01-slope-direction.md",
+   "chapterIds": [
+    "ch01",
+    "ch02",
+    "ch03"
+   ]
+  },
+  {
+   "id": "c02",
+   "title": "形式与适用条件",
+   "file": "concepts/c02-form-conditions.md",
+   "chapterIds": [
+    "ch02"
+   ]
+  }
+ ],
+ "glossary": [
+  {
+   "term": "倾斜角",
+   "def": "直线向上方向与 x 轴正方向的夹角。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "斜率",
+   "def": "倾斜角的正切，反映直线的倾斜程度。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "点斜式",
+   "def": "y−y₀=k(x−x₀)。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "斜截式",
+   "def": "y=kx+b。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "截距式",
+   "def": "x/a+y/b=1。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "一般式",
+   "def": "Ax+By+C=0（A、B 不全为零）。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "点到直线距离",
+   "def": "点与直线上最近点的距离。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "夹角",
+   "def": "两直线所成的锐角或直角。",
+   "chapterId": "ch03"
+  }
+ ],
+ "patterns": {
+  "file": "patterns.md"
+ },
+ "cheatsheet": {
+  "file": "cheatsheet.md"
+ },
+ "quizzes": [
+  {
+   "id": "q01",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "过点 (1,1) 与 (3,5) 的直线斜率是：",
+   "options": [
+    "1",
+    "2",
+    "4",
+    "1/2"
+   ],
+   "answer": 1,
+   "explain": "k=(5−1)/(3−1)=2。"
+  },
+  {
+   "id": "q02",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "直线 x=4 的斜率：",
+   "options": [
+    "0",
+    "1",
+    "不存在",
+    "4"
+   ],
+   "answer": 2,
+   "explain": "竖直线与 x 轴垂直，倾斜角 90°，正切无定义，故斜率不存在。"
+  },
+  {
+   "id": "q03",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "过点 (1,2) 且斜率为 3 的直线方程是：",
+   "options": [
+    "y−2=3(x−1)",
+    "y+2=3(x+1)",
+    "y=3x",
+    "3x−y+1=0"
+   ],
+   "answer": 0,
+   "explain": "点斜式直接写成 y−2=3(x−1)。"
+  },
+  {
+   "id": "q04",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "直线 2x−3y+6=0 的斜率是：",
+   "options": [
+    "2/3",
+    "−2/3",
+    "3/2",
+    "−3/2"
+   ],
+   "answer": 0,
+   "explain": "k=−A/B=−2/(−3)=2/3。"
+  },
+  {
+   "id": "q05",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "直线 y=3x+1 与 y=3x−2 的位置关系是：",
+   "options": [
+    "相交",
+    "平行",
+    "重合",
+    "垂直"
+   ],
+   "answer": 1,
+   "explain": "斜率相同、截距不同，故平行。"
+  },
+  {
+   "id": "q06",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "点 (2,1) 到直线 x−y+1=0 的距离是：",
+   "options": [
+    "2",
+    "√2",
+    "1",
+    "2√2"
+   ],
+   "answer": 1,
+   "explain": "|2−1+1|/√2=2/√2=√2。"
+  },
+  {
+   "id": "q07",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "过点 (0,2) 且与直线 y=2x+1 平行的直线方程是：",
+   "options": [
+    "y=2x+2",
+    "y=−2x+2",
+    "y=x+2",
+    "y=2x−2"
+   ],
+   "answer": 0,
+   "explain": "平行则斜率相同为 2，过 (0,2) 得 y=2x+2。"
+  },
+  {
+   "id": "q08",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "直线 3x+4y−10=0 与 3x+4y+5=0 之间的距离是：",
+   "options": [
+    "3",
+    "15",
+    "5",
+    "1"
+   ],
+   "answer": 0,
+   "explain": "d=|−10−5|/√(9+16)=15/5=3。"
+  }
+ ],
+ "flashcards": [
+  {
+   "id": "f01",
+   "chapterId": "ch01",
+   "front": "「第 1 章：倾斜角与斜率」的一句话核心是什么？",
+   "back": "斜率是直线倾斜程度的数：k=tanα，α 是倾斜角；竖直直线没有斜率。",
+   "tags": [
+    "line-equations",
+    "核心"
+   ]
+  },
+  {
+   "id": "f02",
+   "chapterId": "ch02",
+   "front": "「第 2 章：直线方程的五种形式」的一句话核心是什么？",
+   "back": "五种形式是同一件事的五种写法；选哪种取决于题目给了什么条件。",
+   "tags": [
+    "line-equations",
+    "核心"
+   ]
+  },
+  {
+   "id": "f03",
+   "chapterId": "ch03",
+   "front": "「第 3 章：位置关系与距离」的一句话核心是什么？",
+   "back": "平行看斜率相等，垂直看斜率乘积为 −1；距离靠“点到直线的公式”。",
+   "tags": [
+    "line-equations",
+    "核心"
+   ]
+  },
+  {
+   "id": "f04",
+   "chapterId": "ch01",
+   "front": "什么是「倾斜角」？",
+   "back": "直线向上方向与 x 轴正方向的夹角。",
+   "tags": [
+    "line-equations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f05",
+   "chapterId": "ch01",
+   "front": "什么是「斜率」？",
+   "back": "倾斜角的正切，反映直线的倾斜程度。",
+   "tags": [
+    "line-equations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f06",
+   "chapterId": "ch02",
+   "front": "什么是「点斜式」？",
+   "back": "y−y₀=k(x−x₀)。",
+   "tags": [
+    "line-equations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f07",
+   "chapterId": "ch02",
+   "front": "什么是「斜截式」？",
+   "back": "y=kx+b。",
+   "tags": [
+    "line-equations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f08",
+   "chapterId": "ch02",
+   "front": "什么是「截距式」？",
+   "back": "x/a+y/b=1。",
+   "tags": [
+    "line-equations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f09",
+   "chapterId": "ch02",
+   "front": "什么是「一般式」？",
+   "back": "Ax+By+C=0（A、B 不全为零）。",
+   "tags": [
+    "line-equations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f10",
+   "chapterId": "ch03",
+   "front": "什么是「点到直线距离」？",
+   "back": "点与直线上最近点的距离。",
+   "tags": [
+    "line-equations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f11",
+   "chapterId": "ch03",
+   "front": "什么是「夹角」？",
+   "back": "两直线所成的锐角或直角。",
+   "tags": [
+    "line-equations",
+    "术语"
+   ]
+  }
+ ],
+ "companion": "line-equations学习伴侣.html",
+ "deriv": "line-equations从零推导.html"
+}

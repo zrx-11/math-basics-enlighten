@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数理统计初步</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
+  --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
+  --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+}
+[data-theme="dark"]{
+  --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
+  --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
+  --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:290px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  padding:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h1{font-size:17px;margin:2px 0 2px}
+.sidebar .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+#q{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+.nav-sec{font-size:12px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.nav-item{display:block;padding:5px 10px;border-radius:6px;color:var(--text);font-size:14px}
+.nav-item:hover{background:var(--accent-soft);text-decoration:none}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .done{float:right;color:var(--ok);font-size:12px}
+#nav-toggle{display:none}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
+.page h2{font-size:20px;margin-top:26px}
+.page h3{font-size:17px;margin-top:22px}
+.page table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+.page th,.page td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.page th{background:var(--code-bg)}
+.page code{background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.9em}
+.page pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
+.page pre code{background:none;padding:0}
+.page blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:6px 14px;background:var(--accent-soft);border-radius:0 6px 6px 0}
+.page blockquote blockquote{border-color:var(--muted)}
+.page img{max-width:100%}
+.mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
+.mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
+svg{max-width:100%;height:auto}
+.quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
+.quiz-q{margin:0 0 8px;font-weight:500}
+.quiz-opts label{display:block;padding:4px 0;cursor:pointer}
+.quiz-blank{width:60%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+.quiz-check{margin-top:10px;padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.quiz-feedback{margin-left:12px;font-size:13px}
+.fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
+.quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
+.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;
+  padding:22px;border-radius:14px;border:1px solid var(--border);background:var(--panel);font-size:16px;text-align:center}
+.fc-back{transform:rotateY(180deg);background:var(--accent-soft);color:var(--text)}
+.card-controls{display:flex;gap:14px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.card-actions{display:flex;gap:12px;justify-content:center}
+.card-actions button{padding:8px 22px;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+#card-known-btn{background:var(--ok);color:#fff}
+#card-again-btn{background:var(--bad);color:#fff}
+.card-counts{color:var(--muted);font-size:13px}
+.path-step{margin:8px 0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+.path-step.passed{border-color:var(--ok)}
+#glossary-filter{width:100%;max-width:380px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+#glossary-list li{padding:6px 0;border-bottom:1px dashed var(--border)}
+.glossary-ref{color:var(--muted);font-size:12px}
+.search-hit{margin:10px 0}
+.topbar{position:sticky;top:0;background:var(--bg);padding:8px 0;display:flex;justify-content:flex-end;z-index:10}
+#theme-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+#progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
+#progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
+.empty{color:var(--muted);padding:20px 0}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+@media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
+  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
+  .layout{flex-direction:column}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>数理统计初步</h1>
+    <div class="sub">从一堆数据里读出结论：描述、概率与推断</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div class="sub" id="progress-label">进度 0%</div>
+    <input id="q" type="search" placeholder="搜索章节 / 概念 / 术语 / 全文…">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar"><button id="theme-btn">🌙 深色</button></div>
+    <div id="view" class="page"></div>
+  </main>
+</div>
+<script>
+const DATA = {"manifest": {"slug": "statistics-intro", "title": "数理统计初步", "subtitle": "从一堆数据里读出结论：描述、概率与推断", "book": {"title": "数理统计初步", "author": "胡宣达", "source": ["数学基础知识丛书-24-数理统计初步 胡宣达.pdf"]}, "audience": "零基础", "goal": "掌握数据的整理与集中/离散程度描述，理解古典概率与基本运算，了解随机抽样、点估计与假设检验的直觉。", "learningPath": [{"step": "01", "title": "数据的整理与描述", "chapterIds": ["ch01"], "checkpoint": "能算出均值、中位数与方差"}, {"step": "02", "title": "概率与计数", "chapterIds": ["ch02"], "checkpoint": "能求古典概率并判断互斥与独立"}, {"step": "03", "title": "抽样与推断入门", "chapterIds": ["ch03"], "checkpoint": "能说明样本均值为什么接近总体均值"}], "chapters": [{"id": "ch01", "title": "第 1 章：数据的整理与描述", "file": "chapters/ch01-descriptive.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：概率与计数", "file": "chapters/ch02-probability.md", "difficulty": 2}, {"id": "ch03", "title": "第 3 章：抽样与推断入门", "file": "chapters/ch03-inference.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "集中与离散", "file": "concepts/c01-center-spread.md", "chapterIds": ["ch01"]}, {"id": "c02", "title": "互斥与独立", "file": "concepts/c02-mutually-exclusive-independent.md", "chapterIds": ["ch02"]}], "glossary": [{"term": "频数", "def": "某组数据的个数。", "chapterId": "ch01"}, {"term": "平均数", "def": "数据总和除以个数。", "chapterId": "ch01"}, {"term": "中位数", "def": "排序后位于中间位置的数。", "chapterId": "ch01"}, {"term": "方差", "def": "离差平方的平均数，衡量离散程度。", "chapterId": "ch01"}, {"term": "标准差", "def": "方差的算术平方根。", "chapterId": "ch01"}, {"term": "古典概率", "def": "有利结果数与等可能结果总数之比。", "chapterId": "ch02"}, {"term": "互斥", "def": "两个事件不能同时发生。", "chapterId": "ch02"}, {"term": "独立", "def": "一个事件发生不影响另一个的概率。", "chapterId": "ch02"}, {"term": "随机抽样", "def": "每个个体被抽到机会相同的抽样方式。", "chapterId": "ch03"}, {"term": "标准误", "def": "样本均值的标准差，约 s/√n。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "数据 3、5、5、7、10 的平均数是：", "options": ["5", "6", "7", "5.5"], "answer": 1, "explain": "(3+5+5+7+10)/5=30/5=6。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "样本方差除以 n−1 而不是 n 的原因是：", "options": ["计算更方便", "修正用样本均值代替总体均值造成的偏差", "使方差变大", "避免除以零"], "answer": 1, "explain": "除以 n−1 是自由度修正，使样本方差成为总体方差的无偏估计。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "掷一枚均匀骰子，出现偶数的概率是：", "options": ["1/6", "1/3", "1/2", "2/3"], "answer": 2, "explain": "偶数有 2、4、6 共 3 个，P=3/6=1/2。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "若 A、B 相互独立，则 P(A∩B) 等于：", "options": ["P(A)+P(B)", "P(A)P(B)", "0", "P(A)−P(B)"], "answer": 1, "explain": "独立的定义就是乘法公式成立：P(A∩B)=P(A)P(B)。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "样本容量增大时，样本均值的标准误：", "options": ["增大", "减小", "不变", "先增后减"], "answer": 1, "explain": "标准误约 s/√n，n 增大则减小。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "假设检验中拒绝原假设，意味着：", "options": ["原假设一定为假", "观测数据在原假设下很罕见", "样本有误", "总体不存在"], "answer": 1, "explain": "拒绝的依据是数据在原假设下的罕见程度，并非直接证明原假设为假。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "数据 4、6、8、10 的平均数是：", "options": ["6", "7", "8", "9"], "answer": 1, "explain": "(4+6+8+10)/4=28/4=7。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "从 5 人中选 2 人，不同的选法有：", "options": ["10", "20", "25", "5"], "answer": 0, "explain": "C(5,2)=10，组合不计顺序。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：数据的整理与描述」的一句话核心是什么？", "back": "一组数据用两个数就能大致说清：中心在哪里（均值），散得多开（方差）。", "tags": ["statistics-intro", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：概率与计数」的一句话核心是什么？", "back": "古典概率＝有利结果数除以全部等可能结果数；互斥管相加，独立管相乘。", "tags": ["statistics-intro", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：抽样与推断入门」的一句话核心是什么？", "back": "用样本推断总体，靠的是随机抽样保证代表性，用概率描述不确定性。", "tags": ["statistics-intro", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「频数」？", "back": "某组数据的个数。", "tags": ["statistics-intro", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「平均数」？", "back": "数据总和除以个数。", "tags": ["statistics-intro", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「中位数」？", "back": "排序后位于中间位置的数。", "tags": ["statistics-intro", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「方差」？", "back": "离差平方的平均数，衡量离散程度。", "tags": ["statistics-intro", "术语"]}, {"id": "f08", "chapterId": "ch01", "front": "什么是「标准差」？", "back": "方差的算术平方根。", "tags": ["statistics-intro", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「古典概率」？", "back": "有利结果数与等可能结果总数之比。", "tags": ["statistics-intro", "术语"]}, {"id": "f10", "chapterId": "ch02", "front": "什么是「互斥」？", "back": "两个事件不能同时发生。", "tags": ["statistics-intro", "术语"]}, {"id": "f11", "chapterId": "ch02", "front": "什么是「独立」？", "back": "一个事件发生不影响另一个的概率。", "tags": ["statistics-intro", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「随机抽样」？", "back": "每个个体被抽到机会相同的抽样方式。", "tags": ["statistics-intro", "术语"]}, {"id": "f13", "chapterId": "ch03", "front": "什么是「标准误」？", "back": "样本均值的标准差，约 s/√n。", "tags": ["statistics-intro", "术语"]}], "companion": "statistics-intro学习伴侣.html", "deriv": "statistics-intro从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：数据的整理与描述<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：平均数、平方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n整理频数分布\n<\/li><li>\n计算平均数、中位数、众数\n<\/li><li>\n计算方差与标准差并解释含义\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>一组数据用两个数就能大致说清：中心在哪里（均值），散得多开（方差）。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 频数分布<\/h3>\n<p>把数据分组，统计每组的个数（频数），算出频率＝频数/总数，列成表或画直方图。直方图看的是整体形状：单峰、双峰、偏斜。<\/p>\n<h3>1.2 集中趋势<\/h3>\n<ul><li>\n平均数：所有数据之和除以个数，最常用，但受极端值影响大；\n<\/li><li>\n中位数：排序后位于中间的数（偶数个取中间两个的平均），抗极端值；\n<\/li><li>\n众数：出现次数最多的数，可能不止一个。\n<\/ul>\n<p>收入分布这类“少数极高值”的数据，中位数比平均数更能代表“普通人”。<\/p>\n<h3>1.3 离散程度<\/h3>\n<p>极差＝最大值−最小值，简单但只看两端。<\/p>\n<p>方差：各数据与平均数之差的平方的平均数。总体方差除以 n，样本方差除以 n−1。<\/p>\n<p>标准差＝方差的算术平方根，与原始数据同单位，更好解释。<\/p>\n<h3>1.4 为什么样本方差除以 n−1<\/h3>\n<p>用样本均值代替总体均值会“贴合得更紧”，使平方和偏小。除以 n−1（自由度）可以修正这个偏差，使样本方差的期望等于总体方差。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：平均数告诉你“班级整体水平”，方差告诉你“大家差得多不多”。两个班平均分都是 80，一个全在 75–85，一个从 40 到 100，方差完全不同。<\/p>\n<p><strong>失效边界<\/strong>：均值受极端值严重影响；数据分布严重偏斜时，中位数更可靠。<\/p>\n<p><strong>实例<\/strong>：数据 2、4、4、6、9。平均数=(2+4+4+6+9)/5=5；中位数=4；众数=4。 离差平方和=(−3)²+(−1)²+(−1)²+1²+4²=28。总体方差=28/5=5.6；样本方差=28/4=7；样本标准差=√7≈2.65。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 方差越大数据越好 —— 实际上 方差只表示离散程度，好坏取决于场景：射击比赛方差小是好事，抽样调查方差大说明样本不稳。\n<\/li><li>\n别以为 中位数与平均数总是一样 —— 实际上 只有分布对称时才可能相等，偏斜分布下差别很大。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n数据 3、5、5、7、10 的平均数是：\n<\/li><li>\n样本方差除以 n−1 而不是 n 的原因是：\n<p>A. 5 ｜ B. 6 ｜ C. 7 ｜ D. 5.5 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：(3+5+5+7+10)/5=30/5=6。 A. 计算更方便 ｜ B. 修正用样本均值代替总体均值造成的偏差 ｜ C. 使方差变大 ｜ D. 避免除以零 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：除以 n−1 是自由度修正，使样本方差成为总体方差的无偏估计。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n均值看中心，方差看离散\n<\/li><li>\n中位数抗极端值\n<\/li><li>\n样本方差除以 n−1\n<\/ul>", "kind": "chapter", "title": "第 1 章：数据的整理与描述"}, "ch02": {"html": "<h1>第 2 章：概率与计数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：排列组合\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用古典定义求概率\n<\/li><li>\n判断互斥与独立\n<\/li><li>\n用加法与乘法公式计算复合事件\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>古典概率＝有利结果数除以全部等可能结果数；互斥管相加，独立管相乘。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 古典概率<\/h3>\n<p>若试验有 n 个等可能结果，事件 A 包含 m 个，则 P(A)=m/n。<\/p>\n<p>前提是“等可能”，骰子、硬币、抽签都满足；现实中很多情形不满足，需要频率近似。<\/p>\n<h3>2.2 基本性质<\/h3>\n<p>0≤P(A)≤1；P(必然事件)=1；P(不可能事件)=0；P(A′)=1−P(A)。<\/p>\n<p>最后一条是“正难则反”的依据：直接算复杂，就算它的对立事件。<\/p>\n<h3>2.3 加法公式<\/h3>\n<p>P(A∪B)=P(A)+P(B)−P(A∩B)<\/p>\n<p>若 A、B 互斥（不能同时发生），则 P(A∪B)=P(A)+P(B)。<\/p>\n<h3>2.4 乘法公式与独立<\/h3>\n<p>P(A∩B)=P(A)P(B|A)。若 A、B 独立（一个发生不影响另一个），则 P(A∩B)=P(A)P(B)。<\/p>\n<p>互斥与独立是两回事：互斥是“不能同时发生”，独立是“互不影响”。两个非零概率的事件若互斥，就一定不独立。<\/p>\n<h3>2.5 计数工具<\/h3>\n<p>排列 A(n,m)=n!/(n−m)!，组合 C(n,m)=n!/(m!(n−m)!)。组合不考虑顺序，是概率题里用得最多的一种。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：互斥像“一枚硬币不能同时正反”，独立像“两次掷骰子互不干扰”。<\/p>\n<p><strong>失效边界<\/strong>：等可能假设不成立时，古典概率公式失效，必须用频率或分布模型。<\/p>\n<p><strong>实例<\/strong>：掷两枚硬币，样本空间 {正正,正反,反正,反反}，至少一个正的有 3 个，P=3/4。 从 10 人中选 2 人，共 C(10,2)=45 种选法。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 互斥就是独立 —— 实际上 互斥的事件互相排斥，恰恰不独立；独立的事件可以同时发生。\n<\/li><li>\n别以为 概率为 0 就是不可能事件 —— 实际上 连续型情形下概率为 0 的事件仍可能发生。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n掷一枚均匀骰子，出现偶数的概率是：\n<\/li><li>\n若 A、B 相互独立，则 P(A∩B) 等于：\n<p>A. 1/6 ｜ B. 1/3 ｜ C. 1/2 ｜ D. 2/3 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：偶数有 2、4、6 共 3 个，P=3/6=1/2。 A. P(A)+P(B) ｜ B. P(A)P(B) ｜ C. 0 ｜ D. P(A)−P(B) <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：独立的定义就是乘法公式成立：P(A∩B)=P(A)P(B)。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n古典概率 m/n，要求等可能\n<\/li><li>\nP(A′)=1−P(A)\n<\/li><li>\n互斥相加，独立相乘\n<\/ul>", "kind": "chapter", "title": "第 2 章：概率与计数"}, "ch03": {"html": "<h1>第 3 章：抽样与推断入门<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01、ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明随机抽样的意义\n<\/li><li>\n理解样本均值与总体均值的关系\n<\/li><li>\n说清假设检验的基本逻辑\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>用样本推断总体，靠的是随机抽样保证代表性，用概率描述不确定性。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 总体与样本<\/h3>\n<p>总体是研究对象的全体，样本是抽出来的一部分。样本容量记 n。<\/p>\n<p>随机抽样要求每个个体被抽到的机会相同，这样样本才有代表性。常见方式：简单随机抽样、系统抽样、分层抽样。<\/p>\n<h3>3.2 统计量<\/h3>\n<p>样本均值 x̄、样本方差 s² 都是统计量——只由样本算出的量，不含未知参数。<\/p>\n<p>用 x̄ 估计总体均值 μ，叫点估计。x̄ 是无偏的：反复抽样，平均值会落在 μ 附近。<\/p>\n<h3>3.3 抽样分布与标准误<\/h3>\n<p>反复抽样得到的 x̄ 会围绕 μ 波动，其标准差叫标准误，约等于 s/√n。<\/p>\n<p>n 越大，标准误越小，估计越稳。这是“样本越大越准”的数学解释——但精度只按 √n 提升，样本翻四倍才把误差减半。<\/p>\n<h3>3.4 假设检验的直觉<\/h3>\n<p>先假设“没有差别”（原假设），再看观测到的数据在这个假设下有多罕见。若罕见程度超过预设门槛（显著性水平，常取 0.05），就拒绝原假设。<\/p>\n<p>注意：不拒绝不等于证明“没有差别”，只是证据不足。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：抽样像尝一锅汤：舀一勺尝尝咸淡，前提是搅匀了（随机抽样）。<\/p>\n<p><strong>失效边界<\/strong>：样本没代表性（比如只尝锅边的汤），再大也不准。<\/p>\n<p><strong>实例<\/strong>：某班 50 人抽 10 人测身高，样本均值 170cm、样本标准差 6cm，则标准误约 6/√10≈1.9cm。 若换 40 人，标准误约 6/√40≈0.95cm，精度提高约一倍，但样本量翻了四倍。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 样本越大一定越接近真值 —— 实际上 前提是随机且有代表性；有偏样本再大也偏。\n<\/li><li>\n别以为 假设检验通过就证明原假设成立 —— 实际上 只是“证据不足以拒绝”，不是证明其为真。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n样本容量增大时，样本均值的标准误：\n<\/li><li>\n假设检验中拒绝原假设，意味着：\n<p>A. 增大 ｜ B. 减小 ｜ C. 不变 ｜ D. 先增后减 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：标准误约 s/√n，n 增大则减小。 A. 原假设一定为假 ｜ B. 观测数据在原假设下很罕见 ｜ C. 样本有误 ｜ D. 总体不存在 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：拒绝的依据是数据在原假设下的罕见程度，并非直接证明原假设为假。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n随机抽样保证代表性\n<\/li><li>\n标准误≈s/√n，样本翻四倍误差减半\n<\/li><li>\n不拒绝≠证明原假设\n<\/ul>", "kind": "chapter", "title": "第 3 章：抽样与推断入门"}, "c01": {"html": "<h1>集中与离散<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>描述一组数据只需两个维度：中心在哪，散得多开。<\/p>\n<h2>为什么重要<\/h2>\n<p>所有统计描述都在这两个维度上展开，也是后续比较两组数据的基础。<\/p>\n<h2>详解<\/h2>\n<p>中心用均值、中位数、众数；离散用极差、方差、标准差。均值怕极端值，中位数不怕；方差单位是平方，标准差与原数据同单位。<\/p>\n<h2>常见误解<\/h2>\n<p>只报平均数，不说离散程度，导致“平均”掩盖了个体差异。<\/p>\n<h2>相关概念<\/h2>\n<p>方差（ch01）、抽样（ch03）<\/p>", "kind": "concept", "title": "集中与离散"}, "c02": {"html": "<h1>互斥与独立<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>互斥是“不能同时发生”，独立是“互不影响”，两回事。<\/p>\n<h2>为什么重要<\/h2>\n<p>概率题里用加法还是乘法，全靠这一个判断。<\/p>\n<h2>详解<\/h2>\n<p>互斥：P(A∩B)=0，加法直接相加。独立：P(A∩B)=P(A)P(B)，乘法直接用。两个非零概率事件互斥时一定不独立，因为一个发生就排除了另一个。<\/p>\n<h2>常见误解<\/h2>\n<p>看到“不相关”“不冲突”就当成独立，或把互斥当独立套乘法。<\/p>\n<h2>相关概念<\/h2>\n<p>加法公式（ch02）、乘法公式（ch02）<\/p>", "kind": "concept", "title": "互斥与独立"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：数据的整理与描述<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：数据的整理与描述<\/a><br>检查点：能算出均值、中位数与方差<\/li><li class='path-step' id='path-02'><strong>步骤 02：概率与计数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：概率与计数<\/a><br>检查点：能求古典概率并判断互斥与独立<\/li><li class='path-step' id='path-03'><strong>步骤 03：抽样与推断入门<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：抽样与推断入门<\/a><br>检查点：能说明样本均值为什么接近总体均值<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 数据 4、6、8、10 的平均数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 7<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 8<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 9<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 从 5 人中选 2 人，不同的选法有：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 10<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 20<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 25<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：数据的整理与描述<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 数据 3、5、5、7、10 的平均数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 5<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 6<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 7<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 5.5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 样本方差除以 n−1 而不是 n 的原因是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 计算更方便<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 修正用样本均值代替总体均值造成的偏差<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 使方差变大<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 避免除以零<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：概率与计数<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 掷一枚均匀骰子，出现偶数的概率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 1/6<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 1/3<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 1/2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 2/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 若 A、B 相互独立，则 P(A∩B) 等于：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> P(A)+P(B)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> P(A)P(B)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 0<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> P(A)−P(B)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：抽样与推断入门<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 样本容量增大时，样本均值的标准误：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 增大<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 减小<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 不变<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 先增后减<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 假设检验中拒绝原假设，意味着：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 原假设一定为假<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 观测数据在原假设下很罕见<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 样本有误<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 总体不存在<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='频数'>频数 — 某组数据的个数。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='平均数'>平均数 — 数据总和除以个数。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='中位数'>中位数 — 排序后位于中间位置的数。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='方差'>方差 — 离差平方的平均数，衡量离散程度。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='标准差'>标准差 — 方差的算术平方根。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='古典概率'>古典概率 — 有利结果数与等可能结果总数之比。 <span class=glossary-ref>（第 2 章：概率与计数）<\/span><\/li><li data-term='互斥'>互斥 — 两个事件不能同时发生。 <span class=glossary-ref>（第 2 章：概率与计数）<\/span><\/li><li data-term='独立'>独立 — 一个事件发生不影响另一个的概率。 <span class=glossary-ref>（第 2 章：概率与计数）<\/span><\/li><li data-term='随机抽样'>随机抽样 — 每个个体被抽到机会相同的抽样方式。 <span class=glossary-ref>（第 3 章：抽样与推断入门）<\/span><\/li><li data-term='标准误'>标准误 — 样本均值的标准差，约 s/√n。 <span class=glossary-ref>（第 3 章：抽样与推断入门）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：描述数据三问<\/h2>\n<p>① 中心在哪（均值/中位数）；② 散得多开（方差/标准差）；③ 形状如何（直方图偏斜与否）。<\/p>\n<h2>框架：概率题两判<\/h2>\n<p>① 能否同时发生（互斥→加法）；② 是否互相影响（独立→乘法）。判完再动笔。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>平均数<\/td><td>x̄=Σx/n<\/td><\/tr><tr><td>样本方差<\/td><td>s²=Σ(x−x̄)²/(n−1)<\/td><\/tr><tr><td>古典概率<\/td><td>P=m/n<\/td><\/tr><tr><td>对立<\/td><td>P(A′)=1−P(A)<\/td><\/tr><tr><td>加法<\/td><td>P(A∪B)=P(A)+P(B)−P(A∩B)<\/td><\/tr><tr><td>标准误<\/td><td>SE≈s/√n<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/24-数理统计初步", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：数据的整理与描述", "href": "#/chapter/ch01"}, {"label": "第 2 章：概率与计数", "href": "#/chapter/ch02"}, {"label": "第 3 章：抽样与推断入门", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "集中与离散", "href": "#/concept/c01"}, {"label": "互斥与独立", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：数据的整理与描述", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：概率与计数", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：抽样与推断入门", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：数据的整理与描述<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：平均数、平方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n整理频数分布\n<\/li><li>\n计算平均数、中位数、众数\n<\/li><li>\n计算方差与标准差并解释含义\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>一组数据用两个数就能大致说清：中心在哪里（均值），散得多开（方差）。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 频数分布<\/h3>\n<p>把数据分组，统计每组的个数（频数），算出频率＝频数/总数，列成表或画直方图。直方图看的是整体形状：单峰、双峰、偏斜。<\/p>\n<h3>1.2 集中趋势<\/h3>\n<ul><li>\n平均数：所有数据之和除以个数，最常用，但受极端值影响大；\n<\/li><li>\n中位数：排序后位于中间的数（偶数个取中间两个的平均），抗极端值；\n<\/li><li>\n众数：出现次数最多的数，可能不止一个。\n<\/ul>\n<p>收入分布这类“少数极高值”的数据，中位数比平均数更能代表“普通人”。<\/p>\n<h3>1.3 离散程度<\/h3>\n<p>极差＝最大值−最小值，简单但只看两端。<\/p>\n<p>方差：各数据与平均数之差的平方的平均数。总体方差除以 n，样本方差除以 n−1。<\/p>\n<p>标准差＝方差的算术平方根，与原始数据同单位，更好解释。<\/p>\n<h3>1.4 为什么样本方差除以 n−1<\/h3>\n<p>用样本均值代替总体均值会“贴合得更紧”，使平方和偏小。除以 n−1（自由度）可以修正这个偏差，使样本方差的期望等于总体方差。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：平均数告诉你“班级整体水平”，方差告诉你“大家差得多不多”。两个班平均分都是 80，一个全在 75–85，一个从 40 到 100，方差完全不同。<\/p>\n<p><strong>失效边界<\/strong>：均值受极端值严重影响；数据分布严重偏斜时，中位数更可靠。<\/p>\n<p><strong>实例<\/strong>：数据 2、4、4、6、9。平均数=(2+4+4+6+9)/5=5；中位数=4；众数=4。 离差平方和=(−3)²+(−1)²+(−1)²+1²+4²=28。总体方差=28/5=5.6；样本方差=28/4=7；样本标准差=√7≈2.65。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 方差越大数据越好 —— 实际上 方差只表示离散程度，好坏取决于场景：射击比赛方差小是好事，抽样调查方差大说明样本不稳。\n<\/li><li>\n别以为 中位数与平均数总是一样 —— 实际上 只有分布对称时才可能相等，偏斜分布下差别很大。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n数据 3、5、5、7、10 的平均数是：\n<\/li><li>\n样本方差除以 n−1 而不是 n 的原因是：\n<p>A. 5 ｜ B. 6 ｜ C. 7 ｜ D. 5.5 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：(3+5+5+7+10)/5=30/5=6。 A. 计算更方便 ｜ B. 修正用样本均值代替总体均值造成的偏差 ｜ C. 使方差变大 ｜ D. 避免除以零 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：除以 n−1 是自由度修正，使样本方差成为总体方差的无偏估计。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n均值看中心，方差看离散\n<\/li><li>\n中位数抗极端值\n<\/li><li>\n样本方差除以 n−1\n<\/ul>", "ch02": "<h1>第 2 章：概率与计数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：排列组合\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用古典定义求概率\n<\/li><li>\n判断互斥与独立\n<\/li><li>\n用加法与乘法公式计算复合事件\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>古典概率＝有利结果数除以全部等可能结果数；互斥管相加，独立管相乘。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 古典概率<\/h3>\n<p>若试验有 n 个等可能结果，事件 A 包含 m 个，则 P(A)=m/n。<\/p>\n<p>前提是“等可能”，骰子、硬币、抽签都满足；现实中很多情形不满足，需要频率近似。<\/p>\n<h3>2.2 基本性质<\/h3>\n<p>0≤P(A)≤1；P(必然事件)=1；P(不可能事件)=0；P(A′)=1−P(A)。<\/p>\n<p>最后一条是“正难则反”的依据：直接算复杂，就算它的对立事件。<\/p>\n<h3>2.3 加法公式<\/h3>\n<p>P(A∪B)=P(A)+P(B)−P(A∩B)<\/p>\n<p>若 A、B 互斥（不能同时发生），则 P(A∪B)=P(A)+P(B)。<\/p>\n<h3>2.4 乘法公式与独立<\/h3>\n<p>P(A∩B)=P(A)P(B|A)。若 A、B 独立（一个发生不影响另一个），则 P(A∩B)=P(A)P(B)。<\/p>\n<p>互斥与独立是两回事：互斥是“不能同时发生”，独立是“互不影响”。两个非零概率的事件若互斥，就一定不独立。<\/p>\n<h3>2.5 计数工具<\/h3>\n<p>排列 A(n,m)=n!/(n−m)!，组合 C(n,m)=n!/(m!(n−m)!)。组合不考虑顺序，是概率题里用得最多的一种。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：互斥像“一枚硬币不能同时正反”，独立像“两次掷骰子互不干扰”。<\/p>\n<p><strong>失效边界<\/strong>：等可能假设不成立时，古典概率公式失效，必须用频率或分布模型。<\/p>\n<p><strong>实例<\/strong>：掷两枚硬币，样本空间 {正正,正反,反正,反反}，至少一个正的有 3 个，P=3/4。 从 10 人中选 2 人，共 C(10,2)=45 种选法。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 互斥就是独立 —— 实际上 互斥的事件互相排斥，恰恰不独立；独立的事件可以同时发生。\n<\/li><li>\n别以为 概率为 0 就是不可能事件 —— 实际上 连续型情形下概率为 0 的事件仍可能发生。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n掷一枚均匀骰子，出现偶数的概率是：\n<\/li><li>\n若 A、B 相互独立，则 P(A∩B) 等于：\n<p>A. 1/6 ｜ B. 1/3 ｜ C. 1/2 ｜ D. 2/3 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：偶数有 2、4、6 共 3 个，P=3/6=1/2。 A. P(A)+P(B) ｜ B. P(A)P(B) ｜ C. 0 ｜ D. P(A)−P(B) <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：独立的定义就是乘法公式成立：P(A∩B)=P(A)P(B)。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n古典概率 m/n，要求等可能\n<\/li><li>\nP(A′)=1−P(A)\n<\/li><li>\n互斥相加，独立相乘\n<\/ul>", "ch03": "<h1>第 3 章：抽样与推断入门<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01、ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明随机抽样的意义\n<\/li><li>\n理解样本均值与总体均值的关系\n<\/li><li>\n说清假设检验的基本逻辑\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>用样本推断总体，靠的是随机抽样保证代表性，用概率描述不确定性。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 总体与样本<\/h3>\n<p>总体是研究对象的全体，样本是抽出来的一部分。样本容量记 n。<\/p>\n<p>随机抽样要求每个个体被抽到的机会相同，这样样本才有代表性。常见方式：简单随机抽样、系统抽样、分层抽样。<\/p>\n<h3>3.2 统计量<\/h3>\n<p>样本均值 x̄、样本方差 s² 都是统计量——只由样本算出的量，不含未知参数。<\/p>\n<p>用 x̄ 估计总体均值 μ，叫点估计。x̄ 是无偏的：反复抽样，平均值会落在 μ 附近。<\/p>\n<h3>3.3 抽样分布与标准误<\/h3>\n<p>反复抽样得到的 x̄ 会围绕 μ 波动，其标准差叫标准误，约等于 s/√n。<\/p>\n<p>n 越大，标准误越小，估计越稳。这是“样本越大越准”的数学解释——但精度只按 √n 提升，样本翻四倍才把误差减半。<\/p>\n<h3>3.4 假设检验的直觉<\/h3>\n<p>先假设“没有差别”（原假设），再看观测到的数据在这个假设下有多罕见。若罕见程度超过预设门槛（显著性水平，常取 0.05），就拒绝原假设。<\/p>\n<p>注意：不拒绝不等于证明“没有差别”，只是证据不足。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：抽样像尝一锅汤：舀一勺尝尝咸淡，前提是搅匀了（随机抽样）。<\/p>\n<p><strong>失效边界<\/strong>：样本没代表性（比如只尝锅边的汤），再大也不准。<\/p>\n<p><strong>实例<\/strong>：某班 50 人抽 10 人测身高，样本均值 170cm、样本标准差 6cm，则标准误约 6/√10≈1.9cm。 若换 40 人，标准误约 6/√40≈0.95cm，精度提高约一倍，但样本量翻了四倍。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 样本越大一定越接近真值 —— 实际上 前提是随机且有代表性；有偏样本再大也偏。\n<\/li><li>\n别以为 假设检验通过就证明原假设成立 —— 实际上 只是“证据不足以拒绝”，不是证明其为真。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n样本容量增大时，样本均值的标准误：\n<\/li><li>\n假设检验中拒绝原假设，意味着：\n<p>A. 增大 ｜ B. 减小 ｜ C. 不变 ｜ D. 先增后减 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：标准误约 s/√n，n 增大则减小。 A. 原假设一定为假 ｜ B. 观测数据在原假设下很罕见 ｜ C. 样本有误 ｜ D. 总体不存在 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：拒绝的依据是数据在原假设下的罕见程度，并非直接证明原假设为假。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n随机抽样保证代表性\n<\/li><li>\n标准误≈s/√n，样本翻四倍误差减半\n<\/li><li>\n不拒绝≠证明原假设\n<\/ul>", "c01": "<h1>集中与离散<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>描述一组数据只需两个维度：中心在哪，散得多开。<\/p>\n<h2>为什么重要<\/h2>\n<p>所有统计描述都在这两个维度上展开，也是后续比较两组数据的基础。<\/p>\n<h2>详解<\/h2>\n<p>中心用均值、中位数、众数；离散用极差、方差、标准差。均值怕极端值，中位数不怕；方差单位是平方，标准差与原数据同单位。<\/p>\n<h2>常见误解<\/h2>\n<p>只报平均数，不说离散程度，导致“平均”掩盖了个体差异。<\/p>\n<h2>相关概念<\/h2>\n<p>方差（ch01）、抽样（ch03）<\/p>", "c02": "<h1>互斥与独立<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>互斥是“不能同时发生”，独立是“互不影响”，两回事。<\/p>\n<h2>为什么重要<\/h2>\n<p>概率题里用加法还是乘法，全靠这一个判断。<\/p>\n<h2>详解<\/h2>\n<p>互斥：P(A∩B)=0，加法直接相加。独立：P(A∩B)=P(A)P(B)，乘法直接用。两个非零概率事件互斥时一定不独立，因为一个发生就排除了另一个。<\/p>\n<h2>常见误解<\/h2>\n<p>看到“不相关”“不冲突”就当成独立，或把互斥当独立套乘法。<\/p>\n<h2>相关概念<\/h2>\n<p>加法公式（ch02）、乘法公式（ch02）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：数据的整理与描述<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：数据的整理与描述<\/a><br>检查点：能算出均值、中位数与方差<\/li><li class='path-step' id='path-02'><strong>步骤 02：概率与计数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：概率与计数<\/a><br>检查点：能求古典概率并判断互斥与独立<\/li><li class='path-step' id='path-03'><strong>步骤 03：抽样与推断入门<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：抽样与推断入门<\/a><br>检查点：能说明样本均值为什么接近总体均值<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 数据 4、6、8、10 的平均数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 7<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 8<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 9<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 从 5 人中选 2 人，不同的选法有：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 10<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 20<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 25<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：数据的整理与描述<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 数据 3、5、5、7、10 的平均数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 5<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 6<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 7<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 5.5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 样本方差除以 n−1 而不是 n 的原因是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 计算更方便<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 修正用样本均值代替总体均值造成的偏差<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 使方差变大<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 避免除以零<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：概率与计数<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 掷一枚均匀骰子，出现偶数的概率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 1/6<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 1/3<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 1/2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 2/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 若 A、B 相互独立，则 P(A∩B) 等于：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> P(A)+P(B)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> P(A)P(B)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 0<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> P(A)−P(B)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：抽样与推断入门<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 样本容量增大时，样本均值的标准误：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 增大<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 减小<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 不变<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 先增后减<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 假设检验中拒绝原假设，意味着：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 原假设一定为假<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 观测数据在原假设下很罕见<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 样本有误<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 总体不存在<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='频数'>频数 — 某组数据的个数。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='平均数'>平均数 — 数据总和除以个数。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='中位数'>中位数 — 排序后位于中间位置的数。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='方差'>方差 — 离差平方的平均数，衡量离散程度。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='标准差'>标准差 — 方差的算术平方根。 <span class=glossary-ref>（第 1 章：数据的整理与描述）<\/span><\/li><li data-term='古典概率'>古典概率 — 有利结果数与等可能结果总数之比。 <span class=glossary-ref>（第 2 章：概率与计数）<\/span><\/li><li data-term='互斥'>互斥 — 两个事件不能同时发生。 <span class=glossary-ref>（第 2 章：概率与计数）<\/span><\/li><li data-term='独立'>独立 — 一个事件发生不影响另一个的概率。 <span class=glossary-ref>（第 2 章：概率与计数）<\/span><\/li><li data-term='随机抽样'>随机抽样 — 每个个体被抽到机会相同的抽样方式。 <span class=glossary-ref>（第 3 章：抽样与推断入门）<\/span><\/li><li data-term='标准误'>标准误 — 样本均值的标准差，约 s/√n。 <span class=glossary-ref>（第 3 章：抽样与推断入门）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：描述数据三问<\/h2>\n<p>① 中心在哪（均值/中位数）；② 散得多开（方差/标准差）；③ 形状如何（直方图偏斜与否）。<\/p>\n<h2>框架：概率题两判<\/h2>\n<p>① 能否同时发生（互斥→加法）；② 是否互相影响（独立→乘法）。判完再动笔。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>平均数<\/td><td>x̄=Σx/n<\/td><\/tr><tr><td>样本方差<\/td><td>s²=Σ(x−x̄)²/(n−1)<\/td><\/tr><tr><td>古典概率<\/td><td>P=m/n<\/td><\/tr><tr><td>对立<\/td><td>P(A′)=1−P(A)<\/td><\/tr><tr><td>加法<\/td><td>P(A∪B)=P(A)+P(B)−P(A∩B)<\/td><\/tr><tr><td>标准误<\/td><td>SE≈s/√n<\/td><\/tr><\/tbody><\/table>"}};
+const pages = DATA.rendered;
+const manifest = DATA.manifest;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SLUG = manifest.slug || 'book';
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
+};
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+
+/* ---------- 导航 ---------- */
+function renderNav(){
+  const nav = $('#nav'); nav.innerHTML='';
+  const build = items => items.forEach(it=>{
+    if(it.children){
+      const sec=document.createElement('div'); sec.className='nav-sec'; sec.textContent=it.label; nav.appendChild(sec);
+      it.children.forEach(c=>{
+        const a=document.createElement('a'); a.className='nav-item'; a.href=c.href; a.textContent=c.label;
+        const id=routeId(c.href);
+        if(state.visited.includes(id)) a.innerHTML = esc(c.label)+' <span class="done">✓</span>';
+        nav.appendChild(a);
+      });
+    }else{
+      const a=document.createElement('a'); a.className='nav-item'; a.href=it.href; a.textContent=it.label;
+      const id=routeId(it.href);
+      if(state.visited.includes(id)) a.innerHTML = esc(it.label)+' <span class="done">✓</span>';
+      nav.appendChild(a);
+    }
+  });
+  build(DATA.nav);
+  updateProgress();
+}
+function routeId(href){ return href.replace('#/',''); }
+
+/* ---------- 路由 ---------- */
+function routeIdFromHash(){
+  let h = location.hash.replace(/^#\//,'');
+  if(!h) return 'path';
+  if(h==='path') return 'path';
+  const m = h.match(/^(chapter|concept)\/(.+)$/);
+  if(m) return m[1]+'/'+m[2];
+  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+}
+function showPage(rid){
+  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  const html = pages[id] || '<div class="empty">页面不存在</div>';
+  $('#view').innerHTML = html;
+  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
+    state.visited.push(rid); store.set('visited', state.visited); renderNav();
+  }
+  window.scrollTo(0,0);
+  if(rid==='cards') initCards();
+  if(rid==='glossary') initGlossary();
+  if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(id==='__path__') updatePath();
+  renderMermaid();
+}
+
+/* ---------- 进度 ---------- */
+function updateProgress(){
+  const chs = (manifest.chapters||[]).length;
+  const done = (manifest.chapters||[]).filter(c=>state.visited.includes('chapter/'+c.id)).length;
+  const pct = chs? Math.round(done/chs*100) : 0;
+  $('#progress-fill').style.width = pct+'%';
+  $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
+}
+function updatePath(){
+  document.querySelectorAll('.path-step').forEach(el=>{
+    const step = el.id.replace('path-','');
+    const s = (manifest.learningPath||[]).find(x=>x.step===step);
+    if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
+      el.classList.add('passed');
+      const lbl = el.querySelector('.checkpoint-ok'); if(!lbl){ const sp=document.createElement('span'); sp.className='done'; sp.textContent=' ✓ 已完成'; el.appendChild(sp); }
+    }
+  });
+}
+
+/* ---------- 测验 ---------- */
+function initQuizzes(rid){
+  document.querySelectorAll('.quiz-item').forEach(item=>{
+    const btn = item.querySelector('.quiz-check');
+    if(!btn || item.dataset.inited){ return }
+    item.dataset.inited='1';
+    btn.addEventListener('click', ()=>{
+      const qid = item.dataset.qid; const type = item.dataset.type;
+      const q = (manifest.quizzes||[]).find(x=>x.id===qid); if(!q) return;
+      let user, correct=false, fb;
+      if(type==='single'){
+        const sel = item.querySelector('input:checked');
+        user = sel? parseInt(sel.value) : null;
+        correct = user===q.answer;
+        fb = correct?'✓ 正确':'✗ 错误'+(user==null?'（未作答）':'');
+      } else if(type==='multi'){
+        user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+        const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+        correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+        fb = correct?'✓ 正确':'✗ 错误';
+      } else if(type==='blank'){
+        const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+        const a = String(q.answer).trim().toLowerCase();
+        correct = v===a;
+        fb = correct?'✓ 正确':'✗ 错误'+(v?'':'（未作答）');
+      }
+      item.querySelectorAll('input:checked').forEach(i=>{
+        const val=parseInt(i.value);
+        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
+        else i.parentElement.style.color='var(--bad)';
+      });
+      const feed = item.querySelector('.quiz-feedback');
+      feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
+      feed.textContent = fb;
+      let ex = item.querySelector('.quiz-explain');
+      if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
+      ex.innerHTML = '解析：' + esc(q.explain||'');
+      // 记录成绩（按章聚合）
+      const ch = q.chapterId||'__all__';
+      if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
+      state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
+      state.quiz[ch].total += 1;
+      store.set('quiz', state.quiz);
+    });
+  });
+}
+
+/* ---------- 抽认卡 ---------- */
+let cardIdx = 0, cardList = [];
+function initCards(){
+  const cards = manifest.flashcards||[];
+  cardList = cards.slice();
+  cardIdx = 0;
+  const sel = $('#card-filter');
+  sel.innerHTML = '<option value="">全部</option>';
+  [...new Set(cards.map(c=>c.chapterId).filter(Boolean))].forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=manifestChTitle(c); sel.appendChild(o);
+  });
+  sel.onchange = ()=>{ const v=sel.value; cardList = v? cards.filter(c=>c.chapterId===v): cards.slice(); cardIdx=0; showCard(); };
+  $('#flashcard').onclick = ()=>$('#flashcard').classList.toggle('flip');
+  $('#card-known-btn').onclick = ()=>{ markCard(true); };
+  $('#card-again-btn').onclick = ()=>{ markCard(false); };
+  showCard();
+}
+function showCard(){
+  updateCardCounts();
+  if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
+  const c = cardList[cardIdx];
+  document.querySelector('.fc-front').textContent = c.front;
+  document.querySelector('.fc-back').textContent = c.back;
+  $('#flashcard').classList.remove('flip');
+}
+function markCard(known){
+  const c = cardList[cardIdx]; if(!c) return;
+  state.cards[c.id] = known?'known':'again';
+  store.set('cards', state.cards);
+  cardIdx++; showCard();
+}
+function updateCardCounts(){
+  const known = Object.values(state.cards).filter(v=>v==='known').length;
+  const again = Object.values(state.cards).filter(v=>v==='again').length;
+  $('#card-known').textContent = known;
+  $('#card-again').textContent = again;
+  $('#card-left').textContent = Math.max(0, cardList.length-cardIdx);
+}
+function manifestChTitle(id){
+  const c=(manifest.chapters||[]).find(x=>x.id===id); return c? c.title : id;
+}
+
+/* ---------- 术语表 ---------- */
+function initGlossary(){
+  const input = $('#glossary-filter');
+  if(!input || input.dataset.inited) return;
+  input.dataset.inited='1';
+  input.oninput = ()=>{
+    const v = input.value.trim().toLowerCase();
+    document.querySelectorAll('#glossary-list li').forEach(li=>{
+      li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
+    });
+  };
+}
+
+/* ---------- 搜索 ---------- */
+let searchIndex = null;
+function buildSearchIndex(){
+  if(searchIndex) return searchIndex;
+  searchIndex = [];
+  Object.entries(pages).forEach(([id, htmlText])=>{
+    if(id.startsWith('__')) return;
+    const text = htmlText.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+    searchIndex.push({id, text});
+  });
+  return searchIndex;
+}
+$('#q').addEventListener('input', e=>{
+  const v = e.target.value.trim().toLowerCase();
+  if(!v){ showPage(routeIdFromHash()); return; }
+  buildSearchIndex();
+  const hits = searchIndex.filter(p=>p.text.toLowerCase().includes(v)).slice(0,20);
+  const label = id => id.startsWith('chapter/')? ('章节：'+manifestChTitle(id.split('/')[1])) : id.startsWith('concept/')? ('概念：'+id.split('/')[1]) : id;
+  $('#view').innerHTML = '<h1>搜索结果：'+esc(v)+'</h1>' +
+    (hits.length? hits.map(h=>`<div class="search-hit"><a href="#/${h.id}">${esc(label(h.id))}</a><br><span class="sub">${esc(h.text.slice(0,180))}</span></div>`).join('')
+                 : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
+});
+
+/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+function renderMermaid(){
+  if(!document.querySelector('.mermaid')) return;
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+  s.onload=()=>{ try{
+    mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
+    document.querySelectorAll('.mermaid').forEach(el=>{
+      const code=el.textContent;
+      mermaid.render('mm'+Math.random().toString(36).slice(2), code)
+        .then(({svg})=>{ el.innerHTML=svg; })
+        .catch(()=>{ el.textContent=code; });
+    });
+  }catch(e){} };
+  document.head.appendChild(s);
+}
+
+/* ---------- 深色模式 ---------- */
+const themeBtn=$('#theme-btn');
+themeBtn.onclick=()=>{
+  const d = document.body.dataset.theme==='dark';
+  document.body.dataset.theme = d? '' : 'dark';
+  themeBtn.textContent = d? '🌙 深色' : '☀️ 浅色';
+};
+
+/* ---------- 启动 ---------- */
+renderNav();
+window.addEventListener('hashchange', ()=>showPage(routeIdFromHash()));
+(function(){
+  const sb=document.querySelector('.sidebar'); if(!sb) return;
+  const btn=document.createElement('button'); btn.id='nav-toggle'; btn.textContent='目录（点开选择章节）';
+  btn.onclick=()=>sb.classList.toggle('open');
+  sb.insertBefore(btn, sb.querySelector('#nav'));
+  window.addEventListener('hashchange',()=>{ if(window.innerWidth<=760) sb.classList.remove('open'); });
+})();
+showPage(routeIdFromHash());
+</script>
+</body>
+</html>

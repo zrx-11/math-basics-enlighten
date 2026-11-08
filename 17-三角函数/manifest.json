@@ -1,0 +1,437 @@
+{
+ "slug": "trigonometry",
+ "title": "三角函数",
+ "subtitle": "把角当成数：从单位圆到波形",
+ "book": {
+  "title": "三角函数",
+  "author": "毛毓球",
+  "source": [
+   "数学基础知识丛书-17-三角函数 毛毓球.pdf"
+  ]
+ },
+ "audience": "零基础",
+ "goal": "理解任意角与弧度制，掌握同角关系、诱导公式、加法定理，能画三角函数图象并解简单三角方程。",
+ "learningPath": [
+  {
+   "step": "01",
+   "title": "角、弧度与三角比",
+   "chapterIds": [
+    "ch01"
+   ],
+   "checkpoint": "能把任意角化到 0°~360°并说出象限"
+  },
+  {
+   "step": "02",
+   "title": "同角关系与诱导公式",
+   "chapterIds": [
+    "ch02"
+   ],
+   "checkpoint": "能把任意角的三角比化成锐角"
+  },
+  {
+   "step": "03",
+   "title": "加法定理与倍角",
+   "chapterIds": [
+    "ch03"
+   ],
+   "checkpoint": "能默写和角、差角与二倍角公式"
+  },
+  {
+   "step": "04",
+   "title": "图象、性质与三角方程",
+   "chapterIds": [
+    "ch04"
+   ],
+   "checkpoint": "能说出周期、对称轴并写通解"
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch01",
+   "title": "第 1 章：角、弧度与三角比",
+   "file": "chapters/ch01-angle-radian.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch02",
+   "title": "第 2 章：同角关系与诱导公式",
+   "file": "chapters/ch02-identities.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch03",
+   "title": "第 3 章：加法定理与倍角公式",
+   "file": "chapters/ch03-addition.md",
+   "difficulty": 3
+  },
+  {
+   "id": "ch04",
+   "title": "第 4 章：图象、性质与三角方程",
+   "file": "chapters/ch04-graphs-equations.md",
+   "difficulty": 3
+  }
+ ],
+ "concepts": [
+  {
+   "id": "c01",
+   "title": "单位圆",
+   "file": "concepts/c01-unit-circle.md",
+   "chapterIds": [
+    "ch01",
+    "ch02"
+   ]
+  },
+  {
+   "id": "c02",
+   "title": "周期与相位",
+   "file": "concepts/c02-period-phase.md",
+   "chapterIds": [
+    "ch04"
+   ]
+  }
+ ],
+ "glossary": [
+  {
+   "term": "弧度",
+   "def": "弧长与半径之比定义的角的度量。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "终边相同的角",
+   "def": "相差 360° 整数倍的角。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "正弦",
+   "def": "单位圆上角的终边交点的纵坐标。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "余弦",
+   "def": "单位圆上角的终边交点的横坐标。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "诱导公式",
+   "def": "把任意角三角比化为锐角三角比的公式。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "加法定理",
+   "def": "展开 α±β 三角比的公式。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "二倍角公式",
+   "def": "sin2α、cos2α、tan2α 的公式。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "周期",
+   "def": "函数值重复出现的最小正间隔。",
+   "chapterId": "ch04"
+  },
+  {
+   "term": "振幅",
+   "def": "y=A sin(ωx+φ) 中的 |A|。",
+   "chapterId": "ch04"
+  },
+  {
+   "term": "通解",
+   "def": "含整数 k、表示全部解的表达式。",
+   "chapterId": "ch04"
+  }
+ ],
+ "patterns": {
+  "file": "patterns.md"
+ },
+ "cheatsheet": {
+  "file": "cheatsheet.md"
+ },
+ "quizzes": [
+  {
+   "id": "q01",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "与 −30° 终边相同的角是：",
+   "options": [
+    "30°",
+    "330°",
+    "300°",
+    "150°"
+   ],
+   "answer": 1,
+   "explain": "−30°+360°=330°。"
+  },
+  {
+   "id": "q02",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "150° 化为弧度是：",
+   "options": [
+    "5π/6",
+    "2π/3",
+    "3π/4",
+    "7π/6"
+   ],
+   "answer": 0,
+   "explain": "150°=150×π/180=5π/6。"
+  },
+  {
+   "id": "q03",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "sin210° 的值是：",
+   "options": [
+    "1/2",
+    "−1/2",
+    "√3/2",
+    "−√3/2"
+   ],
+   "answer": 1,
+   "explain": "sin210°=sin(180°+30°)=−sin30°=−1/2。"
+  },
+  {
+   "id": "q04",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "已知 cosθ=−3/5 且 θ 在第三象限，则 sinθ 为：",
+   "options": [
+    "4/5",
+    "−4/5",
+    "3/5",
+    "−3/5"
+   ],
+   "answer": 1,
+   "explain": "第三象限正弦为负，sinθ=−√(1−9/25)=−4/5。"
+  },
+  {
+   "id": "q05",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "cos(α+β) 展开为：",
+   "options": [
+    "cosαcosβ+sinαsinβ",
+    "cosαcosβ−sinαsinβ",
+    "sinαcosβ+cosαsinβ",
+    "sinαcosβ−cosαsinβ"
+   ],
+   "answer": 1,
+   "explain": "余弦和角公式为 cosαcosβ−sinαsinβ。"
+  },
+  {
+   "id": "q06",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "sin2α 等于：",
+   "options": [
+    "2sinα",
+    "2sinαcosα",
+    "sin²α−cos²α",
+    "1−2sin²α"
+   ],
+   "answer": 1,
+   "explain": "二倍角正弦公式为 2sinαcosα。"
+  },
+  {
+   "id": "q07",
+   "chapterId": "ch04",
+   "type": "single",
+   "question": "y=2sin(3x) 的周期是：",
+   "options": [
+    "2π",
+    "2π/3",
+    "3π",
+    "π/3"
+   ],
+   "answer": 1,
+   "explain": "T=2π/|ω|=2π/3。"
+  },
+  {
+   "id": "q08",
+   "chapterId": "ch04",
+   "type": "single",
+   "question": "方程 cosx=0 的通解是：",
+   "options": [
+    "x=kπ",
+    "x=π/2+kπ",
+    "x=2kπ",
+    "x=π/4+kπ"
+   ],
+   "answer": 1,
+   "explain": "余弦为零的角是 π/2 的奇数倍，即 x=π/2+kπ。"
+  },
+  {
+   "id": "q09",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "sin(π/6) 的值是：",
+   "options": [
+    "1/2",
+    "√3/2",
+    "√2/2",
+    "1"
+   ],
+   "answer": 0,
+   "explain": "π/6=30°，sin30°=1/2。"
+  },
+  {
+   "id": "q10",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "y=sin(2x−π/3) 的周期是：",
+   "options": [
+    "π",
+    "2π",
+    "π/2",
+    "4π"
+   ],
+   "answer": 0,
+   "explain": "T=2π/2=π。"
+  }
+ ],
+ "flashcards": [
+  {
+   "id": "f01",
+   "chapterId": "ch01",
+   "front": "「第 1 章：角、弧度与三角比」的一句话核心是什么？",
+   "back": "角不再限于 0°~90°：它可以任意大、可以为负；三角比由单位圆上点的坐标定义。",
+   "tags": [
+    "trigonometry",
+    "核心"
+   ]
+  },
+  {
+   "id": "f02",
+   "chapterId": "ch02",
+   "front": "「第 2 章：同角关系与诱导公式」的一句话核心是什么？",
+   "back": "同角关系管“同一个角的三种比”，诱导公式管“不同角的同名比”。",
+   "tags": [
+    "trigonometry",
+    "核心"
+   ]
+  },
+  {
+   "id": "f03",
+   "chapterId": "ch03",
+   "front": "「第 3 章：加法定理与倍角公式」的一句话核心是什么？",
+   "back": "所有和角、倍角公式都由一条出发：cos(α−β)=cosαcosβ+sinαsinβ。",
+   "tags": [
+    "trigonometry",
+    "核心"
+   ]
+  },
+  {
+   "id": "f04",
+   "chapterId": "ch04",
+   "front": "「第 4 章：图象、性质与三角方程」的一句话核心是什么？",
+   "back": "正弦、余弦的周期是 2π，正切是 π；图象的平移伸缩都写在 A、ω、φ 三个参数里。",
+   "tags": [
+    "trigonometry",
+    "核心"
+   ]
+  },
+  {
+   "id": "f05",
+   "chapterId": "ch01",
+   "front": "什么是「弧度」？",
+   "back": "弧长与半径之比定义的角的度量。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  },
+  {
+   "id": "f06",
+   "chapterId": "ch01",
+   "front": "什么是「终边相同的角」？",
+   "back": "相差 360° 整数倍的角。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  },
+  {
+   "id": "f07",
+   "chapterId": "ch01",
+   "front": "什么是「正弦」？",
+   "back": "单位圆上角的终边交点的纵坐标。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  },
+  {
+   "id": "f08",
+   "chapterId": "ch01",
+   "front": "什么是「余弦」？",
+   "back": "单位圆上角的终边交点的横坐标。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  },
+  {
+   "id": "f09",
+   "chapterId": "ch02",
+   "front": "什么是「诱导公式」？",
+   "back": "把任意角三角比化为锐角三角比的公式。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  },
+  {
+   "id": "f10",
+   "chapterId": "ch03",
+   "front": "什么是「加法定理」？",
+   "back": "展开 α±β 三角比的公式。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  },
+  {
+   "id": "f11",
+   "chapterId": "ch03",
+   "front": "什么是「二倍角公式」？",
+   "back": "sin2α、cos2α、tan2α 的公式。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  },
+  {
+   "id": "f12",
+   "chapterId": "ch04",
+   "front": "什么是「周期」？",
+   "back": "函数值重复出现的最小正间隔。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  },
+  {
+   "id": "f13",
+   "chapterId": "ch04",
+   "front": "什么是「振幅」？",
+   "back": "y=A sin(ωx+φ) 中的 |A|。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  },
+  {
+   "id": "f14",
+   "chapterId": "ch04",
+   "front": "什么是「通解」？",
+   "back": "含整数 k、表示全部解的表达式。",
+   "tags": [
+    "trigonometry",
+    "术语"
+   ]
+  }
+ ],
+ "companion": "trigonometry学习伴侣.html",
+ "deriv": "trigonometry从零推导.html"
+}

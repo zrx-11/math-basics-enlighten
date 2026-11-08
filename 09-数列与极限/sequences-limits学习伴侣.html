@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数列与极限</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
+  --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
+  --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+}
+[data-theme="dark"]{
+  --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
+  --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
+  --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:290px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  padding:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h1{font-size:17px;margin:2px 0 2px}
+.sidebar .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+#q{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+.nav-sec{font-size:12px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.nav-item{display:block;padding:5px 10px;border-radius:6px;color:var(--text);font-size:14px}
+.nav-item:hover{background:var(--accent-soft);text-decoration:none}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .done{float:right;color:var(--ok);font-size:12px}
+#nav-toggle{display:none}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
+.page h2{font-size:20px;margin-top:26px}
+.page h3{font-size:17px;margin-top:22px}
+.page table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+.page th,.page td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.page th{background:var(--code-bg)}
+.page code{background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.9em}
+.page pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
+.page pre code{background:none;padding:0}
+.page blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:6px 14px;background:var(--accent-soft);border-radius:0 6px 6px 0}
+.page blockquote blockquote{border-color:var(--muted)}
+.page img{max-width:100%}
+.mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
+.mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
+svg{max-width:100%;height:auto}
+.quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
+.quiz-q{margin:0 0 8px;font-weight:500}
+.quiz-opts label{display:block;padding:4px 0;cursor:pointer}
+.quiz-blank{width:60%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+.quiz-check{margin-top:10px;padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.quiz-feedback{margin-left:12px;font-size:13px}
+.fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
+.quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
+.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;
+  padding:22px;border-radius:14px;border:1px solid var(--border);background:var(--panel);font-size:16px;text-align:center}
+.fc-back{transform:rotateY(180deg);background:var(--accent-soft);color:var(--text)}
+.card-controls{display:flex;gap:14px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.card-actions{display:flex;gap:12px;justify-content:center}
+.card-actions button{padding:8px 22px;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+#card-known-btn{background:var(--ok);color:#fff}
+#card-again-btn{background:var(--bad);color:#fff}
+.card-counts{color:var(--muted);font-size:13px}
+.path-step{margin:8px 0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+.path-step.passed{border-color:var(--ok)}
+#glossary-filter{width:100%;max-width:380px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+#glossary-list li{padding:6px 0;border-bottom:1px dashed var(--border)}
+.glossary-ref{color:var(--muted);font-size:12px}
+.search-hit{margin:10px 0}
+.topbar{position:sticky;top:0;background:var(--bg);padding:8px 0;display:flex;justify-content:flex-end;z-index:10}
+#theme-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+#progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
+#progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
+.empty{color:var(--muted);padding:20px 0}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+@media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
+  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
+  .layout{flex-direction:column}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>数列与极限</h1>
+    <div class="sub">从一串数看到趋势：数列、级数与极限</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div class="sub" id="progress-label">进度 0%</div>
+    <input id="q" type="search" placeholder="搜索章节 / 概念 / 术语 / 全文…">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar"><button id="theme-btn">🌙 深色</button></div>
+    <div id="view" class="page"></div>
+  </main>
+</div>
+<script>
+const DATA = {"manifest": {"slug": "sequences-limits", "title": "数列与极限", "subtitle": "从一串数看到趋势：数列、级数与极限", "book": {"title": "数列与极限", "author": "周伯堳", "source": ["数学基础知识丛书-09-数列与极限 周伯堳.pdf"]}, "audience": "零基础", "goal": "掌握数列的通项与递推，推导等差、等比数列的通项与求和公式，理解极限的直观含义并会求简单极限。", "learningPath": [{"step": "01", "title": "数列与通项", "chapterIds": ["ch01"], "checkpoint": "能由一个通项公式写出前几项"}, {"step": "02", "title": "等差数列与等比数列", "chapterIds": ["ch02"], "checkpoint": "能默写两组通项与求和公式"}, {"step": "03", "title": "级数与极限", "chapterIds": ["ch03"], "checkpoint": "能用 |q|<1 求和并解释极限"}], "chapters": [{"id": "ch01", "title": "第 1 章：数列与通项", "file": "chapters/ch01-sequence.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：等差数列与等比数列", "file": "chapters/ch02-ap-gp.md", "difficulty": 2}, {"id": "ch03", "title": "第 3 章：级数与极限", "file": "chapters/ch03-series-limit.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "通项与递推", "file": "concepts/c01-general-recurrence.md", "chapterIds": ["ch01", "ch02"]}, {"id": "c02", "title": "极限与收敛", "file": "concepts/c02-limit-convergence.md", "chapterIds": ["ch03"]}], "glossary": [{"term": "数列", "def": "按顺序排列的一列数。", "chapterId": "ch01"}, {"term": "通项公式", "def": "用 n 表示第 n 项的公式。", "chapterId": "ch01"}, {"term": "递推公式", "def": "用前项表示后项的关系式加初值。", "chapterId": "ch01"}, {"term": "等差数列", "def": "相邻两项差为常数的数列。", "chapterId": "ch02"}, {"term": "等比数列", "def": "相邻两项比为常数的数列。", "chapterId": "ch02"}, {"term": "部分和", "def": "前 n 项相加得到的 Sₙ。", "chapterId": "ch03"}, {"term": "极限", "def": "n 无限增大时数列趋向的定值。", "chapterId": "ch03"}, {"term": "收敛", "def": "极限存在，部分和趋向有限值。", "chapterId": "ch03"}, {"term": "连分数", "def": "分母中含下一层分式的无限表达式。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "数列 aₙ=3n−2 的第 5 项是：", "options": ["13", "15", "17", "12"], "answer": 0, "explain": "a₅=3×5−2=13。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "数列 a₁=2，aₙ₊₁=aₙ+3 的第 4 项是：", "options": ["8", "11", "14", "5"], "answer": 1, "explain": "依次得 2,5,8,11，第 4 项为 11。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "等差数列首项 3、公差 4，第 10 项是：", "options": ["39", "43", "36", "40"], "answer": 0, "explain": "a₁₀=3+9×4=39。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "等比数列 2,6,18,… 的前 4 项和是：", "options": ["80", "54", "40", "26"], "answer": 0, "explain": "q=3，S₄=2(1−3⁴)/(1−3)=2(−80)/(−2)=80。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "无穷等比级数 1+1/3+1/9+… 的和是：", "options": ["3/2", "2", "3", "1"], "answer": 0, "explain": "a₁=1，q=1/3，S=1/(1−1/3)=3/2。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "数列 aₙ=1/n 当 n→∞ 时的极限是：", "options": ["1", "0", "不存在", "无穷大"], "answer": 1, "explain": "n 越大 1/n 越接近 0。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "等差数列 5,9,13,… 的第 8 项是：", "options": ["33", "37", "29", "41"], "answer": 0, "explain": "a₈=5+7×4=33。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "无穷等比级数 1+1/4+1/16+… 的和是：", "options": ["4/3", "2", "5/4", "3/2"], "answer": 0, "explain": "q=1/4，S=1/(1−1/4)=4/3。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：数列与通项」的一句话核心是什么？", "back": "数列是定义在正整数上的函数：aₙ=f(n)，顺序本身就是信息。", "tags": ["sequences-limits", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：等差数列与等比数列」的一句话核心是什么？", "back": "等差是“加”，等比是“乘”；求和公式都能由“配对”或“错位相减”推出来。", "tags": ["sequences-limits", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：级数与极限」的一句话核心是什么？", "back": "极限就是“n 越大越靠近某个定值”；无穷多个数相加，和可能是一个有限的数。", "tags": ["sequences-limits", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「数列」？", "back": "按顺序排列的一列数。", "tags": ["sequences-limits", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「通项公式」？", "back": "用 n 表示第 n 项的公式。", "tags": ["sequences-limits", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「递推公式」？", "back": "用前项表示后项的关系式加初值。", "tags": ["sequences-limits", "术语"]}, {"id": "f07", "chapterId": "ch02", "front": "什么是「等差数列」？", "back": "相邻两项差为常数的数列。", "tags": ["sequences-limits", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「等比数列」？", "back": "相邻两项比为常数的数列。", "tags": ["sequences-limits", "术语"]}, {"id": "f09", "chapterId": "ch03", "front": "什么是「部分和」？", "back": "前 n 项相加得到的 Sₙ。", "tags": ["sequences-limits", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「极限」？", "back": "n 无限增大时数列趋向的定值。", "tags": ["sequences-limits", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「收敛」？", "back": "极限存在，部分和趋向有限值。", "tags": ["sequences-limits", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「连分数」？", "back": "分母中含下一层分式的无限表达式。", "tags": ["sequences-limits", "术语"]}], "companion": "sequences-limits学习伴侣.html", "deriv": "sequences-limits从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：数列与通项<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：函数、代数式\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n区分通项公式与递推公式\n<\/li><li>\n由通项写出前若干项并判断增减\n<\/li><li>\n用差分找简单数列的规律\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>数列是定义在正整数上的函数：aₙ=f(n)，顺序本身就是信息。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 数列是有序的<\/h3>\n<p>数列 a₁,a₂,…,aₙ,… 是按顺序排好的一串数。交换两项就变成另一个数列，这与集合不同。<\/p>\n<h3>1.2 两种表示<\/h3>\n<ul><li>\n<strong>通项公式<\/strong>：aₙ 用 n 直接表示，如 aₙ=2n−1，代入 n=1,2,3 得 1,3,5；\n<\/li><li>\n<strong>递推公式<\/strong>：给出首项与“后项如何由前项得到”，如 a₁=1、aₙ₊₁=aₙ+3。\n<\/ul>\n<p>通项便于直接算任意一项，递推便于描述生成过程，两者常互相转化。<\/p>\n<h3>1.3 单调性与有界性<\/h3>\n<p>aₙ₊₁&gt;aₙ 为递增，反之为递减。数列有界指存在 M 使 |aₙ|≤M 对所有 n 成立。这两条是后面判断极限存在的前提。<\/p>\n<h3>1.4 用差分找规律<\/h3>\n<p>相邻两项之差 dₙ=aₙ₊₁−aₙ 若为常数，就是等差数列；相邻两项之比若为常数，就是等比数列。差分是识别规律的第一把工具。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：数列像按日期排好的日记，顺序变了意思就变了。<\/p>\n<p><strong>失效边界<\/strong>：仅凭前几项猜通项并不可靠，1,2,4,8 后面也可能是 15（不是 2 的幂）。<\/p>\n<p><strong>实例<\/strong>：aₙ=n²−n。n=1 得 0，n=2 得 2，n=3 得 6，n=4 得 12。相邻差为 2,4,6,8，是等差数列，说明原数列是二次型。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 数列就是一堆数 —— 实际上 顺序是定义的一部分；同一组数按不同顺序排，就是不同数列。\n<\/li><li>\n别以为 前几项能唯一确定通项 —— 实际上 有限项永远对应无穷多种通项，必须靠结构（等差、等比、二次）判断。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n数列 aₙ=3n−2 的第 5 项是：\n<\/li><li>\n数列 a₁=2，aₙ₊₁=aₙ+3 的第 4 项是：\n<p>A. 13 ｜ B. 15 ｜ C. 17 ｜ D. 12 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a₅=3×5−2=13。 A. 8 ｜ B. 11 ｜ C. 14 ｜ D. 5 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：依次得 2,5,8,11，第 4 项为 11。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n数列是正整数上的函数，顺序有意义\n<\/li><li>\n通项直接算、递推描述生成\n<\/li><li>\n差分定等差、比值定等比\n<\/ul>", "kind": "chapter", "title": "第 1 章：数列与通项"}, "ch02": {"html": "<h1>第 2 章：等差数列与等比数列<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n默写两组通项与求和公式\n<\/li><li>\n用倒序相加推导等差求和\n<\/li><li>\n分 q=1 与 q≠1 讨论等比求和\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>等差是“加”，等比是“乘”；求和公式都能由“配对”或“错位相减”推出来。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 等差数列<\/h3>\n<p>首项 a₁、公差 d：aₙ=a₁+(n−1)d。<\/p>\n<p>求和用<strong>倒序相加<\/strong>：<\/p>\n<p>Sₙ=a₁+a₂+…+aₙ Sₙ=aₙ+aₙ₋₁+…+a₁<\/p>\n<p>两式相加，每对和都是 a₁+aₙ，共 n 对，故 2Sₙ=n(a₁+aₙ)，即 Sₙ=n(a₁+aₙ)/2=n a₁+n(n−1)d/2。<\/p>\n<h3>2.2 等比数列<\/h3>\n<p>首项 a₁、公比 q：aₙ=a₁q^(n−1)。<\/p>\n<p>求和用<strong>错位相减<\/strong>：<\/p>\n<p>Sₙ=a₁+a₁q+…+a₁q^(n−1) qSₙ=a₁q+…+a₁qⁿ<\/p>\n<p>相减得 (1−q)Sₙ=a₁(1−qⁿ)。q≠1 时 Sₙ=a₁(1−qⁿ)/(1−q)；q=1 时每项都等于 a₁，Sₙ=na₁。<\/p>\n<h3>2.3 常用性质<\/h3>\n<ul><li>\n等差中项：b 是 a、c 的等差中项 ⇔ 2b=a+c；\n<\/li><li>\n等比中项：b²=ac（a、b、c 同号时）；\n<\/li><li>\n等差中，若 m+n=p+q 则 aₘ+aₙ=a_p+a_q；等比中对应为乘积相等。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：等差像每月固定加薪，等比像每月按固定比例涨薪。<\/p>\n<p><strong>失效边界<\/strong>：等比求和公式在 q=1 时分母为零，必须单独处理。<\/p>\n<p><strong>实例<\/strong>：1+2+…+100=100×101/2=5050。 1+2+4+…+2⁹（10 项，q=2）：S=1×(1−2¹⁰)/(1−2)=1023。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 等比求和直接套 a₁(1−qⁿ)/(1−q) —— 实际上 q=1 时公式无意义，要单独算 Sₙ=na₁。\n<\/li><li>\n别以为 等差中项与等比中项可以混用 —— 实际上 等差是算术平均，等比是几何平均；后者要求同号，且有两个平方根。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n等差数列首项 3、公差 4，第 10 项是：\n<\/li><li>\n等比数列 2,6,18,… 的前 4 项和是：\n<p>A. 39 ｜ B. 43 ｜ C. 36 ｜ D. 40 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a₁₀=3+9×4=39。 A. 80 ｜ B. 54 ｜ C. 40 ｜ D. 26 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：q=3，S₄=2(1−3⁴)/(1−3)=2(−80)/(−2)=80。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n等差：aₙ=a₁+(n−1)d，Sₙ=n(a₁+aₙ)/2\n<\/li><li>\n等比：aₙ=a₁q^(n−1)，q≠1 时 Sₙ=a₁(1−qⁿ)/(1−q)\n<\/li><li>\nq=1 时 Sₙ=na₁\n<\/ul>", "kind": "chapter", "title": "第 2 章：等差数列与等比数列"}, "ch03": {"html": "<h1>第 3 章：级数与极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出极限的直观含义\n<\/li><li>\n判断无穷等比级数是否收敛并求和\n<\/li><li>\n用极限求连分数的值\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>极限就是“n 越大越靠近某个定值”；无穷多个数相加，和可能是一个有限的数。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 部分和<\/h3>\n<p>把前 n 项加起来得到 Sₙ，叫<strong>部分和<\/strong>。S₁=a₁，S₂=a₁+a₂，依此类推。级数的“和”定义为 Sₙ 当 n→∞ 时的极限。<\/p>\n<h3>3.2 极限的直观含义<\/h3>\n<p>若 n 无限增大时，aₙ 与某个常数 A 的距离可以任意小，就说 aₙ 的极限是 A，记 lim aₙ=A。<\/p>\n<p>例：aₙ=1/n，n 越大越接近 0；aₙ=(n+1)/n=1+1/n，极限是 1。<\/p>\n<p>严格定义（ε-N）留到大学，这里先建立“越来越接近”的直观。<\/p>\n<h3>3.3 无穷等比级数<\/h3>\n<p>|q|&lt;1 时，qⁿ→0，于是<\/p>\n<p>S=a₁/(1−q)<\/p>\n<p>这是全书最常用的结论。例：1+1/2+1/4+…=1/(1−1/2)=2。<\/p>\n<p>|q|≥1 时级数发散，没有有限和。<\/p>\n<h3>3.4 连分数<\/h3>\n<p>形如 1/(1+1/(1+1/(1+…))) 的表达式叫<strong>连分数<\/strong>：分母里又套着同一个结构。<\/p>\n<p>求它的值时，设整体为 x，则被嵌套的部分仍是 x，于是<\/p>\n<p>x = 1/(1+x)<\/p>\n<p>两边乘 (1+x)：x+x²=1，即 x²+x−1=0。取正根 x=(√5−1)/2≈0.618，正是黄金分割比。<\/p>\n<p>连分数是“用极限求解”的典型例子：先假设极限存在，再把无限结构代回自身，解出方程。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：极限像跑步靠近终点：每一秒都比上一秒更近，虽然永远差一点点。<\/p>\n<p><strong>失效边界<\/strong>：|q|≥1 时不能套 a₁/(1−q)，会算出负数或无穷，都是错的。<\/p>\n<p><strong>实例<\/strong>：0.333…=0.3+0.03+0.003+…，首项 0.3、公比 0.1，和 =0.3/(1−0.1)=1/3。这解释了为什么 0.333…=1/3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 无穷多个正数相加一定是无穷大 —— 实际上 只要每项衰减得够快（|q|&lt;1），和可以是有限的，如 1+1/2+1/4+…=2。\n<\/li><li>\n别以为 0.999…比 1 小 —— 实际上 它等于 1。按等比级数求和：0.9/(1−0.1)=1。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n无穷等比级数 1+1/3+1/9+… 的和是：\n<\/li><li>\n数列 aₙ=1/n 当 n→∞ 时的极限是：\n<p>A. 3/2 ｜ B. 2 ｜ C. 3 ｜ D. 1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a₁=1，q=1/3，S=1/(1−1/3)=3/2。 A. 1 ｜ B. 0 ｜ C. 不存在 ｜ D. 无穷大 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：n 越大 1/n 越接近 0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n级数的和＝部分和的极限\n<\/li><li>\n|q|&lt;1 时无穷等比级数收敛于 a₁/(1−q)\n<\/li><li>\n0.999…=1，可用级数求和验证\n<\/ul>", "kind": "chapter", "title": "第 3 章：级数与极限"}, "c01": {"html": "<h1>通项与递推<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>通项给“第 n 项是多少”，递推给“下一项怎么由上一项得到”。<\/p>\n<h2>为什么重要<\/h2>\n<p>两种描述方式各有用途：算某项用通项，找规律与编程用递推。<\/p>\n<h2>详解<\/h2>\n<p>通项是显函数 aₙ=f(n)；递推是关系式 aₙ₊₁=g(aₙ) 加初值。等差、等比都能写成两种形式，互换时靠累加或累乘。<\/p>\n<h2>常见误解<\/h2>\n<p>以为递推式必须化成通项才能算，其实逐项代入也能得到任意项。<\/p>\n<h2>相关概念<\/h2>\n<p>数列（ch01）、等差等比（ch02）<\/p>", "kind": "concept", "title": "通项与递推"}, "c02": {"html": "<h1>极限与收敛<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>n 越大越靠近一个定值，就是收敛；否则发散。<\/p>\n<h2>为什么重要<\/h2>\n<p>它是微积分的门槛：导数、积分都是极限。<\/p>\n<h2>详解<\/h2>\n<p>判断收敛先看通项是否趋于 0（趋于 0 是必要条件，不充分）。等比级数看 |q|：小于 1 收敛，否则发散。收敛时才能用 a₁/(1−q) 求和。<\/p>\n<h2>常见误解<\/h2>\n<p>以为“项越来越小”就一定收敛，调和级数 1+1/2+1/3+… 就是反例。<\/p>\n<h2>相关概念<\/h2>\n<p>级数（ch03）、导数（《微积分初步》）<\/p>", "kind": "concept", "title": "极限与收敛"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：数列与通项<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：数列与通项<\/a><br>检查点：能由一个通项公式写出前几项<\/li><li class='path-step' id='path-02'><strong>步骤 02：等差数列与等比数列<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：等差数列与等比数列<\/a><br>检查点：能默写两组通项与求和公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：级数与极限<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：级数与极限<\/a><br>检查点：能用 |q|&lt;1 求和并解释极限<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 等差数列 5,9,13,… 的第 8 项是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 33<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 37<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 29<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 41<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 无穷等比级数 1+1/4+1/16+… 的和是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 4/3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 5/4<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 3/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：数列与通项<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 数列 aₙ=3n−2 的第 5 项是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 13<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 17<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 12<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 数列 a₁=2，aₙ₊₁=aₙ+3 的第 4 项是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 8<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 11<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 14<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：等差数列与等比数列<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 等差数列首项 3、公差 4，第 10 项是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 39<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 43<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 36<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 40<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 等比数列 2,6,18,… 的前 4 项和是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 80<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 54<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 40<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 26<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：级数与极限<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 无穷等比级数 1+1/3+1/9+… 的和是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 3/2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 3<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 数列 aₙ=1/n 当 n→∞ 时的极限是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 0<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 不存在<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 无穷大<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='数列'>数列 — 按顺序排列的一列数。 <span class=glossary-ref>（第 1 章：数列与通项）<\/span><\/li><li data-term='通项公式'>通项公式 — 用 n 表示第 n 项的公式。 <span class=glossary-ref>（第 1 章：数列与通项）<\/span><\/li><li data-term='递推公式'>递推公式 — 用前项表示后项的关系式加初值。 <span class=glossary-ref>（第 1 章：数列与通项）<\/span><\/li><li data-term='等差数列'>等差数列 — 相邻两项差为常数的数列。 <span class=glossary-ref>（第 2 章：等差数列与等比数列）<\/span><\/li><li data-term='等比数列'>等比数列 — 相邻两项比为常数的数列。 <span class=glossary-ref>（第 2 章：等差数列与等比数列）<\/span><\/li><li data-term='部分和'>部分和 — 前 n 项相加得到的 Sₙ。 <span class=glossary-ref>（第 3 章：级数与极限）<\/span><\/li><li data-term='极限'>极限 — n 无限增大时数列趋向的定值。 <span class=glossary-ref>（第 3 章：级数与极限）<\/span><\/li><li data-term='收敛'>收敛 — 极限存在，部分和趋向有限值。 <span class=glossary-ref>（第 3 章：级数与极限）<\/span><\/li><li data-term='连分数'>连分数 — 分母中含下一层分式的无限表达式。 <span class=glossary-ref>（第 3 章：级数与极限）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：识别数列三步<\/h2>\n<p>① 算相邻差，常数则为等差；② 算相邻比，常数则为等比；③ 都不是，再看差分的差分（二次型）。<\/p>\n<h2>框架：求和四法<\/h2>\n<p>倒序相加（等差）、错位相减（等差×等比）、裂项相消（分式）、公式直接代入（等比）。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>等差<\/td><td>aₙ=a₁+(n−1)d；Sₙ=n(a₁+aₙ)/2<\/td><\/tr><tr><td>等比<\/td><td>aₙ=a₁q^(n−1)；Sₙ=a₁(1−qⁿ)/(1−q)（q≠1）<\/td><\/tr><tr><td>无穷等比<\/td><td><\/td><td>q<\/td><td>&lt;1 时 S=a₁/(1−q)<\/td><\/tr><tr><td>等差中项<\/td><td>2b=a+c<\/td><\/tr><tr><td>等比中项<\/td><td>b²=ac<\/td><\/tr><tr><td>0.333…<\/td><td>=1/3（等比级数求和）<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/09-数列与极限", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：数列与通项", "href": "#/chapter/ch01"}, {"label": "第 2 章：等差数列与等比数列", "href": "#/chapter/ch02"}, {"label": "第 3 章：级数与极限", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "通项与递推", "href": "#/concept/c01"}, {"label": "极限与收敛", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：数列与通项", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：等差数列与等比数列", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：级数与极限", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：数列与通项<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：函数、代数式\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n区分通项公式与递推公式\n<\/li><li>\n由通项写出前若干项并判断增减\n<\/li><li>\n用差分找简单数列的规律\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>数列是定义在正整数上的函数：aₙ=f(n)，顺序本身就是信息。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 数列是有序的<\/h3>\n<p>数列 a₁,a₂,…,aₙ,… 是按顺序排好的一串数。交换两项就变成另一个数列，这与集合不同。<\/p>\n<h3>1.2 两种表示<\/h3>\n<ul><li>\n<strong>通项公式<\/strong>：aₙ 用 n 直接表示，如 aₙ=2n−1，代入 n=1,2,3 得 1,3,5；\n<\/li><li>\n<strong>递推公式<\/strong>：给出首项与“后项如何由前项得到”，如 a₁=1、aₙ₊₁=aₙ+3。\n<\/ul>\n<p>通项便于直接算任意一项，递推便于描述生成过程，两者常互相转化。<\/p>\n<h3>1.3 单调性与有界性<\/h3>\n<p>aₙ₊₁&gt;aₙ 为递增，反之为递减。数列有界指存在 M 使 |aₙ|≤M 对所有 n 成立。这两条是后面判断极限存在的前提。<\/p>\n<h3>1.4 用差分找规律<\/h3>\n<p>相邻两项之差 dₙ=aₙ₊₁−aₙ 若为常数，就是等差数列；相邻两项之比若为常数，就是等比数列。差分是识别规律的第一把工具。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：数列像按日期排好的日记，顺序变了意思就变了。<\/p>\n<p><strong>失效边界<\/strong>：仅凭前几项猜通项并不可靠，1,2,4,8 后面也可能是 15（不是 2 的幂）。<\/p>\n<p><strong>实例<\/strong>：aₙ=n²−n。n=1 得 0，n=2 得 2，n=3 得 6，n=4 得 12。相邻差为 2,4,6,8，是等差数列，说明原数列是二次型。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 数列就是一堆数 —— 实际上 顺序是定义的一部分；同一组数按不同顺序排，就是不同数列。\n<\/li><li>\n别以为 前几项能唯一确定通项 —— 实际上 有限项永远对应无穷多种通项，必须靠结构（等差、等比、二次）判断。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n数列 aₙ=3n−2 的第 5 项是：\n<\/li><li>\n数列 a₁=2，aₙ₊₁=aₙ+3 的第 4 项是：\n<p>A. 13 ｜ B. 15 ｜ C. 17 ｜ D. 12 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a₅=3×5−2=13。 A. 8 ｜ B. 11 ｜ C. 14 ｜ D. 5 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：依次得 2,5,8,11，第 4 项为 11。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n数列是正整数上的函数，顺序有意义\n<\/li><li>\n通项直接算、递推描述生成\n<\/li><li>\n差分定等差、比值定等比\n<\/ul>", "ch02": "<h1>第 2 章：等差数列与等比数列<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n默写两组通项与求和公式\n<\/li><li>\n用倒序相加推导等差求和\n<\/li><li>\n分 q=1 与 q≠1 讨论等比求和\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>等差是“加”，等比是“乘”；求和公式都能由“配对”或“错位相减”推出来。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 等差数列<\/h3>\n<p>首项 a₁、公差 d：aₙ=a₁+(n−1)d。<\/p>\n<p>求和用<strong>倒序相加<\/strong>：<\/p>\n<p>Sₙ=a₁+a₂+…+aₙ Sₙ=aₙ+aₙ₋₁+…+a₁<\/p>\n<p>两式相加，每对和都是 a₁+aₙ，共 n 对，故 2Sₙ=n(a₁+aₙ)，即 Sₙ=n(a₁+aₙ)/2=n a₁+n(n−1)d/2。<\/p>\n<h3>2.2 等比数列<\/h3>\n<p>首项 a₁、公比 q：aₙ=a₁q^(n−1)。<\/p>\n<p>求和用<strong>错位相减<\/strong>：<\/p>\n<p>Sₙ=a₁+a₁q+…+a₁q^(n−1) qSₙ=a₁q+…+a₁qⁿ<\/p>\n<p>相减得 (1−q)Sₙ=a₁(1−qⁿ)。q≠1 时 Sₙ=a₁(1−qⁿ)/(1−q)；q=1 时每项都等于 a₁，Sₙ=na₁。<\/p>\n<h3>2.3 常用性质<\/h3>\n<ul><li>\n等差中项：b 是 a、c 的等差中项 ⇔ 2b=a+c；\n<\/li><li>\n等比中项：b²=ac（a、b、c 同号时）；\n<\/li><li>\n等差中，若 m+n=p+q 则 aₘ+aₙ=a_p+a_q；等比中对应为乘积相等。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：等差像每月固定加薪，等比像每月按固定比例涨薪。<\/p>\n<p><strong>失效边界<\/strong>：等比求和公式在 q=1 时分母为零，必须单独处理。<\/p>\n<p><strong>实例<\/strong>：1+2+…+100=100×101/2=5050。 1+2+4+…+2⁹（10 项，q=2）：S=1×(1−2¹⁰)/(1−2)=1023。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 等比求和直接套 a₁(1−qⁿ)/(1−q) —— 实际上 q=1 时公式无意义，要单独算 Sₙ=na₁。\n<\/li><li>\n别以为 等差中项与等比中项可以混用 —— 实际上 等差是算术平均，等比是几何平均；后者要求同号，且有两个平方根。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n等差数列首项 3、公差 4，第 10 项是：\n<\/li><li>\n等比数列 2,6,18,… 的前 4 项和是：\n<p>A. 39 ｜ B. 43 ｜ C. 36 ｜ D. 40 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a₁₀=3+9×4=39。 A. 80 ｜ B. 54 ｜ C. 40 ｜ D. 26 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：q=3，S₄=2(1−3⁴)/(1−3)=2(−80)/(−2)=80。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n等差：aₙ=a₁+(n−1)d，Sₙ=n(a₁+aₙ)/2\n<\/li><li>\n等比：aₙ=a₁q^(n−1)，q≠1 时 Sₙ=a₁(1−qⁿ)/(1−q)\n<\/li><li>\nq=1 时 Sₙ=na₁\n<\/ul>", "ch03": "<h1>第 3 章：级数与极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出极限的直观含义\n<\/li><li>\n判断无穷等比级数是否收敛并求和\n<\/li><li>\n用极限求连分数的值\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>极限就是“n 越大越靠近某个定值”；无穷多个数相加，和可能是一个有限的数。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 部分和<\/h3>\n<p>把前 n 项加起来得到 Sₙ，叫<strong>部分和<\/strong>。S₁=a₁，S₂=a₁+a₂，依此类推。级数的“和”定义为 Sₙ 当 n→∞ 时的极限。<\/p>\n<h3>3.2 极限的直观含义<\/h3>\n<p>若 n 无限增大时，aₙ 与某个常数 A 的距离可以任意小，就说 aₙ 的极限是 A，记 lim aₙ=A。<\/p>\n<p>例：aₙ=1/n，n 越大越接近 0；aₙ=(n+1)/n=1+1/n，极限是 1。<\/p>\n<p>严格定义（ε-N）留到大学，这里先建立“越来越接近”的直观。<\/p>\n<h3>3.3 无穷等比级数<\/h3>\n<p>|q|&lt;1 时，qⁿ→0，于是<\/p>\n<p>S=a₁/(1−q)<\/p>\n<p>这是全书最常用的结论。例：1+1/2+1/4+…=1/(1−1/2)=2。<\/p>\n<p>|q|≥1 时级数发散，没有有限和。<\/p>\n<h3>3.4 连分数<\/h3>\n<p>形如 1/(1+1/(1+1/(1+…))) 的表达式叫<strong>连分数<\/strong>：分母里又套着同一个结构。<\/p>\n<p>求它的值时，设整体为 x，则被嵌套的部分仍是 x，于是<\/p>\n<p>x = 1/(1+x)<\/p>\n<p>两边乘 (1+x)：x+x²=1，即 x²+x−1=0。取正根 x=(√5−1)/2≈0.618，正是黄金分割比。<\/p>\n<p>连分数是“用极限求解”的典型例子：先假设极限存在，再把无限结构代回自身，解出方程。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：极限像跑步靠近终点：每一秒都比上一秒更近，虽然永远差一点点。<\/p>\n<p><strong>失效边界<\/strong>：|q|≥1 时不能套 a₁/(1−q)，会算出负数或无穷，都是错的。<\/p>\n<p><strong>实例<\/strong>：0.333…=0.3+0.03+0.003+…，首项 0.3、公比 0.1，和 =0.3/(1−0.1)=1/3。这解释了为什么 0.333…=1/3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 无穷多个正数相加一定是无穷大 —— 实际上 只要每项衰减得够快（|q|&lt;1），和可以是有限的，如 1+1/2+1/4+…=2。\n<\/li><li>\n别以为 0.999…比 1 小 —— 实际上 它等于 1。按等比级数求和：0.9/(1−0.1)=1。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n无穷等比级数 1+1/3+1/9+… 的和是：\n<\/li><li>\n数列 aₙ=1/n 当 n→∞ 时的极限是：\n<p>A. 3/2 ｜ B. 2 ｜ C. 3 ｜ D. 1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a₁=1，q=1/3，S=1/(1−1/3)=3/2。 A. 1 ｜ B. 0 ｜ C. 不存在 ｜ D. 无穷大 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：n 越大 1/n 越接近 0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n级数的和＝部分和的极限\n<\/li><li>\n|q|&lt;1 时无穷等比级数收敛于 a₁/(1−q)\n<\/li><li>\n0.999…=1，可用级数求和验证\n<\/ul>", "c01": "<h1>通项与递推<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>通项给“第 n 项是多少”，递推给“下一项怎么由上一项得到”。<\/p>\n<h2>为什么重要<\/h2>\n<p>两种描述方式各有用途：算某项用通项，找规律与编程用递推。<\/p>\n<h2>详解<\/h2>\n<p>通项是显函数 aₙ=f(n)；递推是关系式 aₙ₊₁=g(aₙ) 加初值。等差、等比都能写成两种形式，互换时靠累加或累乘。<\/p>\n<h2>常见误解<\/h2>\n<p>以为递推式必须化成通项才能算，其实逐项代入也能得到任意项。<\/p>\n<h2>相关概念<\/h2>\n<p>数列（ch01）、等差等比（ch02）<\/p>", "c02": "<h1>极限与收敛<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>n 越大越靠近一个定值，就是收敛；否则发散。<\/p>\n<h2>为什么重要<\/h2>\n<p>它是微积分的门槛：导数、积分都是极限。<\/p>\n<h2>详解<\/h2>\n<p>判断收敛先看通项是否趋于 0（趋于 0 是必要条件，不充分）。等比级数看 |q|：小于 1 收敛，否则发散。收敛时才能用 a₁/(1−q) 求和。<\/p>\n<h2>常见误解<\/h2>\n<p>以为“项越来越小”就一定收敛，调和级数 1+1/2+1/3+… 就是反例。<\/p>\n<h2>相关概念<\/h2>\n<p>级数（ch03）、导数（《微积分初步》）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：数列与通项<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：数列与通项<\/a><br>检查点：能由一个通项公式写出前几项<\/li><li class='path-step' id='path-02'><strong>步骤 02：等差数列与等比数列<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：等差数列与等比数列<\/a><br>检查点：能默写两组通项与求和公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：级数与极限<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：级数与极限<\/a><br>检查点：能用 |q|&lt;1 求和并解释极限<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 等差数列 5,9,13,… 的第 8 项是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 33<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 37<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 29<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 41<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 无穷等比级数 1+1/4+1/16+… 的和是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 4/3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 5/4<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 3/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：数列与通项<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 数列 aₙ=3n−2 的第 5 项是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 13<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 17<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 12<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 数列 a₁=2，aₙ₊₁=aₙ+3 的第 4 项是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 8<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 11<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 14<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：等差数列与等比数列<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 等差数列首项 3、公差 4，第 10 项是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 39<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 43<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 36<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 40<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 等比数列 2,6,18,… 的前 4 项和是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 80<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 54<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 40<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 26<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：级数与极限<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 无穷等比级数 1+1/3+1/9+… 的和是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 3/2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 3<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 数列 aₙ=1/n 当 n→∞ 时的极限是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 0<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 不存在<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 无穷大<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='数列'>数列 — 按顺序排列的一列数。 <span class=glossary-ref>（第 1 章：数列与通项）<\/span><\/li><li data-term='通项公式'>通项公式 — 用 n 表示第 n 项的公式。 <span class=glossary-ref>（第 1 章：数列与通项）<\/span><\/li><li data-term='递推公式'>递推公式 — 用前项表示后项的关系式加初值。 <span class=glossary-ref>（第 1 章：数列与通项）<\/span><\/li><li data-term='等差数列'>等差数列 — 相邻两项差为常数的数列。 <span class=glossary-ref>（第 2 章：等差数列与等比数列）<\/span><\/li><li data-term='等比数列'>等比数列 — 相邻两项比为常数的数列。 <span class=glossary-ref>（第 2 章：等差数列与等比数列）<\/span><\/li><li data-term='部分和'>部分和 — 前 n 项相加得到的 Sₙ。 <span class=glossary-ref>（第 3 章：级数与极限）<\/span><\/li><li data-term='极限'>极限 — n 无限增大时数列趋向的定值。 <span class=glossary-ref>（第 3 章：级数与极限）<\/span><\/li><li data-term='收敛'>收敛 — 极限存在，部分和趋向有限值。 <span class=glossary-ref>（第 3 章：级数与极限）<\/span><\/li><li data-term='连分数'>连分数 — 分母中含下一层分式的无限表达式。 <span class=glossary-ref>（第 3 章：级数与极限）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：识别数列三步<\/h2>\n<p>① 算相邻差，常数则为等差；② 算相邻比，常数则为等比；③ 都不是，再看差分的差分（二次型）。<\/p>\n<h2>框架：求和四法<\/h2>\n<p>倒序相加（等差）、错位相减（等差×等比）、裂项相消（分式）、公式直接代入（等比）。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>等差<\/td><td>aₙ=a₁+(n−1)d；Sₙ=n(a₁+aₙ)/2<\/td><\/tr><tr><td>等比<\/td><td>aₙ=a₁q^(n−1)；Sₙ=a₁(1−qⁿ)/(1−q)（q≠1）<\/td><\/tr><tr><td>无穷等比<\/td><td><\/td><td>q<\/td><td>&lt;1 时 S=a₁/(1−q)<\/td><\/tr><tr><td>等差中项<\/td><td>2b=a+c<\/td><\/tr><tr><td>等比中项<\/td><td>b²=ac<\/td><\/tr><tr><td>0.333…<\/td><td>=1/3（等比级数求和）<\/td><\/tr><\/tbody><\/table>"}};
+const pages = DATA.rendered;
+const manifest = DATA.manifest;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SLUG = manifest.slug || 'book';
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
+};
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+
+/* ---------- 导航 ---------- */
+function renderNav(){
+  const nav = $('#nav'); nav.innerHTML='';
+  const build = items => items.forEach(it=>{
+    if(it.children){
+      const sec=document.createElement('div'); sec.className='nav-sec'; sec.textContent=it.label; nav.appendChild(sec);
+      it.children.forEach(c=>{
+        const a=document.createElement('a'); a.className='nav-item'; a.href=c.href; a.textContent=c.label;
+        const id=routeId(c.href);
+        if(state.visited.includes(id)) a.innerHTML = esc(c.label)+' <span class="done">✓</span>';
+        nav.appendChild(a);
+      });
+    }else{
+      const a=document.createElement('a'); a.className='nav-item'; a.href=it.href; a.textContent=it.label;
+      const id=routeId(it.href);
+      if(state.visited.includes(id)) a.innerHTML = esc(it.label)+' <span class="done">✓</span>';
+      nav.appendChild(a);
+    }
+  });
+  build(DATA.nav);
+  updateProgress();
+}
+function routeId(href){ return href.replace('#/',''); }
+
+/* ---------- 路由 ---------- */
+function routeIdFromHash(){
+  let h = location.hash.replace(/^#\//,'');
+  if(!h) return 'path';
+  if(h==='path') return 'path';
+  const m = h.match(/^(chapter|concept)\/(.+)$/);
+  if(m) return m[1]+'/'+m[2];
+  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+}
+function showPage(rid){
+  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  const html = pages[id] || '<div class="empty">页面不存在</div>';
+  $('#view').innerHTML = html;
+  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
+    state.visited.push(rid); store.set('visited', state.visited); renderNav();
+  }
+  window.scrollTo(0,0);
+  if(rid==='cards') initCards();
+  if(rid==='glossary') initGlossary();
+  if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(id==='__path__') updatePath();
+  renderMermaid();
+}
+
+/* ---------- 进度 ---------- */
+function updateProgress(){
+  const chs = (manifest.chapters||[]).length;
+  const done = (manifest.chapters||[]).filter(c=>state.visited.includes('chapter/'+c.id)).length;
+  const pct = chs? Math.round(done/chs*100) : 0;
+  $('#progress-fill').style.width = pct+'%';
+  $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
+}
+function updatePath(){
+  document.querySelectorAll('.path-step').forEach(el=>{
+    const step = el.id.replace('path-','');
+    const s = (manifest.learningPath||[]).find(x=>x.step===step);
+    if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
+      el.classList.add('passed');
+      const lbl = el.querySelector('.checkpoint-ok'); if(!lbl){ const sp=document.createElement('span'); sp.className='done'; sp.textContent=' ✓ 已完成'; el.appendChild(sp); }
+    }
+  });
+}
+
+/* ---------- 测验 ---------- */
+function initQuizzes(rid){
+  document.querySelectorAll('.quiz-item').forEach(item=>{
+    const btn = item.querySelector('.quiz-check');
+    if(!btn || item.dataset.inited){ return }
+    item.dataset.inited='1';
+    btn.addEventListener('click', ()=>{
+      const qid = item.dataset.qid; const type = item.dataset.type;
+      const q = (manifest.quizzes||[]).find(x=>x.id===qid); if(!q) return;
+      let user, correct=false, fb;
+      if(type==='single'){
+        const sel = item.querySelector('input:checked');
+        user = sel? parseInt(sel.value) : null;
+        correct = user===q.answer;
+        fb = correct?'✓ 正确':'✗ 错误'+(user==null?'（未作答）':'');
+      } else if(type==='multi'){
+        user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+        const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+        correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+        fb = correct?'✓ 正确':'✗ 错误';
+      } else if(type==='blank'){
+        const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+        const a = String(q.answer).trim().toLowerCase();
+        correct = v===a;
+        fb = correct?'✓ 正确':'✗ 错误'+(v?'':'（未作答）');
+      }
+      item.querySelectorAll('input:checked').forEach(i=>{
+        const val=parseInt(i.value);
+        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
+        else i.parentElement.style.color='var(--bad)';
+      });
+      const feed = item.querySelector('.quiz-feedback');
+      feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
+      feed.textContent = fb;
+      let ex = item.querySelector('.quiz-explain');
+      if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
+      ex.innerHTML = '解析：' + esc(q.explain||'');
+      // 记录成绩（按章聚合）
+      const ch = q.chapterId||'__all__';
+      if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
+      state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
+      state.quiz[ch].total += 1;
+      store.set('quiz', state.quiz);
+    });
+  });
+}
+
+/* ---------- 抽认卡 ---------- */
+let cardIdx = 0, cardList = [];
+function initCards(){
+  const cards = manifest.flashcards||[];
+  cardList = cards.slice();
+  cardIdx = 0;
+  const sel = $('#card-filter');
+  sel.innerHTML = '<option value="">全部</option>';
+  [...new Set(cards.map(c=>c.chapterId).filter(Boolean))].forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=manifestChTitle(c); sel.appendChild(o);
+  });
+  sel.onchange = ()=>{ const v=sel.value; cardList = v? cards.filter(c=>c.chapterId===v): cards.slice(); cardIdx=0; showCard(); };
+  $('#flashcard').onclick = ()=>$('#flashcard').classList.toggle('flip');
+  $('#card-known-btn').onclick = ()=>{ markCard(true); };
+  $('#card-again-btn').onclick = ()=>{ markCard(false); };
+  showCard();
+}
+function showCard(){
+  updateCardCounts();
+  if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
+  const c = cardList[cardIdx];
+  document.querySelector('.fc-front').textContent = c.front;
+  document.querySelector('.fc-back').textContent = c.back;
+  $('#flashcard').classList.remove('flip');
+}
+function markCard(known){
+  const c = cardList[cardIdx]; if(!c) return;
+  state.cards[c.id] = known?'known':'again';
+  store.set('cards', state.cards);
+  cardIdx++; showCard();
+}
+function updateCardCounts(){
+  const known = Object.values(state.cards).filter(v=>v==='known').length;
+  const again = Object.values(state.cards).filter(v=>v==='again').length;
+  $('#card-known').textContent = known;
+  $('#card-again').textContent = again;
+  $('#card-left').textContent = Math.max(0, cardList.length-cardIdx);
+}
+function manifestChTitle(id){
+  const c=(manifest.chapters||[]).find(x=>x.id===id); return c? c.title : id;
+}
+
+/* ---------- 术语表 ---------- */
+function initGlossary(){
+  const input = $('#glossary-filter');
+  if(!input || input.dataset.inited) return;
+  input.dataset.inited='1';
+  input.oninput = ()=>{
+    const v = input.value.trim().toLowerCase();
+    document.querySelectorAll('#glossary-list li').forEach(li=>{
+      li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
+    });
+  };
+}
+
+/* ---------- 搜索 ---------- */
+let searchIndex = null;
+function buildSearchIndex(){
+  if(searchIndex) return searchIndex;
+  searchIndex = [];
+  Object.entries(pages).forEach(([id, htmlText])=>{
+    if(id.startsWith('__')) return;
+    const text = htmlText.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+    searchIndex.push({id, text});
+  });
+  return searchIndex;
+}
+$('#q').addEventListener('input', e=>{
+  const v = e.target.value.trim().toLowerCase();
+  if(!v){ showPage(routeIdFromHash()); return; }
+  buildSearchIndex();
+  const hits = searchIndex.filter(p=>p.text.toLowerCase().includes(v)).slice(0,20);
+  const label = id => id.startsWith('chapter/')? ('章节：'+manifestChTitle(id.split('/')[1])) : id.startsWith('concept/')? ('概念：'+id.split('/')[1]) : id;
+  $('#view').innerHTML = '<h1>搜索结果：'+esc(v)+'</h1>' +
+    (hits.length? hits.map(h=>`<div class="search-hit"><a href="#/${h.id}">${esc(label(h.id))}</a><br><span class="sub">${esc(h.text.slice(0,180))}</span></div>`).join('')
+                 : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
+});
+
+/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+function renderMermaid(){
+  if(!document.querySelector('.mermaid')) return;
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+  s.onload=()=>{ try{
+    mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
+    document.querySelectorAll('.mermaid').forEach(el=>{
+      const code=el.textContent;
+      mermaid.render('mm'+Math.random().toString(36).slice(2), code)
+        .then(({svg})=>{ el.innerHTML=svg; })
+        .catch(()=>{ el.textContent=code; });
+    });
+  }catch(e){} };
+  document.head.appendChild(s);
+}
+
+/* ---------- 深色模式 ---------- */
+const themeBtn=$('#theme-btn');
+themeBtn.onclick=()=>{
+  const d = document.body.dataset.theme==='dark';
+  document.body.dataset.theme = d? '' : 'dark';
+  themeBtn.textContent = d? '🌙 深色' : '☀️ 浅色';
+};
+
+/* ---------- 启动 ---------- */
+renderNav();
+window.addEventListener('hashchange', ()=>showPage(routeIdFromHash()));
+(function(){
+  const sb=document.querySelector('.sidebar'); if(!sb) return;
+  const btn=document.createElement('button'); btn.id='nav-toggle'; btn.textContent='目录（点开选择章节）';
+  btn.onclick=()=>sb.classList.toggle('open');
+  sb.insertBefore(btn, sb.querySelector('#nav'));
+  window.addEventListener('hashchange',()=>{ if(window.innerWidth<=760) sb.classList.remove('open'); });
+})();
+showPage(routeIdFromHash());
+</script>
+</body>
+</html>

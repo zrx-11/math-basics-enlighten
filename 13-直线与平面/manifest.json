@@ -1,0 +1,356 @@
+{
+ "slug": "lines-planes",
+ "title": "直线与平面",
+ "subtitle": "从平面几何走进空间：平行、垂直与二面角",
+ "book": {
+  "title": "直线与平面",
+  "author": "顾观煦",
+  "source": [
+   "数学基础知识丛书-13-直线与平面 顾观煦.pdf"
+  ]
+ },
+ "audience": "零基础",
+ "goal": "掌握空间中直线与平面、平面与平面的位置关系，会用判定与性质定理证明平行与垂直，会求线面角与二面角。",
+ "learningPath": [
+  {
+   "step": "01",
+   "title": "空间的位置关系与平行",
+   "chapterIds": [
+    "ch01"
+   ],
+   "checkpoint": "能举出异面直线的例子"
+  },
+  {
+   "step": "02",
+   "title": "垂直关系与三垂线定理",
+   "chapterIds": [
+    "ch02"
+   ],
+   "checkpoint": "能用判定定理证线面垂直"
+  },
+  {
+   "step": "03",
+   "title": "空间角与距离",
+   "chapterIds": [
+    "ch03"
+   ],
+   "checkpoint": "能作出二面角的平面角"
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch01",
+   "title": "第 1 章：空间的位置关系与平行",
+   "file": "chapters/ch01-parallel.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch02",
+   "title": "第 2 章：垂直关系与三垂线定理",
+   "file": "chapters/ch02-perpendicular.md",
+   "difficulty": 3
+  },
+  {
+   "id": "ch03",
+   "title": "第 3 章：空间角与距离",
+   "file": "chapters/ch03-angles-distance.md",
+   "difficulty": 3
+  }
+ ],
+ "concepts": [
+  {
+   "id": "c01",
+   "title": "判定与性质",
+   "file": "concepts/c01-criterion-property-3d.md",
+   "chapterIds": [
+    "ch01",
+    "ch02"
+   ]
+  },
+  {
+   "id": "c02",
+   "title": "射影与三垂线",
+   "file": "concepts/c02-projection.md",
+   "chapterIds": [
+    "ch02",
+    "ch03"
+   ]
+  }
+ ],
+ "glossary": [
+  {
+   "term": "异面直线",
+   "def": "不同在任何一个平面内的两条直线。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "线面平行",
+   "def": "直线与平面没有公共点。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "线面垂直",
+   "def": "直线垂直于平面内所有直线。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "射影",
+   "def": "斜线在平面内的正投影。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "三垂线定理",
+   "def": "平面内直线垂直于射影则垂直于斜线。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "二面角",
+   "def": "两个半平面所成的图形。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "平面角",
+   "def": "二面角中在棱上取点、两面内垂直棱的两射线夹角。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "线面角",
+   "def": "斜线与射影所成的角。",
+   "chapterId": "ch03"
+  }
+ ],
+ "patterns": {
+  "file": "patterns.md"
+ },
+ "cheatsheet": {
+  "file": "cheatsheet.md"
+ },
+ "quizzes": [
+  {
+   "id": "q01",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "空间中两条直线的位置关系共有几种：",
+   "options": [
+    "2 种",
+    "3 种",
+    "4 种",
+    "1 种"
+   ],
+   "answer": 1,
+   "explain": "相交、平行、异面三种。"
+  },
+  {
+   "id": "q02",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "线面平行的判定定理中，平面外直线需要与平面内的哪条直线平行：",
+   "options": [
+    "任意一条",
+    "一条",
+    "两条相交直线",
+    "两条平行直线"
+   ],
+   "answer": 1,
+   "explain": "只需与平面内的一条直线平行即可判定线面平行。"
+  },
+  {
+   "id": "q03",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "判定一条直线垂直于一个平面，需要它垂直于平面内：",
+   "options": [
+    "一条直线",
+    "两条平行直线",
+    "两条相交直线",
+    "三条直线"
+   ],
+   "answer": 2,
+   "explain": "两条相交直线确定平面的方向，缺“相交”条件不成立。"
+  },
+  {
+   "id": "q04",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "三垂线定理的作用是：",
+   "options": [
+    "把面面垂直化为线面垂直",
+    "把空间垂直化为平面内的垂直",
+    "求体积",
+    "判断平行"
+   ],
+   "answer": 1,
+   "explain": "它通过射影把空间中的垂直关系转化为平面内的垂直关系。"
+  },
+  {
+   "id": "q05",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "二面角的平面角的两条边必须：",
+   "options": [
+    "都垂直于棱",
+    "互相平行",
+    "都在同一平面内",
+    "都过棱的中点"
+   ],
+   "answer": 0,
+   "explain": "在棱上取一点，分别在两个面内作垂直于棱的射线，这两条射线所成的角才是平面角。"
+  },
+  {
+   "id": "q06",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "直线与平面所成角的范围是：",
+   "options": [
+    "(0°,90°)",
+    "[0°,90°]",
+    "[0°,180°]",
+    "(0°,180°)"
+   ],
+   "answer": 1,
+   "explain": "平行时为 0°，垂直时为 90°，故范围是 [0°,90°]。"
+  },
+  {
+   "id": "q07",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "空间中两条直线都平行于第三条直线，则这两条直线：",
+   "options": [
+    "一定相交",
+    "一定平行",
+    "一定异面",
+    "可能异面"
+   ],
+   "answer": 1,
+   "explain": "平行的传递性在空间中仍成立，故两直线平行。"
+  },
+  {
+   "id": "q08",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "直线 l 垂直于平面 α 内两条相交直线，则：",
+   "options": [
+    "l 平行于 α",
+    "l 垂直于 α",
+    "l 在 α 内",
+    "无法判断"
+   ],
+   "answer": 1,
+   "explain": "这正是线面垂直的判定定理。"
+  }
+ ],
+ "flashcards": [
+  {
+   "id": "f01",
+   "chapterId": "ch01",
+   "front": "「第 1 章：空间的位置关系与平行」的一句话核心是什么？",
+   "back": "空间里“不相交”不等于“平行”；判定与性质定理必须成对使用。",
+   "tags": [
+    "lines-planes",
+    "核心"
+   ]
+  },
+  {
+   "id": "f02",
+   "chapterId": "ch02",
+   "front": "「第 2 章：垂直关系与三垂线定理」的一句话核心是什么？",
+   "back": "线面垂直是空间垂直的总枢纽：一条直线垂直于平面内两条相交直线，就垂直于整个平面。",
+   "tags": [
+    "lines-planes",
+    "核心"
+   ]
+  },
+  {
+   "id": "f03",
+   "chapterId": "ch03",
+   "front": "「第 3 章：空间角与距离」的一句话核心是什么？",
+   "back": "空间里的角都要先“作出平面角”再计算；距离都要先“作出垂线段”。",
+   "tags": [
+    "lines-planes",
+    "核心"
+   ]
+  },
+  {
+   "id": "f04",
+   "chapterId": "ch01",
+   "front": "什么是「异面直线」？",
+   "back": "不同在任何一个平面内的两条直线。",
+   "tags": [
+    "lines-planes",
+    "术语"
+   ]
+  },
+  {
+   "id": "f05",
+   "chapterId": "ch01",
+   "front": "什么是「线面平行」？",
+   "back": "直线与平面没有公共点。",
+   "tags": [
+    "lines-planes",
+    "术语"
+   ]
+  },
+  {
+   "id": "f06",
+   "chapterId": "ch02",
+   "front": "什么是「线面垂直」？",
+   "back": "直线垂直于平面内所有直线。",
+   "tags": [
+    "lines-planes",
+    "术语"
+   ]
+  },
+  {
+   "id": "f07",
+   "chapterId": "ch02",
+   "front": "什么是「射影」？",
+   "back": "斜线在平面内的正投影。",
+   "tags": [
+    "lines-planes",
+    "术语"
+   ]
+  },
+  {
+   "id": "f08",
+   "chapterId": "ch02",
+   "front": "什么是「三垂线定理」？",
+   "back": "平面内直线垂直于射影则垂直于斜线。",
+   "tags": [
+    "lines-planes",
+    "术语"
+   ]
+  },
+  {
+   "id": "f09",
+   "chapterId": "ch03",
+   "front": "什么是「二面角」？",
+   "back": "两个半平面所成的图形。",
+   "tags": [
+    "lines-planes",
+    "术语"
+   ]
+  },
+  {
+   "id": "f10",
+   "chapterId": "ch03",
+   "front": "什么是「平面角」？",
+   "back": "二面角中在棱上取点、两面内垂直棱的两射线夹角。",
+   "tags": [
+    "lines-planes",
+    "术语"
+   ]
+  },
+  {
+   "id": "f11",
+   "chapterId": "ch03",
+   "front": "什么是「线面角」？",
+   "back": "斜线与射影所成的角。",
+   "tags": [
+    "lines-planes",
+    "术语"
+   ]
+  }
+ ],
+ "companion": "lines-planes学习伴侣.html",
+ "deriv": "lines-planes从零推导.html"
+}

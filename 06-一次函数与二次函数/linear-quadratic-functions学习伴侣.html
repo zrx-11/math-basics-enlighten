@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一次函数与二次函数</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
+  --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
+  --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+}
+[data-theme="dark"]{
+  --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
+  --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
+  --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:290px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  padding:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h1{font-size:17px;margin:2px 0 2px}
+.sidebar .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+#q{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+.nav-sec{font-size:12px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.nav-item{display:block;padding:5px 10px;border-radius:6px;color:var(--text);font-size:14px}
+.nav-item:hover{background:var(--accent-soft);text-decoration:none}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .done{float:right;color:var(--ok);font-size:12px}
+#nav-toggle{display:none}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
+.page h2{font-size:20px;margin-top:26px}
+.page h3{font-size:17px;margin-top:22px}
+.page table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+.page th,.page td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.page th{background:var(--code-bg)}
+.page code{background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.9em}
+.page pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
+.page pre code{background:none;padding:0}
+.page blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:6px 14px;background:var(--accent-soft);border-radius:0 6px 6px 0}
+.page blockquote blockquote{border-color:var(--muted)}
+.page img{max-width:100%}
+.mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
+.mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
+svg{max-width:100%;height:auto}
+.quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
+.quiz-q{margin:0 0 8px;font-weight:500}
+.quiz-opts label{display:block;padding:4px 0;cursor:pointer}
+.quiz-blank{width:60%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+.quiz-check{margin-top:10px;padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.quiz-feedback{margin-left:12px;font-size:13px}
+.fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
+.quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
+.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;
+  padding:22px;border-radius:14px;border:1px solid var(--border);background:var(--panel);font-size:16px;text-align:center}
+.fc-back{transform:rotateY(180deg);background:var(--accent-soft);color:var(--text)}
+.card-controls{display:flex;gap:14px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.card-actions{display:flex;gap:12px;justify-content:center}
+.card-actions button{padding:8px 22px;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+#card-known-btn{background:var(--ok);color:#fff}
+#card-again-btn{background:var(--bad);color:#fff}
+.card-counts{color:var(--muted);font-size:13px}
+.path-step{margin:8px 0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+.path-step.passed{border-color:var(--ok)}
+#glossary-filter{width:100%;max-width:380px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+#glossary-list li{padding:6px 0;border-bottom:1px dashed var(--border)}
+.glossary-ref{color:var(--muted);font-size:12px}
+.search-hit{margin:10px 0}
+.topbar{position:sticky;top:0;background:var(--bg);padding:8px 0;display:flex;justify-content:flex-end;z-index:10}
+#theme-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+#progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
+#progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
+.empty{color:var(--muted);padding:20px 0}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+@media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
+  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
+  .layout{flex-direction:column}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>一次函数与二次函数</h1>
+    <div class="sub">从对应关系出发：一次是直的，二次是弯的</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div class="sub" id="progress-label">进度 0%</div>
+    <input id="q" type="search" placeholder="搜索章节 / 概念 / 术语 / 全文…">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar"><button id="theme-btn">🌙 深色</button></div>
+    <div id="view" class="page"></div>
+  </main>
+</div>
+<script>
+const DATA = {"manifest": {"slug": "linear-quadratic-functions", "title": "一次函数与二次函数", "subtitle": "从对应关系出发：一次是直的，二次是弯的", "book": {"title": "一次函数与二次函数", "author": "华昌年", "source": ["数学基础知识丛书-06-一次函数与二次函数 华昌年.pdf"]}, "audience": "零基础", "goal": "理解函数的对应本质，会用解析式、表格、图象三种方式表示函数，掌握一次函数与二次函数的图象、性质与最值。", "learningPath": [{"step": "01", "title": "函数与图象", "chapterIds": ["ch01"], "checkpoint": "能由一个对应关系写出定义域并画出草图"}, {"step": "02", "title": "一次函数", "chapterIds": ["ch02"], "checkpoint": "能由 k、b 判断增减与截距"}, {"step": "03", "title": "二次函数与变化率", "chapterIds": ["ch03"], "checkpoint": "能求顶点、最值、零点并解释变化率"}], "chapters": [{"id": "ch01", "title": "第 1 章：函数与图象", "file": "chapters/ch01-function-image.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：一次函数", "file": "chapters/ch02-linear-function.md", "difficulty": 2}, {"id": "ch03", "title": "第 3 章：二次函数与变化率", "file": "chapters/ch03-quadratic-function.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "函数三要素", "file": "concepts/c01-three-elements.md", "chapterIds": ["ch01"]}, {"id": "c02", "title": "变化率", "file": "concepts/c02-rate-of-change.md", "chapterIds": ["ch02", "ch03"]}], "glossary": [{"term": "函数", "def": "一个输入对应唯一输出的规则。", "chapterId": "ch01"}, {"term": "定义域", "def": "允许输入的所有取值组成的集合。", "chapterId": "ch01"}, {"term": "值域", "def": "所有实际输出组成的集合。", "chapterId": "ch01"}, {"term": "增函数", "def": "x 增大时 y 也增大的函数。", "chapterId": "ch01"}, {"term": "斜率", "def": "一次函数 y=kx+b 中的 k，反映倾斜与增减。", "chapterId": "ch02"}, {"term": "截距", "def": "图象与 y 轴交点的纵坐标 b。", "chapterId": "ch02"}, {"term": "顶点式", "def": "y=a(x−h)²+k 的形式，直接读出顶点。", "chapterId": "ch03"}, {"term": "对称轴", "def": "抛物线关于它左右对称的竖直线 x=−b/2a。", "chapterId": "ch03"}, {"term": "平均变化率", "def": "区间两端函数值之差与自变量之差的比。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "下列关系中，y 是 x 的函数的是：", "options": ["x²+y²=1", "y²=x", "y=2x+1", "|y|=x"], "answer": 2, "explain": "其余三个都出现一个 x 对应两个 y 的情况，不满足唯一性。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "f(x)=x² 在 [−1,2] 上的值域是：", "options": ["[1,4]", "[0,4]", "[0,1]", "[−1,4]"], "answer": 1, "explain": "x=0 时取到最小值 0，x=2 时取到最大值 4，故值域 [0,4]。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "一次函数 y=3x−6 的零点是：", "options": ["x=−2", "x=2", "x=6", "x=3"], "answer": 1, "explain": "3x−6=0 得 x=2。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "若一次函数 y=kx+b 的图象经过第一、二、四象限，则：", "options": ["k>0，b>0", "k<0，b>0", "k<0，b<0", "k>0，b<0"], "answer": 1, "explain": "直线下降说明 k<0；与 y 轴交于正半轴说明 b>0。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "y=x²−6x+5 的顶点坐标是：", "options": ["(3,−4)", "(−3,−4)", "(3,4)", "(3,−5)"], "answer": 0, "explain": "配方 y=(x−3)²−4，顶点 (3,−4)。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "y=−x²+2x+3 的最大值是：", "options": ["3", "4", "−4", "2"], "answer": 1, "explain": "y=−(x−1)²+4，开口向下，x=1 时取最大值 4。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "y=2x²−8x+3 的对称轴是：", "options": ["x=2", "x=−2", "x=4", "x=1"], "answer": 0, "explain": "对称轴 x=−b/2a=8/4=2。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "一次函数 y=−3x+9 中，y 随 x 增大而：", "options": ["增大", "减小", "不变", "先增后减"], "answer": 1, "explain": "k=−3<0，函数单调递减。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：函数与图象」的一句话核心是什么？", "back": "函数不是公式，是一条规则：给定输入，唯一确定输出。", "tags": ["linear-quadratic-functions", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：一次函数」的一句话核心是什么？", "back": "一次函数 y=kx+b 的变化率恒为 k：k 正则升，k 负则降，b 是它与 y 轴的交点。", "tags": ["linear-quadratic-functions", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：二次函数与变化率」的一句话核心是什么？", "back": "二次函数的一切都藏在顶点式 y=a(x−h)²+k 里：a 定开口，顶点 (h,k) 定最值。", "tags": ["linear-quadratic-functions", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「函数」？", "back": "一个输入对应唯一输出的规则。", "tags": ["linear-quadratic-functions", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「定义域」？", "back": "允许输入的所有取值组成的集合。", "tags": ["linear-quadratic-functions", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「值域」？", "back": "所有实际输出组成的集合。", "tags": ["linear-quadratic-functions", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「增函数」？", "back": "x 增大时 y 也增大的函数。", "tags": ["linear-quadratic-functions", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「斜率」？", "back": "一次函数 y=kx+b 中的 k，反映倾斜与增减。", "tags": ["linear-quadratic-functions", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「截距」？", "back": "图象与 y 轴交点的纵坐标 b。", "tags": ["linear-quadratic-functions", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「顶点式」？", "back": "y=a(x−h)²+k 的形式，直接读出顶点。", "tags": ["linear-quadratic-functions", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「对称轴」？", "back": "抛物线关于它左右对称的竖直线 x=−b/2a。", "tags": ["linear-quadratic-functions", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「平均变化率」？", "back": "区间两端函数值之差与自变量之差的比。", "tags": ["linear-quadratic-functions", "术语"]}], "companion": "linear-quadratic-functions学习伴侣.html", "deriv": "linear-quadratic-functions从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：函数与图象<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：坐标平面、方程\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出函数三要素\n<\/li><li>\n用解析式、表格、图象表示同一个函数\n<\/li><li>\n从图象读出增减与最值\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>函数不是公式，是一条规则：给定输入，唯一确定输出。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 对应关系<\/h3>\n<p>设 x 在某个范围内每取一个值，按规则 f 都有唯一确定的 y 与之对应，就说 y 是 x 的函数，记 y=f(x)。x 的取值范围叫<strong>定义域<\/strong>，所有输出组成的集合叫<strong>值域<\/strong>。<\/p>\n<p>关键是“唯一”：一个输入不能对应两个输出。圆的方程 x²+y²=1 中，x=0 对应 y=±1，所以 y 不是 x 的函数。<\/p>\n<h3>1.2 三种表示<\/h3>\n<ul><li>\n解析式：y=2x+1；\n<\/li><li>\n表格：把若干组对应值列出来；\n<\/li><li>\n图象：把满足关系的点画在坐标平面上。\n<\/ul>\n<p>三种表示可以互相转换，考试里常要求“由式画图、由图读式”。<\/p>\n<h3>1.3 从图象读信息<\/h3>\n<p>图象上升表示随 x 增大 y 增大（增函数），下降表示减函数；最高点、最低点对应最大值、最小值；与 x 轴的交点是零点（f(x)=0 的解）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：函数像自动售货机：投一个编号，只出一个确定的商品。<\/p>\n<p><strong>失效边界<\/strong>：若一台机器投同一个编号会随机出不同商品，那就不是函数。<\/p>\n<p><strong>实例<\/strong>：f(x)=x²，定义域取 [−2,2]。输入 −2 得 4，输入 0 得 0，输入 2 得 4。值域是 [0,4]，不是 [−2,2]。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 函数必须有解析式 —— 实际上 表格、图象、甚至一句描述规则都可以定义函数，解析式只是最方便的一种。\n<\/li><li>\n别以为 值域就是把定义域代进去得到的那些数 —— 实际上 要把定义域内所有输入都考虑，取遍后得到的输出集合才是值域。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n下列关系中，y 是 x 的函数的是：\n<\/li><li>\nf(x)=x² 在 [−1,2] 上的值域是：\n<p>A. x²+y²=1 ｜ B. y²=x ｜ C. y=2x+1 ｜ D. |y|=x <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：其余三个都出现一个 x 对应两个 y 的情况，不满足唯一性。 A. [1,4] ｜ B. [0,4] ｜ C. [0,1] ｜ D. [−1,4] <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：x=0 时取到最小值 0，x=2 时取到最大值 4，故值域 [0,4]。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n函数＝唯一对应的规则；三要素是定义域、法则、值域\n<\/li><li>\n解析式、表格、图象可以互相转换\n<\/li><li>\n图象上升/下降对应增减，交点对应零点\n<\/ul>", "kind": "chapter", "title": "第 1 章：函数与图象"}, "ch02": {"html": "<h1>第 2 章：一次函数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由 k、b 判断图象位置与增减\n<\/li><li>\n求一次函数的零点与解析式\n<\/li><li>\n用一次函数建模\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>一次函数 y=kx+b 的变化率恒为 k：k 正则升，k 负则降，b 是它与 y 轴的交点。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 k 与 b 的作用<\/h3>\n<p>k 叫斜率，决定直线的倾斜程度与方向：k&gt;0 时 y 随 x 增大而增大；k&lt;0 时减小；k=0 时退化为水平直线 y=b。<\/p>\n<p>b 是截距：图象过点 (0,b)。<\/p>\n<h3>2.2 由两点求解析式<\/h3>\n<p>设 y=kx+b，把两点坐标代入，解出 k、b。也可先用 k=(y₂−y₁)/(x₂−x₁) 求斜率，再代一点求 b。<\/p>\n<h3>2.3 零点与不等式<\/h3>\n<p>零点即 kx+b=0 的解 x=−b/k（k≠0）。由零点和 k 的符号可以直接读出 kx+b&gt;0 的解集，不必每次重算。<\/p>\n<h3>2.4 一次函数模型<\/h3>\n<p>凡“每增加一个单位，总量增加固定值”的关系都是一次的：匀速路程 s=vt、计价 y=kx+b、摄氏与华氏换算。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：一次函数像匀速行走，每小时走的距离一样，图象是笔直的路线。<\/p>\n<p><strong>失效边界<\/strong>：实际问题的定义域常受限制（人数、时间不能为负），直线要截成一段。<\/p>\n<p><strong>实例<\/strong>：y=−2x+6。k=−2&lt;0，随 x 增大而减小；过 (0,6)；零点 x=3；所以 y&gt;0 当 x&lt;3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 b 是直线与 x 轴的交点 —— 实际上 b 是与 y 轴交点的纵坐标；与 x 轴的交点是 −b/k。\n<\/li><li>\n别以为 k 越大直线越陡 —— 实际上 陡峭程度看 |k|；k=−5 比 k=1 更陡，但方向相反。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n一次函数 y=3x−6 的零点是：\n<\/li><li>\n若一次函数 y=kx+b 的图象经过第一、二、四象限，则：\n<p>A. x=−2 ｜ B. x=2 ｜ C. x=6 ｜ D. x=3 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：3x−6=0 得 x=2。 A. k&gt;0，b&gt;0 ｜ B. k&lt;0，b&gt;0 ｜ C. k&lt;0，b&lt;0 ｜ D. k&gt;0，b&lt;0 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：直线下降说明 k&lt;0；与 y 轴交于正半轴说明 b&gt;0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\ny=kx+b：k 定方向与增减，b 定 y 轴截距\n<\/li><li>\n零点 x=−b/k\n<\/li><li>\n两点定一条直线\n<\/ul>", "kind": "chapter", "title": "第 2 章：一次函数"}, "ch03": {"html": "<h1>第 3 章：二次函数与变化率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02、配方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把二次函数化成顶点式并读出顶点、对称轴\n<\/li><li>\n求给定区间上的最值\n<\/li><li>\n区分平均变化率与瞬时变化率\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>二次函数的一切都藏在顶点式 y=a(x−h)²+k 里：a 定开口，顶点 (h,k) 定最值。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 配方成顶点式<\/h3>\n<p>y=ax²+bx+c=a(x+b/2a)²+(4ac−b²)/4a。顶点 (−b/2a, (4ac−b²)/4a)，对称轴 x=−b/2a。<\/p>\n<h3>3.2 开口与最值<\/h3>\n<p>a&gt;0 开口向上，顶点是最小值点；a&lt;0 开口向下，顶点是最大值点。顶点值就是全局最值。<\/p>\n<p>但若定义域被限制在某个区间，要看顶点是否落在区间内：不在，最值在端点取到。<\/p>\n<h3>3.3 零点<\/h3>\n<p>ax²+bx+c=0 的根就是图象与 x 轴的交点，判别式 Δ 决定交点个数。因式分解 a(x−x₁)(x−x₂) 与图象一一对应。<\/p>\n<h3>3.4 变化率<\/h3>\n<p><strong>平均变化率<\/strong>：区间 [x₁,x₂] 上 (f(x₂)−f(x₁))/(x₂−x₁)，几何上是割线斜率。一次函数的平均变化率恒等于 k；二次函数的平均变化率随区间变化。<\/p>\n<p><strong>瞬时变化率<\/strong>：区间缩到一点时的极限值，几何上是切线斜率——这是后面微积分的入口。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：抛物线像喷泉的水柱，顶点是最高点；开口方向就是水柱朝上还是朝下。<\/p>\n<p><strong>失效边界<\/strong>：顶点最值只在定义域包含顶点时成立；区间外的情形要比较端点。<\/p>\n<p><strong>实例<\/strong>：y=x²−4x+1=(x−2)²−3。顶点 (2,−3)，对称轴 x=2，最小值 −3。 若限制 x∈[3,5]，顶点不在区间内，函数在区间上递增，最小值 f(3)=−2，最大值 f(5)=6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 最小值一定是顶点值 —— 实际上 只有顶点落在定义域内才是；闭区间上要在顶点与端点之间比较。\n<\/li><li>\n别以为 二次函数的变化率也是常数 —— 实际上 只有一次函数的变化率恒定；二次函数的平均变化率随区间改变。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\ny=x²−6x+5 的顶点坐标是：\n<\/li><li>\ny=−x²+2x+3 的最大值是：\n<p>A. (3,−4) ｜ B. (−3,−4) ｜ C. (3,4) ｜ D. (3,−5) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：配方 y=(x−3)²−4，顶点 (3,−4)。 A. 3 ｜ B. 4 ｜ C. −4 ｜ D. 2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：y=−(x−1)²+4，开口向下，x=1 时取最大值 4。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n顶点式 y=a(x−h)²+k：a 定开口，顶点定最值\n<\/li><li>\n闭区间最值要比较顶点与端点\n<\/li><li>\n平均变化率＝割线斜率，瞬时变化率＝切线斜率\n<\/ul>", "kind": "chapter", "title": "第 3 章：二次函数与变化率"}, "c01": {"html": "<h1>函数三要素<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>定义域、对应法则、值域，三者确定一个函数；前两个定了，第三个就定了。<\/p>\n<h2>为什么重要<\/h2>\n<p>判断两个函数是否相同、求值域、画图象，都要先回到三要素。<\/p>\n<h2>详解<\/h2>\n<p>定义域是允许输入的集合；对应法则是输入到输出的规则；值域是实际输出的集合。定义域与法则相同才算同一个函数，解析式长得不一样也可能相等（如 y=x 与 y=x²/x，x≠0）。<\/p>\n<h2>常见误解<\/h2>\n<p>以为解析式相同就是同一个函数，忽略定义域可能被约分改变。<\/p>\n<h2>相关概念<\/h2>\n<p>函数与图象（ch01）、定义域（《分式与根式》）<\/p>", "kind": "concept", "title": "函数三要素"}, "c02": {"html": "<h1>变化率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>平均变化率是两个点之间的“平均速度”，瞬时变化率是某一点的“瞬间速度”。<\/p>\n<h2>为什么重要<\/h2>\n<p>它是微积分的入口：导数就是瞬时变化率。<\/p>\n<h2>详解<\/h2>\n<p>一次函数的平均变化率恒为 k，所以“匀速”；二次函数的平均变化率随区间改变，所以“变速”。把区间不断缩小，平均变化率趋于一个确定值，就是瞬时变化率。<\/p>\n<h2>常见误解<\/h2>\n<p>把平均变化率当成某一点的变化快慢；它描述的是一整段区间。<\/p>\n<h2>相关概念<\/h2>\n<p>一次函数（ch02）、导数（《微积分初步》）<\/p>", "kind": "concept", "title": "变化率"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：函数与图象<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：函数与图象<\/a><br>检查点：能由一个对应关系写出定义域并画出草图<\/li><li class='path-step' id='path-02'><strong>步骤 02：一次函数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：一次函数<\/a><br>检查点：能由 k、b 判断增减与截距<\/li><li class='path-step' id='path-03'><strong>步骤 03：二次函数与变化率<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：二次函数与变化率<\/a><br>检查点：能求顶点、最值、零点并解释变化率<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> y=2x²−8x+3 的对称轴是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> x=2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> x=−2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> x=4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> x=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 一次函数 y=−3x+9 中，y 随 x 增大而：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 增大<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 减小<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 不变<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 先增后减<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：函数与图象<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 下列关系中，y 是 x 的函数的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> x²+y²=1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> y²=x<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> y=2x+1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> |y|=x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> f(x)=x² 在 [−1,2] 上的值域是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> [1,4]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> [0,4]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> [0,1]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> [−1,4]<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：一次函数<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 一次函数 y=3x−6 的零点是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> x=−2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x=2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> x=6<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x=3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 若一次函数 y=kx+b 的图象经过第一、二、四象限，则：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> k&gt;0，b&gt;0<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> k&lt;0，b&gt;0<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> k&lt;0，b&lt;0<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> k&gt;0，b&lt;0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：二次函数与变化率<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> y=x²−6x+5 的顶点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> (3,−4)<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> (−3,−4)<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> (3,4)<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> (3,−5)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> y=−x²+2x+3 的最大值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> −4<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='函数'>函数 — 一个输入对应唯一输出的规则。 <span class=glossary-ref>（第 1 章：函数与图象）<\/span><\/li><li data-term='定义域'>定义域 — 允许输入的所有取值组成的集合。 <span class=glossary-ref>（第 1 章：函数与图象）<\/span><\/li><li data-term='值域'>值域 — 所有实际输出组成的集合。 <span class=glossary-ref>（第 1 章：函数与图象）<\/span><\/li><li data-term='增函数'>增函数 — x 增大时 y 也增大的函数。 <span class=glossary-ref>（第 1 章：函数与图象）<\/span><\/li><li data-term='斜率'>斜率 — 一次函数 y=kx+b 中的 k，反映倾斜与增减。 <span class=glossary-ref>（第 2 章：一次函数）<\/span><\/li><li data-term='截距'>截距 — 图象与 y 轴交点的纵坐标 b。 <span class=glossary-ref>（第 2 章：一次函数）<\/span><\/li><li data-term='顶点式'>顶点式 — y=a(x−h)²+k 的形式，直接读出顶点。 <span class=glossary-ref>（第 3 章：二次函数与变化率）<\/span><\/li><li data-term='对称轴'>对称轴 — 抛物线关于它左右对称的竖直线 x=−b/2a。 <span class=glossary-ref>（第 3 章：二次函数与变化率）<\/span><\/li><li data-term='平均变化率'>平均变化率 — 区间两端函数值之差与自变量之差的比。 <span class=glossary-ref>（第 3 章：二次函数与变化率）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：二次函数四问<\/h2>\n<p>① 开口向哪（看 a）；② 顶点在哪（配方）；③ 零点几个（看 Δ）；④ 区间最值（比较顶点与端点）。<\/p>\n<h2>框架：建模三步<\/h2>\n<p>找变量 → 写关系式 → 标注定义域。第三步常被漏掉，但实际问题里它决定答案是否合理。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>一次函数<\/td><td>y=kx+b；k&gt;0 增，k&lt;0 减；零点 −b/k<\/td><\/tr><tr><td>斜率公式<\/td><td>k=(y₂−y₁)/(x₂−x₁)<\/td><\/tr><tr><td>顶点<\/td><td>(−b/2a，(4ac−b²)/4a)<\/td><\/tr><tr><td>最值<\/td><td>a&gt;0 顶点最小，a&lt;0 顶点最大<\/td><\/tr><tr><td>平均变化率<\/td><td>(f(x₂)−f(x₁))/(x₂−x₁)<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/06-一次函数与二次函数", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：函数与图象", "href": "#/chapter/ch01"}, {"label": "第 2 章：一次函数", "href": "#/chapter/ch02"}, {"label": "第 3 章：二次函数与变化率", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "函数三要素", "href": "#/concept/c01"}, {"label": "变化率", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：函数与图象", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：一次函数", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：二次函数与变化率", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：函数与图象<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：坐标平面、方程\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出函数三要素\n<\/li><li>\n用解析式、表格、图象表示同一个函数\n<\/li><li>\n从图象读出增减与最值\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>函数不是公式，是一条规则：给定输入，唯一确定输出。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 对应关系<\/h3>\n<p>设 x 在某个范围内每取一个值，按规则 f 都有唯一确定的 y 与之对应，就说 y 是 x 的函数，记 y=f(x)。x 的取值范围叫<strong>定义域<\/strong>，所有输出组成的集合叫<strong>值域<\/strong>。<\/p>\n<p>关键是“唯一”：一个输入不能对应两个输出。圆的方程 x²+y²=1 中，x=0 对应 y=±1，所以 y 不是 x 的函数。<\/p>\n<h3>1.2 三种表示<\/h3>\n<ul><li>\n解析式：y=2x+1；\n<\/li><li>\n表格：把若干组对应值列出来；\n<\/li><li>\n图象：把满足关系的点画在坐标平面上。\n<\/ul>\n<p>三种表示可以互相转换，考试里常要求“由式画图、由图读式”。<\/p>\n<h3>1.3 从图象读信息<\/h3>\n<p>图象上升表示随 x 增大 y 增大（增函数），下降表示减函数；最高点、最低点对应最大值、最小值；与 x 轴的交点是零点（f(x)=0 的解）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：函数像自动售货机：投一个编号，只出一个确定的商品。<\/p>\n<p><strong>失效边界<\/strong>：若一台机器投同一个编号会随机出不同商品，那就不是函数。<\/p>\n<p><strong>实例<\/strong>：f(x)=x²，定义域取 [−2,2]。输入 −2 得 4，输入 0 得 0，输入 2 得 4。值域是 [0,4]，不是 [−2,2]。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 函数必须有解析式 —— 实际上 表格、图象、甚至一句描述规则都可以定义函数，解析式只是最方便的一种。\n<\/li><li>\n别以为 值域就是把定义域代进去得到的那些数 —— 实际上 要把定义域内所有输入都考虑，取遍后得到的输出集合才是值域。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n下列关系中，y 是 x 的函数的是：\n<\/li><li>\nf(x)=x² 在 [−1,2] 上的值域是：\n<p>A. x²+y²=1 ｜ B. y²=x ｜ C. y=2x+1 ｜ D. |y|=x <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：其余三个都出现一个 x 对应两个 y 的情况，不满足唯一性。 A. [1,4] ｜ B. [0,4] ｜ C. [0,1] ｜ D. [−1,4] <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：x=0 时取到最小值 0，x=2 时取到最大值 4，故值域 [0,4]。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n函数＝唯一对应的规则；三要素是定义域、法则、值域\n<\/li><li>\n解析式、表格、图象可以互相转换\n<\/li><li>\n图象上升/下降对应增减，交点对应零点\n<\/ul>", "ch02": "<h1>第 2 章：一次函数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由 k、b 判断图象位置与增减\n<\/li><li>\n求一次函数的零点与解析式\n<\/li><li>\n用一次函数建模\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>一次函数 y=kx+b 的变化率恒为 k：k 正则升，k 负则降，b 是它与 y 轴的交点。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 k 与 b 的作用<\/h3>\n<p>k 叫斜率，决定直线的倾斜程度与方向：k&gt;0 时 y 随 x 增大而增大；k&lt;0 时减小；k=0 时退化为水平直线 y=b。<\/p>\n<p>b 是截距：图象过点 (0,b)。<\/p>\n<h3>2.2 由两点求解析式<\/h3>\n<p>设 y=kx+b，把两点坐标代入，解出 k、b。也可先用 k=(y₂−y₁)/(x₂−x₁) 求斜率，再代一点求 b。<\/p>\n<h3>2.3 零点与不等式<\/h3>\n<p>零点即 kx+b=0 的解 x=−b/k（k≠0）。由零点和 k 的符号可以直接读出 kx+b&gt;0 的解集，不必每次重算。<\/p>\n<h3>2.4 一次函数模型<\/h3>\n<p>凡“每增加一个单位，总量增加固定值”的关系都是一次的：匀速路程 s=vt、计价 y=kx+b、摄氏与华氏换算。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：一次函数像匀速行走，每小时走的距离一样，图象是笔直的路线。<\/p>\n<p><strong>失效边界<\/strong>：实际问题的定义域常受限制（人数、时间不能为负），直线要截成一段。<\/p>\n<p><strong>实例<\/strong>：y=−2x+6。k=−2&lt;0，随 x 增大而减小；过 (0,6)；零点 x=3；所以 y&gt;0 当 x&lt;3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 b 是直线与 x 轴的交点 —— 实际上 b 是与 y 轴交点的纵坐标；与 x 轴的交点是 −b/k。\n<\/li><li>\n别以为 k 越大直线越陡 —— 实际上 陡峭程度看 |k|；k=−5 比 k=1 更陡，但方向相反。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n一次函数 y=3x−6 的零点是：\n<\/li><li>\n若一次函数 y=kx+b 的图象经过第一、二、四象限，则：\n<p>A. x=−2 ｜ B. x=2 ｜ C. x=6 ｜ D. x=3 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：3x−6=0 得 x=2。 A. k&gt;0，b&gt;0 ｜ B. k&lt;0，b&gt;0 ｜ C. k&lt;0，b&lt;0 ｜ D. k&gt;0，b&lt;0 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：直线下降说明 k&lt;0；与 y 轴交于正半轴说明 b&gt;0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\ny=kx+b：k 定方向与增减，b 定 y 轴截距\n<\/li><li>\n零点 x=−b/k\n<\/li><li>\n两点定一条直线\n<\/ul>", "ch03": "<h1>第 3 章：二次函数与变化率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02、配方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把二次函数化成顶点式并读出顶点、对称轴\n<\/li><li>\n求给定区间上的最值\n<\/li><li>\n区分平均变化率与瞬时变化率\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>二次函数的一切都藏在顶点式 y=a(x−h)²+k 里：a 定开口，顶点 (h,k) 定最值。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 配方成顶点式<\/h3>\n<p>y=ax²+bx+c=a(x+b/2a)²+(4ac−b²)/4a。顶点 (−b/2a, (4ac−b²)/4a)，对称轴 x=−b/2a。<\/p>\n<h3>3.2 开口与最值<\/h3>\n<p>a&gt;0 开口向上，顶点是最小值点；a&lt;0 开口向下，顶点是最大值点。顶点值就是全局最值。<\/p>\n<p>但若定义域被限制在某个区间，要看顶点是否落在区间内：不在，最值在端点取到。<\/p>\n<h3>3.3 零点<\/h3>\n<p>ax²+bx+c=0 的根就是图象与 x 轴的交点，判别式 Δ 决定交点个数。因式分解 a(x−x₁)(x−x₂) 与图象一一对应。<\/p>\n<h3>3.4 变化率<\/h3>\n<p><strong>平均变化率<\/strong>：区间 [x₁,x₂] 上 (f(x₂)−f(x₁))/(x₂−x₁)，几何上是割线斜率。一次函数的平均变化率恒等于 k；二次函数的平均变化率随区间变化。<\/p>\n<p><strong>瞬时变化率<\/strong>：区间缩到一点时的极限值，几何上是切线斜率——这是后面微积分的入口。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：抛物线像喷泉的水柱，顶点是最高点；开口方向就是水柱朝上还是朝下。<\/p>\n<p><strong>失效边界<\/strong>：顶点最值只在定义域包含顶点时成立；区间外的情形要比较端点。<\/p>\n<p><strong>实例<\/strong>：y=x²−4x+1=(x−2)²−3。顶点 (2,−3)，对称轴 x=2，最小值 −3。 若限制 x∈[3,5]，顶点不在区间内，函数在区间上递增，最小值 f(3)=−2，最大值 f(5)=6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 最小值一定是顶点值 —— 实际上 只有顶点落在定义域内才是；闭区间上要在顶点与端点之间比较。\n<\/li><li>\n别以为 二次函数的变化率也是常数 —— 实际上 只有一次函数的变化率恒定；二次函数的平均变化率随区间改变。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\ny=x²−6x+5 的顶点坐标是：\n<\/li><li>\ny=−x²+2x+3 的最大值是：\n<p>A. (3,−4) ｜ B. (−3,−4) ｜ C. (3,4) ｜ D. (3,−5) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：配方 y=(x−3)²−4，顶点 (3,−4)。 A. 3 ｜ B. 4 ｜ C. −4 ｜ D. 2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：y=−(x−1)²+4，开口向下，x=1 时取最大值 4。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n顶点式 y=a(x−h)²+k：a 定开口，顶点定最值\n<\/li><li>\n闭区间最值要比较顶点与端点\n<\/li><li>\n平均变化率＝割线斜率，瞬时变化率＝切线斜率\n<\/ul>", "c01": "<h1>函数三要素<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>定义域、对应法则、值域，三者确定一个函数；前两个定了，第三个就定了。<\/p>\n<h2>为什么重要<\/h2>\n<p>判断两个函数是否相同、求值域、画图象，都要先回到三要素。<\/p>\n<h2>详解<\/h2>\n<p>定义域是允许输入的集合；对应法则是输入到输出的规则；值域是实际输出的集合。定义域与法则相同才算同一个函数，解析式长得不一样也可能相等（如 y=x 与 y=x²/x，x≠0）。<\/p>\n<h2>常见误解<\/h2>\n<p>以为解析式相同就是同一个函数，忽略定义域可能被约分改变。<\/p>\n<h2>相关概念<\/h2>\n<p>函数与图象（ch01）、定义域（《分式与根式》）<\/p>", "c02": "<h1>变化率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>平均变化率是两个点之间的“平均速度”，瞬时变化率是某一点的“瞬间速度”。<\/p>\n<h2>为什么重要<\/h2>\n<p>它是微积分的入口：导数就是瞬时变化率。<\/p>\n<h2>详解<\/h2>\n<p>一次函数的平均变化率恒为 k，所以“匀速”；二次函数的平均变化率随区间改变，所以“变速”。把区间不断缩小，平均变化率趋于一个确定值，就是瞬时变化率。<\/p>\n<h2>常见误解<\/h2>\n<p>把平均变化率当成某一点的变化快慢；它描述的是一整段区间。<\/p>\n<h2>相关概念<\/h2>\n<p>一次函数（ch02）、导数（《微积分初步》）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：函数与图象<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：函数与图象<\/a><br>检查点：能由一个对应关系写出定义域并画出草图<\/li><li class='path-step' id='path-02'><strong>步骤 02：一次函数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：一次函数<\/a><br>检查点：能由 k、b 判断增减与截距<\/li><li class='path-step' id='path-03'><strong>步骤 03：二次函数与变化率<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：二次函数与变化率<\/a><br>检查点：能求顶点、最值、零点并解释变化率<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> y=2x²−8x+3 的对称轴是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> x=2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> x=−2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> x=4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> x=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 一次函数 y=−3x+9 中，y 随 x 增大而：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 增大<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 减小<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 不变<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 先增后减<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：函数与图象<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 下列关系中，y 是 x 的函数的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> x²+y²=1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> y²=x<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> y=2x+1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> |y|=x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> f(x)=x² 在 [−1,2] 上的值域是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> [1,4]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> [0,4]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> [0,1]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> [−1,4]<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：一次函数<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 一次函数 y=3x−6 的零点是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> x=−2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x=2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> x=6<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x=3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 若一次函数 y=kx+b 的图象经过第一、二、四象限，则：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> k&gt;0，b&gt;0<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> k&lt;0，b&gt;0<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> k&lt;0，b&lt;0<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> k&gt;0，b&lt;0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：二次函数与变化率<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> y=x²−6x+5 的顶点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> (3,−4)<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> (−3,−4)<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> (3,4)<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> (3,−5)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> y=−x²+2x+3 的最大值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> −4<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='函数'>函数 — 一个输入对应唯一输出的规则。 <span class=glossary-ref>（第 1 章：函数与图象）<\/span><\/li><li data-term='定义域'>定义域 — 允许输入的所有取值组成的集合。 <span class=glossary-ref>（第 1 章：函数与图象）<\/span><\/li><li data-term='值域'>值域 — 所有实际输出组成的集合。 <span class=glossary-ref>（第 1 章：函数与图象）<\/span><\/li><li data-term='增函数'>增函数 — x 增大时 y 也增大的函数。 <span class=glossary-ref>（第 1 章：函数与图象）<\/span><\/li><li data-term='斜率'>斜率 — 一次函数 y=kx+b 中的 k，反映倾斜与增减。 <span class=glossary-ref>（第 2 章：一次函数）<\/span><\/li><li data-term='截距'>截距 — 图象与 y 轴交点的纵坐标 b。 <span class=glossary-ref>（第 2 章：一次函数）<\/span><\/li><li data-term='顶点式'>顶点式 — y=a(x−h)²+k 的形式，直接读出顶点。 <span class=glossary-ref>（第 3 章：二次函数与变化率）<\/span><\/li><li data-term='对称轴'>对称轴 — 抛物线关于它左右对称的竖直线 x=−b/2a。 <span class=glossary-ref>（第 3 章：二次函数与变化率）<\/span><\/li><li data-term='平均变化率'>平均变化率 — 区间两端函数值之差与自变量之差的比。 <span class=glossary-ref>（第 3 章：二次函数与变化率）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：二次函数四问<\/h2>\n<p>① 开口向哪（看 a）；② 顶点在哪（配方）；③ 零点几个（看 Δ）；④ 区间最值（比较顶点与端点）。<\/p>\n<h2>框架：建模三步<\/h2>\n<p>找变量 → 写关系式 → 标注定义域。第三步常被漏掉，但实际问题里它决定答案是否合理。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>一次函数<\/td><td>y=kx+b；k&gt;0 增，k&lt;0 减；零点 −b/k<\/td><\/tr><tr><td>斜率公式<\/td><td>k=(y₂−y₁)/(x₂−x₁)<\/td><\/tr><tr><td>顶点<\/td><td>(−b/2a，(4ac−b²)/4a)<\/td><\/tr><tr><td>最值<\/td><td>a&gt;0 顶点最小，a&lt;0 顶点最大<\/td><\/tr><tr><td>平均变化率<\/td><td>(f(x₂)−f(x₁))/(x₂−x₁)<\/td><\/tr><\/tbody><\/table>"}};
+const pages = DATA.rendered;
+const manifest = DATA.manifest;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SLUG = manifest.slug || 'book';
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
+};
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+
+/* ---------- 导航 ---------- */
+function renderNav(){
+  const nav = $('#nav'); nav.innerHTML='';
+  const build = items => items.forEach(it=>{
+    if(it.children){
+      const sec=document.createElement('div'); sec.className='nav-sec'; sec.textContent=it.label; nav.appendChild(sec);
+      it.children.forEach(c=>{
+        const a=document.createElement('a'); a.className='nav-item'; a.href=c.href; a.textContent=c.label;
+        const id=routeId(c.href);
+        if(state.visited.includes(id)) a.innerHTML = esc(c.label)+' <span class="done">✓</span>';
+        nav.appendChild(a);
+      });
+    }else{
+      const a=document.createElement('a'); a.className='nav-item'; a.href=it.href; a.textContent=it.label;
+      const id=routeId(it.href);
+      if(state.visited.includes(id)) a.innerHTML = esc(it.label)+' <span class="done">✓</span>';
+      nav.appendChild(a);
+    }
+  });
+  build(DATA.nav);
+  updateProgress();
+}
+function routeId(href){ return href.replace('#/',''); }
+
+/* ---------- 路由 ---------- */
+function routeIdFromHash(){
+  let h = location.hash.replace(/^#\//,'');
+  if(!h) return 'path';
+  if(h==='path') return 'path';
+  const m = h.match(/^(chapter|concept)\/(.+)$/);
+  if(m) return m[1]+'/'+m[2];
+  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+}
+function showPage(rid){
+  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  const html = pages[id] || '<div class="empty">页面不存在</div>';
+  $('#view').innerHTML = html;
+  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
+    state.visited.push(rid); store.set('visited', state.visited); renderNav();
+  }
+  window.scrollTo(0,0);
+  if(rid==='cards') initCards();
+  if(rid==='glossary') initGlossary();
+  if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(id==='__path__') updatePath();
+  renderMermaid();
+}
+
+/* ---------- 进度 ---------- */
+function updateProgress(){
+  const chs = (manifest.chapters||[]).length;
+  const done = (manifest.chapters||[]).filter(c=>state.visited.includes('chapter/'+c.id)).length;
+  const pct = chs? Math.round(done/chs*100) : 0;
+  $('#progress-fill').style.width = pct+'%';
+  $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
+}
+function updatePath(){
+  document.querySelectorAll('.path-step').forEach(el=>{
+    const step = el.id.replace('path-','');
+    const s = (manifest.learningPath||[]).find(x=>x.step===step);
+    if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
+      el.classList.add('passed');
+      const lbl = el.querySelector('.checkpoint-ok'); if(!lbl){ const sp=document.createElement('span'); sp.className='done'; sp.textContent=' ✓ 已完成'; el.appendChild(sp); }
+    }
+  });
+}
+
+/* ---------- 测验 ---------- */
+function initQuizzes(rid){
+  document.querySelectorAll('.quiz-item').forEach(item=>{
+    const btn = item.querySelector('.quiz-check');
+    if(!btn || item.dataset.inited){ return }
+    item.dataset.inited='1';
+    btn.addEventListener('click', ()=>{
+      const qid = item.dataset.qid; const type = item.dataset.type;
+      const q = (manifest.quizzes||[]).find(x=>x.id===qid); if(!q) return;
+      let user, correct=false, fb;
+      if(type==='single'){
+        const sel = item.querySelector('input:checked');
+        user = sel? parseInt(sel.value) : null;
+        correct = user===q.answer;
+        fb = correct?'✓ 正确':'✗ 错误'+(user==null?'（未作答）':'');
+      } else if(type==='multi'){
+        user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+        const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+        correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+        fb = correct?'✓ 正确':'✗ 错误';
+      } else if(type==='blank'){
+        const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+        const a = String(q.answer).trim().toLowerCase();
+        correct = v===a;
+        fb = correct?'✓ 正确':'✗ 错误'+(v?'':'（未作答）');
+      }
+      item.querySelectorAll('input:checked').forEach(i=>{
+        const val=parseInt(i.value);
+        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
+        else i.parentElement.style.color='var(--bad)';
+      });
+      const feed = item.querySelector('.quiz-feedback');
+      feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
+      feed.textContent = fb;
+      let ex = item.querySelector('.quiz-explain');
+      if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
+      ex.innerHTML = '解析：' + esc(q.explain||'');
+      // 记录成绩（按章聚合）
+      const ch = q.chapterId||'__all__';
+      if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
+      state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
+      state.quiz[ch].total += 1;
+      store.set('quiz', state.quiz);
+    });
+  });
+}
+
+/* ---------- 抽认卡 ---------- */
+let cardIdx = 0, cardList = [];
+function initCards(){
+  const cards = manifest.flashcards||[];
+  cardList = cards.slice();
+  cardIdx = 0;
+  const sel = $('#card-filter');
+  sel.innerHTML = '<option value="">全部</option>';
+  [...new Set(cards.map(c=>c.chapterId).filter(Boolean))].forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=manifestChTitle(c); sel.appendChild(o);
+  });
+  sel.onchange = ()=>{ const v=sel.value; cardList = v? cards.filter(c=>c.chapterId===v): cards.slice(); cardIdx=0; showCard(); };
+  $('#flashcard').onclick = ()=>$('#flashcard').classList.toggle('flip');
+  $('#card-known-btn').onclick = ()=>{ markCard(true); };
+  $('#card-again-btn').onclick = ()=>{ markCard(false); };
+  showCard();
+}
+function showCard(){
+  updateCardCounts();
+  if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
+  const c = cardList[cardIdx];
+  document.querySelector('.fc-front').textContent = c.front;
+  document.querySelector('.fc-back').textContent = c.back;
+  $('#flashcard').classList.remove('flip');
+}
+function markCard(known){
+  const c = cardList[cardIdx]; if(!c) return;
+  state.cards[c.id] = known?'known':'again';
+  store.set('cards', state.cards);
+  cardIdx++; showCard();
+}
+function updateCardCounts(){
+  const known = Object.values(state.cards).filter(v=>v==='known').length;
+  const again = Object.values(state.cards).filter(v=>v==='again').length;
+  $('#card-known').textContent = known;
+  $('#card-again').textContent = again;
+  $('#card-left').textContent = Math.max(0, cardList.length-cardIdx);
+}
+function manifestChTitle(id){
+  const c=(manifest.chapters||[]).find(x=>x.id===id); return c? c.title : id;
+}
+
+/* ---------- 术语表 ---------- */
+function initGlossary(){
+  const input = $('#glossary-filter');
+  if(!input || input.dataset.inited) return;
+  input.dataset.inited='1';
+  input.oninput = ()=>{
+    const v = input.value.trim().toLowerCase();
+    document.querySelectorAll('#glossary-list li').forEach(li=>{
+      li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
+    });
+  };
+}
+
+/* ---------- 搜索 ---------- */
+let searchIndex = null;
+function buildSearchIndex(){
+  if(searchIndex) return searchIndex;
+  searchIndex = [];
+  Object.entries(pages).forEach(([id, htmlText])=>{
+    if(id.startsWith('__')) return;
+    const text = htmlText.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+    searchIndex.push({id, text});
+  });
+  return searchIndex;
+}
+$('#q').addEventListener('input', e=>{
+  const v = e.target.value.trim().toLowerCase();
+  if(!v){ showPage(routeIdFromHash()); return; }
+  buildSearchIndex();
+  const hits = searchIndex.filter(p=>p.text.toLowerCase().includes(v)).slice(0,20);
+  const label = id => id.startsWith('chapter/')? ('章节：'+manifestChTitle(id.split('/')[1])) : id.startsWith('concept/')? ('概念：'+id.split('/')[1]) : id;
+  $('#view').innerHTML = '<h1>搜索结果：'+esc(v)+'</h1>' +
+    (hits.length? hits.map(h=>`<div class="search-hit"><a href="#/${h.id}">${esc(label(h.id))}</a><br><span class="sub">${esc(h.text.slice(0,180))}</span></div>`).join('')
+                 : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
+});
+
+/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+function renderMermaid(){
+  if(!document.querySelector('.mermaid')) return;
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+  s.onload=()=>{ try{
+    mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
+    document.querySelectorAll('.mermaid').forEach(el=>{
+      const code=el.textContent;
+      mermaid.render('mm'+Math.random().toString(36).slice(2), code)
+        .then(({svg})=>{ el.innerHTML=svg; })
+        .catch(()=>{ el.textContent=code; });
+    });
+  }catch(e){} };
+  document.head.appendChild(s);
+}
+
+/* ---------- 深色模式 ---------- */
+const themeBtn=$('#theme-btn');
+themeBtn.onclick=()=>{
+  const d = document.body.dataset.theme==='dark';
+  document.body.dataset.theme = d? '' : 'dark';
+  themeBtn.textContent = d? '🌙 深色' : '☀️ 浅色';
+};
+
+/* ---------- 启动 ---------- */
+renderNav();
+window.addEventListener('hashchange', ()=>showPage(routeIdFromHash()));
+(function(){
+  const sb=document.querySelector('.sidebar'); if(!sb) return;
+  const btn=document.createElement('button'); btn.id='nav-toggle'; btn.textContent='目录（点开选择章节）';
+  btn.onclick=()=>sb.classList.toggle('open');
+  sb.insertBefore(btn, sb.querySelector('#nav'));
+  window.addEventListener('hashchange',()=>{ if(window.innerWidth<=760) sb.classList.remove('open'); });
+})();
+showPage(routeIdFromHash());
+</script>
+</body>
+</html>

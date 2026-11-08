@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>整式</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
+  --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
+  --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+}
+[data-theme="dark"]{
+  --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
+  --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
+  --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:290px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  padding:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h1{font-size:17px;margin:2px 0 2px}
+.sidebar .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+#q{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+.nav-sec{font-size:12px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.nav-item{display:block;padding:5px 10px;border-radius:6px;color:var(--text);font-size:14px}
+.nav-item:hover{background:var(--accent-soft);text-decoration:none}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .done{float:right;color:var(--ok);font-size:12px}
+#nav-toggle{display:none}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
+.page h2{font-size:20px;margin-top:26px}
+.page h3{font-size:17px;margin-top:22px}
+.page table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+.page th,.page td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.page th{background:var(--code-bg)}
+.page code{background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.9em}
+.page pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
+.page pre code{background:none;padding:0}
+.page blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:6px 14px;background:var(--accent-soft);border-radius:0 6px 6px 0}
+.page blockquote blockquote{border-color:var(--muted)}
+.page img{max-width:100%}
+.mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
+.mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
+svg{max-width:100%;height:auto}
+.quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
+.quiz-q{margin:0 0 8px;font-weight:500}
+.quiz-opts label{display:block;padding:4px 0;cursor:pointer}
+.quiz-blank{width:60%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+.quiz-check{margin-top:10px;padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.quiz-feedback{margin-left:12px;font-size:13px}
+.fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
+.quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
+.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;
+  padding:22px;border-radius:14px;border:1px solid var(--border);background:var(--panel);font-size:16px;text-align:center}
+.fc-back{transform:rotateY(180deg);background:var(--accent-soft);color:var(--text)}
+.card-controls{display:flex;gap:14px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.card-actions{display:flex;gap:12px;justify-content:center}
+.card-actions button{padding:8px 22px;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+#card-known-btn{background:var(--ok);color:#fff}
+#card-again-btn{background:var(--bad);color:#fff}
+.card-counts{color:var(--muted);font-size:13px}
+.path-step{margin:8px 0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+.path-step.passed{border-color:var(--ok)}
+#glossary-filter{width:100%;max-width:380px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+#glossary-list li{padding:6px 0;border-bottom:1px dashed var(--border)}
+.glossary-ref{color:var(--muted);font-size:12px}
+.search-hit{margin:10px 0}
+.topbar{position:sticky;top:0;background:var(--bg);padding:8px 0;display:flex;justify-content:flex-end;z-index:10}
+#theme-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+#progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
+#progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
+.empty{color:var(--muted);padding:20px 0}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+@media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
+  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
+  .layout{flex-direction:column}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>整式</h1>
+    <div class="sub">字母也能算：整式的加减乘除与恒等变形</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div class="sub" id="progress-label">进度 0%</div>
+    <input id="q" type="search" placeholder="搜索章节 / 概念 / 术语 / 全文…">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar"><button id="theme-btn">🌙 深色</button></div>
+    <div id="view" class="page"></div>
+  </main>
+</div>
+<script>
+const DATA = {"manifest": {"slug": "zhengshi", "title": "整式", "subtitle": "字母也能算：整式的加减乘除与恒等变形", "book": {"title": "整式", "author": "吉星 杨佩祥", "source": ["数学基础知识丛书-02-整式 吉星 杨佩祥.pdf"]}, "audience": "零基础", "goal": "把单项式、多项式的四则运算做熟，能用乘法公式与待定系数法完成整式变形。", "learningPath": [{"step": "01", "title": "整式的概念与加减法", "chapterIds": ["ch01"], "checkpoint": "能判断同类项并化简含括号的多项式"}, {"step": "02", "title": "整式的乘法与乘法公式", "chapterIds": ["ch02"], "checkpoint": "能默写三个乘法公式并逆用"}, {"step": "03", "title": "整式的除法", "chapterIds": ["ch03"], "checkpoint": "能做多项式长除法并写出带余除式"}, {"step": "04", "title": "多项式恒等定理与待定系数法", "chapterIds": ["ch04"], "checkpoint": "能设系数解出使两式恒等的参数"}], "chapters": [{"id": "ch01", "title": "第 1 章：整式的概念与加减法", "file": "chapters/ch01-concept-add-subtract.md", "difficulty": 1}, {"id": "ch02", "title": "第 2 章：整式的乘法与乘法公式", "file": "chapters/ch02-multiplication.md", "difficulty": 2}, {"id": "ch03", "title": "第 3 章：整式的除法", "file": "chapters/ch03-division.md", "difficulty": 2}, {"id": "ch04", "title": "第 4 章：多项式恒等定理与待定系数法", "file": "chapters/ch04-identity.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "同类项与合并", "file": "concepts/c01-like-terms.md", "chapterIds": ["ch01"]}, {"id": "c02", "title": "带余除式与恒等定理", "file": "concepts/c02-division-identity.md", "chapterIds": ["ch03", "ch04"]}], "glossary": [{"term": "单项式", "def": "数与字母的乘积，单独一个数或字母也算。", "chapterId": "ch01"}, {"term": "系数", "def": "单项式中的数字因数。", "chapterId": "ch01"}, {"term": "次数", "def": "单项式各字母指数之和；多项式取最高次项的次数。", "chapterId": "ch01"}, {"term": "同类项", "def": "字母相同且相同字母指数也相同的项。", "chapterId": "ch01"}, {"term": "分配律", "def": "a(b+c)=ab+ac，整式变形的基本依据。", "chapterId": "ch01"}, {"term": "乘法公式", "def": "平方差、完全平方、立方和差三组展开结果。", "chapterId": "ch02"}, {"term": "长除法", "def": "逐次消去最高次项的多项式除法。", "chapterId": "ch03"}, {"term": "带余除式", "def": "A=BQ+R，余式次数低于除式。", "chapterId": "ch03"}, {"term": "恒等", "def": "对字母的一切取值两边都相等。", "chapterId": "ch04"}, {"term": "待定系数法", "def": "设出含未知系数的形式，再比较系数求解。", "chapterId": "ch04"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "−3x²y 的系数与次数分别是：", "options": ["−3，2", "−3，3", "3，3", "3，2"], "answer": 1, "explain": "系数是数字因数 −3；次数是各字母指数之和 2+1=3。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "化简 a−(2a−b)+b 的结果是：", "options": ["−a+2b", "−a", "3a", "−a−2b"], "answer": 0, "explain": "去括号：a−2a+b+b = −a+2b。括号前是负号，−b 变 +b。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "展开 (2x−3)(2x+3) 的结果是：", "options": ["4x²−9", "4x²+9", "4x²−12x+9", "4x²−6x−9"], "answer": 0, "explain": "平方差公式：(2x)²−3²=4x²−9。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "计算 102×98 最简便的算法是：", "options": ["102×100−102×2", "(100+2)(100−2)=100²−4", "100×98+2×98", "直接竖式相乘"], "answer": 1, "explain": "102×98=(100+2)(100−2)=100²−2²=9996，用平方差一步到位。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "12x⁴y²÷3x²y 的结果是：", "options": ["4x²y", "4x⁶y³", "4x²y²", "4x²"], "answer": 0, "explain": "系数 12÷3=4；x 的指数 4−2=2；y 的指数 2−1=1，得 4x²y。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "(x²−1)÷(x−1) 的商与余式分别是：", "options": ["x+1，0", "x−1，0", "x+1，2", "x，1"], "answer": 0, "explain": "x²−1=(x−1)(x+1)，整除，商 x+1，余式 0。"}, {"id": "q07", "chapterId": "ch04", "type": "single", "question": "若 x²+ax+b≡(x−1)(x+4)，则 a、b 为：", "options": ["a=3，b=−4", "a=5，b=4", "a=−3，b=−4", "a=3，b=4"], "answer": 0, "explain": "右边展开 x²+3x−4，比较系数得 a=3，b=−4。"}, {"id": "q08", "chapterId": "ch04", "type": "single", "question": "两个三次多项式在几个不同点上取值相同，就一定能判定它们恒等？", "options": ["2 个", "3 个", "4 个", "1 个"], "answer": 2, "explain": "次数为 3，需要 n+1=4 个不同的点；少于 4 个不足以排除差多项式有根的情况。"}, {"id": "q09", "chapterId": "__all__", "type": "single", "question": "下列各组中，是同类项的是：", "options": ["3x²y 与 3xy²", "−2ab 与 5ba", "x² 与 x³", "2a 与 2b"], "answer": 1, "explain": "−2ab 与 5ba 字母相同、指数都是 1，是同类项；其余三组字母或指数不同。"}, {"id": "q10", "chapterId": "__all__", "type": "single", "question": "(x³+1)÷(x+1) 的商是：", "options": ["x²−x+1", "x²+x+1", "x²−1", "x²+1"], "answer": 0, "explain": "x³+1=(x+1)(x²−x+1)，故商为 x²−x+1，余式 0。"}, {"id": "q11", "chapterId": "__all__", "type": "single", "question": "若 2x²+ax−3≡2(x−1)(x+2)+b，则 a、b 为：", "options": ["a=2，b=1", "a=2，b=−3", "a=−2，b=1", "a=1，b=1"], "answer": 0, "explain": "右边展开得 2x²+2x−4+b。比较 x 项系数得 a=2；比较常数项 −3=−4+b 得 b=1。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：整式的概念与加减法」的一句话核心是什么？", "back": "整式的加减只做一件事：把字母部分完全相同的项并起来，系数相加。", "tags": ["zhengshi", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：整式的乘法与乘法公式」的一句话核心是什么？", "back": "乘法就是反复用分配律展开；指数法则负责字母部分，乘法公式是展开结果的压缩记忆。", "tags": ["zhengshi", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：整式的除法」的一句话核心是什么？", "back": "除法是指数法则的逆用；除不尽时写成 A=BQ+R，余式的次数必须低于除式。", "tags": ["zhengshi", "核心"]}, {"id": "f04", "chapterId": "ch04", "front": "「第 4 章：多项式恒等定理与待定系数法」的一句话核心是什么？", "back": "两个次数不超过 n 的多项式，只要在 n+1 个不同点取值相同，就恒等；于是可以设出系数再解方程。", "tags": ["zhengshi", "核心"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「单项式」？", "back": "数与字母的乘积，单独一个数或字母也算。", "tags": ["zhengshi", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「系数」？", "back": "单项式中的数字因数。", "tags": ["zhengshi", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「次数」？", "back": "单项式各字母指数之和；多项式取最高次项的次数。", "tags": ["zhengshi", "术语"]}, {"id": "f08", "chapterId": "ch01", "front": "什么是「同类项」？", "back": "字母相同且相同字母指数也相同的项。", "tags": ["zhengshi", "术语"]}, {"id": "f09", "chapterId": "ch01", "front": "什么是「分配律」？", "back": "a(b+c)=ab+ac，整式变形的基本依据。", "tags": ["zhengshi", "术语"]}, {"id": "f10", "chapterId": "ch02", "front": "什么是「乘法公式」？", "back": "平方差、完全平方、立方和差三组展开结果。", "tags": ["zhengshi", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「长除法」？", "back": "逐次消去最高次项的多项式除法。", "tags": ["zhengshi", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「带余除式」？", "back": "A=BQ+R，余式次数低于除式。", "tags": ["zhengshi", "术语"]}, {"id": "f13", "chapterId": "ch04", "front": "什么是「恒等」？", "back": "对字母的一切取值两边都相等。", "tags": ["zhengshi", "术语"]}, {"id": "f14", "chapterId": "ch04", "front": "什么是「待定系数法」？", "back": "设出含未知系数的形式，再比较系数求解。", "tags": ["zhengshi", "术语"]}], "companion": "zhengshi学习伴侣.html", "deriv": "zhengshi从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：整式的概念与加减法<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★☆☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：数与字母、乘法分配律\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n分清单项式的系数与次数、多项式的项与次数\n<\/li><li>\n识别同类项并按分配律合并\n<\/li><li>\n正确去括号、添括号\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>整式的加减只做一件事：把字母部分完全相同的项并起来，系数相加。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 单项式<\/h3>\n<p>数与字母的乘积叫<strong>单项式<\/strong>，单独一个数或一个字母也算单项式。例如 5x、−3x²y、7、a 都是单项式。<\/p>\n<ul><li>\n<strong>系数<\/strong>：单项式里的数字因数。−3x²y 的系数是 −3。\n<\/li><li>\n<strong>次数<\/strong>：所有字母的指数之和。−3x²y 的次数是 2+1=3。\n<\/ul>\n<h3>1.2 多项式<\/h3>\n<p>几个单项式的和叫<strong>多项式<\/strong>，其中每个单项式叫<strong>项<\/strong>，不含字母的项叫<strong>常数项<\/strong>。多项式里次数最高的项的次数，就是这个多项式的<strong>次数<\/strong>。<\/p>\n<p>例如 3x²−2x+5 是二次三项式：三项分别是 3x²、−2x、5，次数为 2。<\/p>\n<h3>1.3 同类项与合并<\/h3>\n<p><strong>字母相同、并且相同字母的指数也相同<\/strong>的项叫同类项。3x²y 与 −7x²y 是同类项；3x² 与 3x 不是（指数不同）。<\/p>\n<p>合并同类项的依据是分配律：<\/p>\n<p>3x²+5x²=(3+5)x²=8x²<\/p>\n<p>字母部分原样保留，只把系数相加。常数项之间也是同类项。<\/p>\n<h3>1.4 去括号与添括号<\/h3>\n<p>括号前是“+”，去括号后各项符号不变；括号前是“−”，去括号后各项都变号：<\/p>\n<p>a−(b+c)=a−b−c<\/p>\n<p>理由仍是分配律：a−(b+c)=a+(−1)(b+c)=a−b−c。添括号是反方向：需要把几项括起来时，括号前加“−”，括进去的每一项都要变号。<\/p>\n<h3>1.5 化简的顺序<\/h3>\n<p>先去括号（由内向外），再合并同类项；有多个括号时，每去一层就检查一次符号。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：同类项像同一种水果——3 个苹果加 5 个苹果是 8 个苹果，但 3 个苹果加 5 个梨不能合并。<\/p>\n<p><strong>失效边界<\/strong>：字母部分只要有一处不同（哪怕只是指数不同），就不是同类项，不能合并。<\/p>\n<p><strong>实例<\/strong>：化简 3x²y−2xy²+5x²y−xy²。 同类项分组：(3+5)x²y + (−2−1)xy² = 8x²y−3xy²。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 3x² 与 3x 是同类项 —— 实际上 指数不同就不是同类项。x² 与 x 表示不同的字母幂，不能合并。\n<\/li><li>\n别以为 2(x+y)=2x+y —— 实际上 分配律要求括号内每一项都乘：2(x+y)=2x+2y。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n−3x²y 的系数与次数分别是：\n<\/li><li>\n化简 a−(2a−b)+b 的结果是：\n<p>A. −3，2 ｜ B. −3，3 ｜ C. 3，3 ｜ D. 3，2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：系数是数字因数 −3；次数是各字母指数之和 2+1=3。 A. −a+2b ｜ B. −a ｜ C. 3a ｜ D. −a−2b <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：去括号：a−2a+b+b = −a+2b。括号前是负号，−b 变 +b。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n单项式看系数与次数，多项式看项与最高次\n<\/li><li>\n同类项两条件：字母相同、指数相同\n<\/li><li>\n括号前是负号，去括号每一项都变号\n<\/ul>", "kind": "chapter", "title": "第 1 章：整式的概念与加减法"}, "ch02": {"html": "<h1>第 2 章：整式的乘法与乘法公式<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01、指数法则\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n按“系数相乘、指数相加”做单项式乘法\n<\/li><li>\n用分配律展开多项式乘法并合并同类项\n<\/li><li>\n默写并逆用三个乘法公式\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>乘法就是反复用分配律展开；指数法则负责字母部分，乘法公式是展开结果的压缩记忆。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 单项式乘单项式<\/h3>\n<p>系数相乘，同底数幂的指数相加：<\/p>\n<p>(−2x²y)(3xy³) = (−2×3)·x^(2+1)·y^(1+3) = −6x³y⁴<\/p>\n<p>不同字母各自保留，不要强行相加指数。<\/p>\n<h3>2.2 单项式乘多项式、多项式乘多项式<\/h3>\n<p>单项式乘多项式，把单项式乘到括号内每一项：<\/p>\n<p>a(b+c)=ab+ac<\/p>\n<p>多项式乘多项式，前一个多项式的每一项乘后一个多项式的每一项，再把同类项并起来：<\/p>\n<p>(a+b)(c+d)=ac+ad+bc+bd<\/p>\n<p>展开后项数是两个多项式项数的乘积，合并同类项前先数项，能及时发现漏乘。<\/p>\n<h3>2.3 三个乘法公式<\/h3>\n<ul><li>\n<strong>平方差<\/strong>：(a+b)(a−b)=a²−b²\n<\/li><li>\n<strong>完全平方<\/strong>：(a±b)²=a²±2ab+b²\n<\/li><li>\n<strong>立方和差<\/strong>：(a±b)(a²∓ab+b²)=a³±b³\n<\/ul>\n<p>三个公式都是展开后的特例，不是新规则。记不住时，直接展开一遍即可。<\/p>\n<h3>2.4 正用与逆用<\/h3>\n<p>正用：把乘积写成多项式，如 (2x−3y)(2x+3y)=4x²−9y²。<\/p>\n<p>逆用：把多项式写成乘积，如 x²−9=(x−3)(x+3)。逆用是后面因式分解的入口。<\/p>\n<p>数值计算里也能用：99×101=(100−1)(100+1)=100²−1=9999。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：多项式乘法像发牌——第一个括号里每一项都要和第二个括号里每一项碰一次，碰完再归类。<\/p>\n<p><strong>失效边界<\/strong>：碰的次数是项数相乘，项数多时容易漏；公式只在结构完全对上时才能套。<\/p>\n<p><strong>实例<\/strong>：展开 (x+2)(x−3)。 逐项相乘：x²−3x+2x−6 = x²−x−6。 若用公式检查：这不是平方差结构（两项符号不同但常数不等），不能硬套。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 (a+b)²=a²+b² —— 实际上 漏了中间项。正确结果是 a²+2ab+b²，可用 a=1,b=1 代入检验：左边 4，右边 2。\n<\/li><li>\n别以为 x²−9 不能再分解 —— 实际上 它是平方差，x²−9=(x−3)(x+3)，逆用公式即可。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n展开 (2x−3)(2x+3) 的结果是：\n<\/li><li>\n计算 102×98 最简便的算法是：\n<p>A. 4x²−9 ｜ B. 4x²+9 ｜ C. 4x²−12x+9 ｜ D. 4x²−6x−9 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：平方差公式：(2x)²−3²=4x²−9。 A. 102×100−102×2 ｜ B. (100+2)(100−2)=100²−4 ｜ C. 100×98+2×98 ｜ D. 直接竖式相乘 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：102×98=(100+2)(100−2)=100²−2²=9996，用平方差一步到位。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n单项式相乘：系数乘系数，指数相加\n<\/li><li>\n多项式相乘：逐项相乘后合并同类项\n<\/li><li>\n平方差与完全平方都是展开的特例\n<\/ul>", "kind": "chapter", "title": "第 2 章：整式的乘法与乘法公式"}, "ch03": {"html": "<h1>第 3 章：整式的除法<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n按“系数相除、指数相减”做单项式除法\n<\/li><li>\n用长除法做多项式除以多项式\n<\/li><li>\n写出带余除式 A=BQ+R 并判断余式次数\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>除法是指数法则的逆用；除不尽时写成 A=BQ+R，余式的次数必须低于除式。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 单项式除以单项式<\/h3>\n<p>系数相除，同底数幂的指数相减：<\/p>\n<p>6x⁵y³ ÷ 2x²y = 3x^(5−2)y^(3−1) = 3x³y²<\/p>\n<p>被除式里没有的字母，结果中也不出现；指数相减出现负数时，按负指数写成倒数。<\/p>\n<h3>3.2 多项式除以单项式<\/h3>\n<p>把多项式的每一项分别除以这个单项式，再把商相加：<\/p>\n<p>(6x³−4x²)÷2x = 3x²−2x<\/p>\n<h3>3.3 多项式除以多项式：长除法<\/h3>\n<p>步骤与整数长除法相同：<\/p>\n<ol><li>\n用被除式的最高次项除以除式的最高次项，得到商的第一项；\n<\/li><li>\n用这一项乘除式，从被除式里减掉；\n<\/li><li>\n对余下的式子重复上述两步，直到余式的次数低于除式。\n<\/ol>\n<p>例：(x³−1)÷(x−1)。第一次商 x²，减得 x²−1；再商 x，减得 x−1；再商 1，减得 0。所以商是 x²+x+1，余式为 0。<\/p>\n<h3>3.4 带余除式<\/h3>\n<p>一般地，对被除式 A、除式 B（B≠0），存在唯一的商 Q 与余式 R，使<\/p>\n<p>A = BQ + R，且 R 的次数低于 B 的次数（或 R=0）<\/p>\n<p>这条式子是后面“余数定理”“因式定理”的基础。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：长除法像分装——每次先用最大的盒子装，装完把剩下的再分，直到剩下的装不满一个盒子。<\/p>\n<p><strong>失效边界<\/strong>：除法要求除式不为零；除式是零多项式时整个式子没有意义。<\/p>\n<p><strong>实例<\/strong>：(2x³+3x²−5x+2)÷(x+2)。 第一次商 2x²，乘除式得 2x³+4x²，相减得 −x²−5x+2； 再商 −x，乘得 −x²−2x，相减得 −3x+2； 再商 −3，乘得 −3x−6，相减得 8。 所以商 2x²−x−3，余式 8，即 2x³+3x²−5x+2=(x+2)(2x²−x−3)+8。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 除法就是指数相减，任何式子都能除尽 —— 实际上 只有单项式相除才直接减指数；多项式相除可能有余式，余式不为零就除不尽。\n<\/li><li>\n别以为 余式可以任意次数 —— 实际上 带余除式要求余式次数严格低于除式次数，否则还能继续除。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n12x⁴y²÷3x²y 的结果是：\n<\/li><li>\n(x²−1)÷(x−1) 的商与余式分别是：\n<p>A. 4x²y ｜ B. 4x⁶y³ ｜ C. 4x²y² ｜ D. 4x² <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：系数 12÷3=4；x 的指数 4−2=2；y 的指数 2−1=1，得 4x²y。 A. x+1，0 ｜ B. x−1，0 ｜ C. x+1，2 ｜ D. x，1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：x²−1=(x−1)(x+1)，整除，商 x+1，余式 0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n单项式相除：系数相除、指数相减\n<\/li><li>\n多项式相除用长除法，逐次消去最高次项\n<\/li><li>\n带余除式：A=BQ+R，R 的次数低于 B\n<\/ul>", "kind": "chapter", "title": "第 3 章：整式的除法"}, "ch04": {"html": "<h1>第 4 章：多项式恒等定理与待定系数法<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch03\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说清两个多项式在什么条件下恒等\n<\/li><li>\n用比较系数或代特殊值求未知系数\n<\/li><li>\n判断一个恒等式是否可能成立\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>两个次数不超过 n 的多项式，只要在 n+1 个不同点取值相同，就恒等；于是可以设出系数再解方程。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>4.1 什么是恒等<\/h3>\n<p>两个多项式恒等，指对字母的任意取值，两边的值都相等，记作 P(x)≡Q(x)。<\/p>\n<p>注意区别：方程只要求“某些 x 使两边相等”，恒等式要求“所有 x 都相等”。<\/p>\n<h3>4.2 恒等定理<\/h3>\n<p>如果两个次数都不超过 n 的多项式 P、Q 在 n+1 个互不相同的点上取值相同，那么 P≡Q。<\/p>\n<p>直观理由：P−Q 的次数不超过 n；如果它不是零多项式，最多只有 n 个根。现在它有 n+1 个不同的根，只能恒等于零。<\/p>\n<h3>4.3 待定系数法<\/h3>\n<p>步骤：<\/p>\n<ol><li>\n按已知结构设出带未知系数的形式（如 ax²+bx+c）；\n<\/li><li>\n展开、合并同类项，或代入几个特殊值；\n<\/li><li>\n比较两边同类项的系数（或解方程组），求出未知系数；\n<\/li><li>\n回代检验。\n<\/ol>\n<p>常用特殊值：x=0 求常数项，x=1 求系数和，x=−1 求交错和。<\/p>\n<h3>4.4 典型用法<\/h3>\n<ul><li>\n求参数：已知 x²+ax+b≡(x−1)(x+3)，展开右边得 x²+2x−3，比较系数得 a=2，b=−3。\n<\/li><li>\n拆分分式：把有理分式拆成几个简单分式之和（第 4 册会用到）。\n<\/li><li>\n判断命题：若两边次数不同，恒等一定不成立，不必再算。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：恒等定理像“指纹比对”——不必逐点验证整条曲线，只要在足够多的点上对上了，两条曲线就只能是同一条。<\/p>\n<p><strong>失效边界<\/strong>：点数必须超过次数。“足够多”不是随便几个，n 次多项式要 n+1 个点。<\/p>\n<p><strong>实例<\/strong>：求 a、b 使 x²+ax+b≡(x−2)(x+5)。 右边展开：x²+3x−10。比较系数：a=3，b=−10。 检验：取 x=0，左边 b=−10，右边 (−2)(5)=−10，一致。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 只要有两个点取值相同就恒等 —— 实际上 两点只能确定一次多项式；二次及以上需要三个以上不同的点。\n<\/li><li>\n别以为 恒等式可以直接用“移项求解”的方式处理 —— 实际上 恒等式对所有 x 成立，比较的是系数，不是解出某个 x。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n若 x²+ax+b≡(x−1)(x+4)，则 a、b 为：\n<\/li><li>\n两个三次多项式在几个不同点上取值相同，就一定能判定它们恒等？\n<p>A. a=3，b=−4 ｜ B. a=5，b=4 ｜ C. a=−3，b=−4 ｜ D. a=3，b=4 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：右边展开 x²+3x−4，比较系数得 a=3，b=−4。 A. 2 个 ｜ B. 3 个 ｜ C. 4 个 ｜ D. 1 个 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：次数为 3，需要 n+1=4 个不同的点；少于 4 个不足以排除差多项式有根的情况。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n恒等：对所有取值都相等；方程：只对某些取值相等\n<\/li><li>\nn 次多项式需 n+1 个点才能定死\n<\/li><li>\n待定系数法：设形式 → 比较系数 → 解方程 → 回代\n<\/ul>", "kind": "chapter", "title": "第 4 章：多项式恒等定理与待定系数法"}, "c01": {"html": "<h1>同类项与合并<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>字母相同、对应指数也相同的项，才能把系数加起来。<\/p>\n<h2>为什么重要<\/h2>\n<p>整式加减的全部技术都在这里；判断错同类项，后面化简、因式分解都会连锁出错。<\/p>\n<h2>详解<\/h2>\n<p>判断同类项看两件事：字母种类是否完全一致、每个字母的指数是否一致。系数与字母的排列顺序不影响。合并时只加系数，字母部分照抄。<\/p>\n<h2>常见误解<\/h2>\n<p>别把“字母相同”当成同类项的全部条件：x² 与 x 字母相同但指数不同，不能合并。<\/p>\n<h2>相关概念<\/h2>\n<p>单项式（ch01）、分配律（ch01）<\/p>", "kind": "concept", "title": "同类项与合并"}, "c02": {"html": "<h1>带余除式与恒等定理<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03、ch04\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>除不尽就写成 A=BQ+R；两个多项式在足够多点重合就恒等。<\/p>\n<h2>为什么重要<\/h2>\n<p>这两条是“整式”从计算走向理论的转折：一条给出除法的完整结果，一条给出判断两个式子是否同一的办法。<\/p>\n<h2>详解<\/h2>\n<p>带余除式保证余式次数低于除式，从而商与余式唯一；恒等定理把“逐点验证”压缩成“有限个点验证”，两者都靠“次数”这个有限指标起作用。<\/p>\n<h2>常见误解<\/h2>\n<p>把“在若干点相等”当成恒等：点数不足时不成立。<\/p>\n<h2>相关概念<\/h2>\n<p>长除法（ch03）、待定系数法（ch04）<\/p>", "kind": "concept", "title": "带余除式与恒等定理"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：整式的概念与加减法<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：整式的概念与加减法<\/a><br>检查点：能判断同类项并化简含括号的多项式<\/li><li class='path-step' id='path-02'><strong>步骤 02：整式的乘法与乘法公式<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：整式的乘法与乘法公式<\/a><br>检查点：能默写三个乘法公式并逆用<\/li><li class='path-step' id='path-03'><strong>步骤 03：整式的除法<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：整式的除法<\/a><br>检查点：能做多项式长除法并写出带余除式<\/li><li class='path-step' id='path-04'><strong>步骤 04：多项式恒等定理与待定系数法<\/strong><br>阅读：<a href=\"#/chapter/ch04\">第 4 章：多项式恒等定理与待定系数法<\/a><br>检查点：能设系数解出使两式恒等的参数<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q09' data-type='single'><p class='quiz-q'><b>Q9.<\/b> 下列各组中，是同类项的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q09' value='0'> 3x²y 与 3xy²<\/label><label class='quiz-opt'><input type='radio' name='q09' value='1'> −2ab 与 5ba<\/label><label class='quiz-opt'><input type='radio' name='q09' value='2'> x² 与 x³<\/label><label class='quiz-opt'><input type='radio' name='q09' value='3'> 2a 与 2b<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q10' data-type='single'><p class='quiz-q'><b>Q10.<\/b> (x³+1)÷(x+1) 的商是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q10' value='0'> x²−x+1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='1'> x²+x+1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='2'> x²−1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='3'> x²+1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q11' data-type='single'><p class='quiz-q'><b>Q11.<\/b> 若 2x²+ax−3≡2(x−1)(x+2)+b，则 a、b 为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q11' value='0'> a=2，b=1<\/label><label class='quiz-opt'><input type='radio' name='q11' value='1'> a=2，b=−3<\/label><label class='quiz-opt'><input type='radio' name='q11' value='2'> a=−2，b=1<\/label><label class='quiz-opt'><input type='radio' name='q11' value='3'> a=1，b=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：整式的概念与加减法<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> −3x²y 的系数与次数分别是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> −3，2<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> −3，3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 3，3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 3，2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 化简 a−(2a−b)+b 的结果是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> −a+2b<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> −a<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 3a<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> −a−2b<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：整式的乘法与乘法公式<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 展开 (2x−3)(2x+3) 的结果是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 4x²−9<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 4x²+9<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 4x²−12x+9<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 4x²−6x−9<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 计算 102×98 最简便的算法是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 102×100−102×2<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> (100+2)(100−2)=100²−4<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 100×98+2×98<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 直接竖式相乘<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：整式的除法<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 12x⁴y²÷3x²y 的结果是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 4x²y<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 4x⁶y³<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 4x²y²<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 4x²<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> (x²−1)÷(x−1) 的商与余式分别是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> x+1，0<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> x−1，0<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> x+1，2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> x，1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch04__": {"html": "<h1>测验：第 4 章：多项式恒等定理与待定系数法<\/h1><div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 若 x²+ax+b≡(x−1)(x+4)，则 a、b 为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> a=3，b=−4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> a=5，b=4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> a=−3，b=−4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> a=3，b=4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 两个三次多项式在几个不同点上取值相同，就一定能判定它们恒等？<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 2 个<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 3 个<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 4 个<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 1 个<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='单项式'>单项式 — 数与字母的乘积，单独一个数或字母也算。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='系数'>系数 — 单项式中的数字因数。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='次数'>次数 — 单项式各字母指数之和；多项式取最高次项的次数。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='同类项'>同类项 — 字母相同且相同字母指数也相同的项。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='分配律'>分配律 — a(b+c)=ab+ac，整式变形的基本依据。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='乘法公式'>乘法公式 — 平方差、完全平方、立方和差三组展开结果。 <span class=glossary-ref>（第 2 章：整式的乘法与乘法公式）<\/span><\/li><li data-term='长除法'>长除法 — 逐次消去最高次项的多项式除法。 <span class=glossary-ref>（第 3 章：整式的除法）<\/span><\/li><li data-term='带余除式'>带余除式 — A=BQ+R，余式次数低于除式。 <span class=glossary-ref>（第 3 章：整式的除法）<\/span><\/li><li data-term='恒等'>恒等 — 对字母的一切取值两边都相等。 <span class=glossary-ref>（第 4 章：多项式恒等定理与待定系数法）<\/span><\/li><li data-term='待定系数法'>待定系数法 — 设出含未知系数的形式，再比较系数求解。 <span class=glossary-ref>（第 4 章：多项式恒等定理与待定系数法）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：整式变形的三步<\/h2>\n<p>① 看结构（单项式／多项式、次数、项数）；② 选工具（合并同类项、分配律、公式、长除法）；③ 回代检验（取特殊值核对）。<\/p>\n<h2>框架：公式的三种用法<\/h2>\n<p>正用（展开）、逆用（分解）、数值化（把数字凑成公式结构做速算）。逆用是最容易被忽略的一种。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>单项式乘单项式<\/td><td>系数相乘，同底数幂指数相加<\/td><\/tr><tr><td>单项式除以单项式<\/td><td>系数相除，同底数幂指数相减<\/td><\/tr><tr><td>平方差<\/td><td>(a+b)(a−b)=a²−b²<\/td><\/tr><tr><td>完全平方<\/td><td>(a±b)²=a²±2ab+b²<\/td><\/tr><tr><td>立方和差<\/td><td>(a±b)(a²∓ab+b²)=a³±b³<\/td><\/tr><tr><td>带余除式<\/td><td>A=BQ+R，deg R&lt;deg B<\/td><\/tr><tr><td>恒等判据<\/td><td>次数≤n 的两式在 n+1 个不同点相等 ⇒ 恒等<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/02-整式", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：整式的概念与加减法", "href": "#/chapter/ch01"}, {"label": "第 2 章：整式的乘法与乘法公式", "href": "#/chapter/ch02"}, {"label": "第 3 章：整式的除法", "href": "#/chapter/ch03"}, {"label": "第 4 章：多项式恒等定理与待定系数法", "href": "#/chapter/ch04"}]}, {"label": "概念", "children": [{"label": "同类项与合并", "href": "#/concept/c01"}, {"label": "带余除式与恒等定理", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：整式的概念与加减法", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：整式的乘法与乘法公式", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：整式的除法", "href": "#/quiz/ch03"}, {"label": "测验：第 4 章：多项式恒等定理与待定系数法", "href": "#/quiz/ch04"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：整式的概念与加减法<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★☆☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：数与字母、乘法分配律\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n分清单项式的系数与次数、多项式的项与次数\n<\/li><li>\n识别同类项并按分配律合并\n<\/li><li>\n正确去括号、添括号\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>整式的加减只做一件事：把字母部分完全相同的项并起来，系数相加。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 单项式<\/h3>\n<p>数与字母的乘积叫<strong>单项式<\/strong>，单独一个数或一个字母也算单项式。例如 5x、−3x²y、7、a 都是单项式。<\/p>\n<ul><li>\n<strong>系数<\/strong>：单项式里的数字因数。−3x²y 的系数是 −3。\n<\/li><li>\n<strong>次数<\/strong>：所有字母的指数之和。−3x²y 的次数是 2+1=3。\n<\/ul>\n<h3>1.2 多项式<\/h3>\n<p>几个单项式的和叫<strong>多项式<\/strong>，其中每个单项式叫<strong>项<\/strong>，不含字母的项叫<strong>常数项<\/strong>。多项式里次数最高的项的次数，就是这个多项式的<strong>次数<\/strong>。<\/p>\n<p>例如 3x²−2x+5 是二次三项式：三项分别是 3x²、−2x、5，次数为 2。<\/p>\n<h3>1.3 同类项与合并<\/h3>\n<p><strong>字母相同、并且相同字母的指数也相同<\/strong>的项叫同类项。3x²y 与 −7x²y 是同类项；3x² 与 3x 不是（指数不同）。<\/p>\n<p>合并同类项的依据是分配律：<\/p>\n<p>3x²+5x²=(3+5)x²=8x²<\/p>\n<p>字母部分原样保留，只把系数相加。常数项之间也是同类项。<\/p>\n<h3>1.4 去括号与添括号<\/h3>\n<p>括号前是“+”，去括号后各项符号不变；括号前是“−”，去括号后各项都变号：<\/p>\n<p>a−(b+c)=a−b−c<\/p>\n<p>理由仍是分配律：a−(b+c)=a+(−1)(b+c)=a−b−c。添括号是反方向：需要把几项括起来时，括号前加“−”，括进去的每一项都要变号。<\/p>\n<h3>1.5 化简的顺序<\/h3>\n<p>先去括号（由内向外），再合并同类项；有多个括号时，每去一层就检查一次符号。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：同类项像同一种水果——3 个苹果加 5 个苹果是 8 个苹果，但 3 个苹果加 5 个梨不能合并。<\/p>\n<p><strong>失效边界<\/strong>：字母部分只要有一处不同（哪怕只是指数不同），就不是同类项，不能合并。<\/p>\n<p><strong>实例<\/strong>：化简 3x²y−2xy²+5x²y−xy²。 同类项分组：(3+5)x²y + (−2−1)xy² = 8x²y−3xy²。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 3x² 与 3x 是同类项 —— 实际上 指数不同就不是同类项。x² 与 x 表示不同的字母幂，不能合并。\n<\/li><li>\n别以为 2(x+y)=2x+y —— 实际上 分配律要求括号内每一项都乘：2(x+y)=2x+2y。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n−3x²y 的系数与次数分别是：\n<\/li><li>\n化简 a−(2a−b)+b 的结果是：\n<p>A. −3，2 ｜ B. −3，3 ｜ C. 3，3 ｜ D. 3，2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：系数是数字因数 −3；次数是各字母指数之和 2+1=3。 A. −a+2b ｜ B. −a ｜ C. 3a ｜ D. −a−2b <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：去括号：a−2a+b+b = −a+2b。括号前是负号，−b 变 +b。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n单项式看系数与次数，多项式看项与最高次\n<\/li><li>\n同类项两条件：字母相同、指数相同\n<\/li><li>\n括号前是负号，去括号每一项都变号\n<\/ul>", "ch02": "<h1>第 2 章：整式的乘法与乘法公式<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01、指数法则\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n按“系数相乘、指数相加”做单项式乘法\n<\/li><li>\n用分配律展开多项式乘法并合并同类项\n<\/li><li>\n默写并逆用三个乘法公式\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>乘法就是反复用分配律展开；指数法则负责字母部分，乘法公式是展开结果的压缩记忆。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 单项式乘单项式<\/h3>\n<p>系数相乘，同底数幂的指数相加：<\/p>\n<p>(−2x²y)(3xy³) = (−2×3)·x^(2+1)·y^(1+3) = −6x³y⁴<\/p>\n<p>不同字母各自保留，不要强行相加指数。<\/p>\n<h3>2.2 单项式乘多项式、多项式乘多项式<\/h3>\n<p>单项式乘多项式，把单项式乘到括号内每一项：<\/p>\n<p>a(b+c)=ab+ac<\/p>\n<p>多项式乘多项式，前一个多项式的每一项乘后一个多项式的每一项，再把同类项并起来：<\/p>\n<p>(a+b)(c+d)=ac+ad+bc+bd<\/p>\n<p>展开后项数是两个多项式项数的乘积，合并同类项前先数项，能及时发现漏乘。<\/p>\n<h3>2.3 三个乘法公式<\/h3>\n<ul><li>\n<strong>平方差<\/strong>：(a+b)(a−b)=a²−b²\n<\/li><li>\n<strong>完全平方<\/strong>：(a±b)²=a²±2ab+b²\n<\/li><li>\n<strong>立方和差<\/strong>：(a±b)(a²∓ab+b²)=a³±b³\n<\/ul>\n<p>三个公式都是展开后的特例，不是新规则。记不住时，直接展开一遍即可。<\/p>\n<h3>2.4 正用与逆用<\/h3>\n<p>正用：把乘积写成多项式，如 (2x−3y)(2x+3y)=4x²−9y²。<\/p>\n<p>逆用：把多项式写成乘积，如 x²−9=(x−3)(x+3)。逆用是后面因式分解的入口。<\/p>\n<p>数值计算里也能用：99×101=(100−1)(100+1)=100²−1=9999。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：多项式乘法像发牌——第一个括号里每一项都要和第二个括号里每一项碰一次，碰完再归类。<\/p>\n<p><strong>失效边界<\/strong>：碰的次数是项数相乘，项数多时容易漏；公式只在结构完全对上时才能套。<\/p>\n<p><strong>实例<\/strong>：展开 (x+2)(x−3)。 逐项相乘：x²−3x+2x−6 = x²−x−6。 若用公式检查：这不是平方差结构（两项符号不同但常数不等），不能硬套。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 (a+b)²=a²+b² —— 实际上 漏了中间项。正确结果是 a²+2ab+b²，可用 a=1,b=1 代入检验：左边 4，右边 2。\n<\/li><li>\n别以为 x²−9 不能再分解 —— 实际上 它是平方差，x²−9=(x−3)(x+3)，逆用公式即可。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n展开 (2x−3)(2x+3) 的结果是：\n<\/li><li>\n计算 102×98 最简便的算法是：\n<p>A. 4x²−9 ｜ B. 4x²+9 ｜ C. 4x²−12x+9 ｜ D. 4x²−6x−9 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：平方差公式：(2x)²−3²=4x²−9。 A. 102×100−102×2 ｜ B. (100+2)(100−2)=100²−4 ｜ C. 100×98+2×98 ｜ D. 直接竖式相乘 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：102×98=(100+2)(100−2)=100²−2²=9996，用平方差一步到位。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n单项式相乘：系数乘系数，指数相加\n<\/li><li>\n多项式相乘：逐项相乘后合并同类项\n<\/li><li>\n平方差与完全平方都是展开的特例\n<\/ul>", "ch03": "<h1>第 3 章：整式的除法<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n按“系数相除、指数相减”做单项式除法\n<\/li><li>\n用长除法做多项式除以多项式\n<\/li><li>\n写出带余除式 A=BQ+R 并判断余式次数\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>除法是指数法则的逆用；除不尽时写成 A=BQ+R，余式的次数必须低于除式。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 单项式除以单项式<\/h3>\n<p>系数相除，同底数幂的指数相减：<\/p>\n<p>6x⁵y³ ÷ 2x²y = 3x^(5−2)y^(3−1) = 3x³y²<\/p>\n<p>被除式里没有的字母，结果中也不出现；指数相减出现负数时，按负指数写成倒数。<\/p>\n<h3>3.2 多项式除以单项式<\/h3>\n<p>把多项式的每一项分别除以这个单项式，再把商相加：<\/p>\n<p>(6x³−4x²)÷2x = 3x²−2x<\/p>\n<h3>3.3 多项式除以多项式：长除法<\/h3>\n<p>步骤与整数长除法相同：<\/p>\n<ol><li>\n用被除式的最高次项除以除式的最高次项，得到商的第一项；\n<\/li><li>\n用这一项乘除式，从被除式里减掉；\n<\/li><li>\n对余下的式子重复上述两步，直到余式的次数低于除式。\n<\/ol>\n<p>例：(x³−1)÷(x−1)。第一次商 x²，减得 x²−1；再商 x，减得 x−1；再商 1，减得 0。所以商是 x²+x+1，余式为 0。<\/p>\n<h3>3.4 带余除式<\/h3>\n<p>一般地，对被除式 A、除式 B（B≠0），存在唯一的商 Q 与余式 R，使<\/p>\n<p>A = BQ + R，且 R 的次数低于 B 的次数（或 R=0）<\/p>\n<p>这条式子是后面“余数定理”“因式定理”的基础。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：长除法像分装——每次先用最大的盒子装，装完把剩下的再分，直到剩下的装不满一个盒子。<\/p>\n<p><strong>失效边界<\/strong>：除法要求除式不为零；除式是零多项式时整个式子没有意义。<\/p>\n<p><strong>实例<\/strong>：(2x³+3x²−5x+2)÷(x+2)。 第一次商 2x²，乘除式得 2x³+4x²，相减得 −x²−5x+2； 再商 −x，乘得 −x²−2x，相减得 −3x+2； 再商 −3，乘得 −3x−6，相减得 8。 所以商 2x²−x−3，余式 8，即 2x³+3x²−5x+2=(x+2)(2x²−x−3)+8。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 除法就是指数相减，任何式子都能除尽 —— 实际上 只有单项式相除才直接减指数；多项式相除可能有余式，余式不为零就除不尽。\n<\/li><li>\n别以为 余式可以任意次数 —— 实际上 带余除式要求余式次数严格低于除式次数，否则还能继续除。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n12x⁴y²÷3x²y 的结果是：\n<\/li><li>\n(x²−1)÷(x−1) 的商与余式分别是：\n<p>A. 4x²y ｜ B. 4x⁶y³ ｜ C. 4x²y² ｜ D. 4x² <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：系数 12÷3=4；x 的指数 4−2=2；y 的指数 2−1=1，得 4x²y。 A. x+1，0 ｜ B. x−1，0 ｜ C. x+1，2 ｜ D. x，1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：x²−1=(x−1)(x+1)，整除，商 x+1，余式 0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n单项式相除：系数相除、指数相减\n<\/li><li>\n多项式相除用长除法，逐次消去最高次项\n<\/li><li>\n带余除式：A=BQ+R，R 的次数低于 B\n<\/ul>", "ch04": "<h1>第 4 章：多项式恒等定理与待定系数法<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch03\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说清两个多项式在什么条件下恒等\n<\/li><li>\n用比较系数或代特殊值求未知系数\n<\/li><li>\n判断一个恒等式是否可能成立\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>两个次数不超过 n 的多项式，只要在 n+1 个不同点取值相同，就恒等；于是可以设出系数再解方程。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>4.1 什么是恒等<\/h3>\n<p>两个多项式恒等，指对字母的任意取值，两边的值都相等，记作 P(x)≡Q(x)。<\/p>\n<p>注意区别：方程只要求“某些 x 使两边相等”，恒等式要求“所有 x 都相等”。<\/p>\n<h3>4.2 恒等定理<\/h3>\n<p>如果两个次数都不超过 n 的多项式 P、Q 在 n+1 个互不相同的点上取值相同，那么 P≡Q。<\/p>\n<p>直观理由：P−Q 的次数不超过 n；如果它不是零多项式，最多只有 n 个根。现在它有 n+1 个不同的根，只能恒等于零。<\/p>\n<h3>4.3 待定系数法<\/h3>\n<p>步骤：<\/p>\n<ol><li>\n按已知结构设出带未知系数的形式（如 ax²+bx+c）；\n<\/li><li>\n展开、合并同类项，或代入几个特殊值；\n<\/li><li>\n比较两边同类项的系数（或解方程组），求出未知系数；\n<\/li><li>\n回代检验。\n<\/ol>\n<p>常用特殊值：x=0 求常数项，x=1 求系数和，x=−1 求交错和。<\/p>\n<h3>4.4 典型用法<\/h3>\n<ul><li>\n求参数：已知 x²+ax+b≡(x−1)(x+3)，展开右边得 x²+2x−3，比较系数得 a=2，b=−3。\n<\/li><li>\n拆分分式：把有理分式拆成几个简单分式之和（第 4 册会用到）。\n<\/li><li>\n判断命题：若两边次数不同，恒等一定不成立，不必再算。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：恒等定理像“指纹比对”——不必逐点验证整条曲线，只要在足够多的点上对上了，两条曲线就只能是同一条。<\/p>\n<p><strong>失效边界<\/strong>：点数必须超过次数。“足够多”不是随便几个，n 次多项式要 n+1 个点。<\/p>\n<p><strong>实例<\/strong>：求 a、b 使 x²+ax+b≡(x−2)(x+5)。 右边展开：x²+3x−10。比较系数：a=3，b=−10。 检验：取 x=0，左边 b=−10，右边 (−2)(5)=−10，一致。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 只要有两个点取值相同就恒等 —— 实际上 两点只能确定一次多项式；二次及以上需要三个以上不同的点。\n<\/li><li>\n别以为 恒等式可以直接用“移项求解”的方式处理 —— 实际上 恒等式对所有 x 成立，比较的是系数，不是解出某个 x。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n若 x²+ax+b≡(x−1)(x+4)，则 a、b 为：\n<\/li><li>\n两个三次多项式在几个不同点上取值相同，就一定能判定它们恒等？\n<p>A. a=3，b=−4 ｜ B. a=5，b=4 ｜ C. a=−3，b=−4 ｜ D. a=3，b=4 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：右边展开 x²+3x−4，比较系数得 a=3，b=−4。 A. 2 个 ｜ B. 3 个 ｜ C. 4 个 ｜ D. 1 个 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：次数为 3，需要 n+1=4 个不同的点；少于 4 个不足以排除差多项式有根的情况。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n恒等：对所有取值都相等；方程：只对某些取值相等\n<\/li><li>\nn 次多项式需 n+1 个点才能定死\n<\/li><li>\n待定系数法：设形式 → 比较系数 → 解方程 → 回代\n<\/ul>", "c01": "<h1>同类项与合并<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>字母相同、对应指数也相同的项，才能把系数加起来。<\/p>\n<h2>为什么重要<\/h2>\n<p>整式加减的全部技术都在这里；判断错同类项，后面化简、因式分解都会连锁出错。<\/p>\n<h2>详解<\/h2>\n<p>判断同类项看两件事：字母种类是否完全一致、每个字母的指数是否一致。系数与字母的排列顺序不影响。合并时只加系数，字母部分照抄。<\/p>\n<h2>常见误解<\/h2>\n<p>别把“字母相同”当成同类项的全部条件：x² 与 x 字母相同但指数不同，不能合并。<\/p>\n<h2>相关概念<\/h2>\n<p>单项式（ch01）、分配律（ch01）<\/p>", "c02": "<h1>带余除式与恒等定理<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03、ch04\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>除不尽就写成 A=BQ+R；两个多项式在足够多点重合就恒等。<\/p>\n<h2>为什么重要<\/h2>\n<p>这两条是“整式”从计算走向理论的转折：一条给出除法的完整结果，一条给出判断两个式子是否同一的办法。<\/p>\n<h2>详解<\/h2>\n<p>带余除式保证余式次数低于除式，从而商与余式唯一；恒等定理把“逐点验证”压缩成“有限个点验证”，两者都靠“次数”这个有限指标起作用。<\/p>\n<h2>常见误解<\/h2>\n<p>把“在若干点相等”当成恒等：点数不足时不成立。<\/p>\n<h2>相关概念<\/h2>\n<p>长除法（ch03）、待定系数法（ch04）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：整式的概念与加减法<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：整式的概念与加减法<\/a><br>检查点：能判断同类项并化简含括号的多项式<\/li><li class='path-step' id='path-02'><strong>步骤 02：整式的乘法与乘法公式<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：整式的乘法与乘法公式<\/a><br>检查点：能默写三个乘法公式并逆用<\/li><li class='path-step' id='path-03'><strong>步骤 03：整式的除法<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：整式的除法<\/a><br>检查点：能做多项式长除法并写出带余除式<\/li><li class='path-step' id='path-04'><strong>步骤 04：多项式恒等定理与待定系数法<\/strong><br>阅读：<a href=\"#/chapter/ch04\">第 4 章：多项式恒等定理与待定系数法<\/a><br>检查点：能设系数解出使两式恒等的参数<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q09' data-type='single'><p class='quiz-q'><b>Q9.<\/b> 下列各组中，是同类项的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q09' value='0'> 3x²y 与 3xy²<\/label><label class='quiz-opt'><input type='radio' name='q09' value='1'> −2ab 与 5ba<\/label><label class='quiz-opt'><input type='radio' name='q09' value='2'> x² 与 x³<\/label><label class='quiz-opt'><input type='radio' name='q09' value='3'> 2a 与 2b<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q10' data-type='single'><p class='quiz-q'><b>Q10.<\/b> (x³+1)÷(x+1) 的商是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q10' value='0'> x²−x+1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='1'> x²+x+1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='2'> x²−1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='3'> x²+1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q11' data-type='single'><p class='quiz-q'><b>Q11.<\/b> 若 2x²+ax−3≡2(x−1)(x+2)+b，则 a、b 为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q11' value='0'> a=2，b=1<\/label><label class='quiz-opt'><input type='radio' name='q11' value='1'> a=2，b=−3<\/label><label class='quiz-opt'><input type='radio' name='q11' value='2'> a=−2，b=1<\/label><label class='quiz-opt'><input type='radio' name='q11' value='3'> a=1，b=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：整式的概念与加减法<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> −3x²y 的系数与次数分别是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> −3，2<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> −3，3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 3，3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 3，2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 化简 a−(2a−b)+b 的结果是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> −a+2b<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> −a<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 3a<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> −a−2b<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：整式的乘法与乘法公式<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 展开 (2x−3)(2x+3) 的结果是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 4x²−9<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 4x²+9<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 4x²−12x+9<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 4x²−6x−9<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 计算 102×98 最简便的算法是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 102×100−102×2<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> (100+2)(100−2)=100²−4<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 100×98+2×98<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 直接竖式相乘<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：整式的除法<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 12x⁴y²÷3x²y 的结果是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 4x²y<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 4x⁶y³<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 4x²y²<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 4x²<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> (x²−1)÷(x−1) 的商与余式分别是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> x+1，0<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> x−1，0<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> x+1，2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> x，1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch04__": "<h1>测验：第 4 章：多项式恒等定理与待定系数法<\/h1><div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 若 x²+ax+b≡(x−1)(x+4)，则 a、b 为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> a=3，b=−4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> a=5，b=4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> a=−3，b=−4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> a=3，b=4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 两个三次多项式在几个不同点上取值相同，就一定能判定它们恒等？<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 2 个<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 3 个<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 4 个<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 1 个<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='单项式'>单项式 — 数与字母的乘积，单独一个数或字母也算。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='系数'>系数 — 单项式中的数字因数。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='次数'>次数 — 单项式各字母指数之和；多项式取最高次项的次数。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='同类项'>同类项 — 字母相同且相同字母指数也相同的项。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='分配律'>分配律 — a(b+c)=ab+ac，整式变形的基本依据。 <span class=glossary-ref>（第 1 章：整式的概念与加减法）<\/span><\/li><li data-term='乘法公式'>乘法公式 — 平方差、完全平方、立方和差三组展开结果。 <span class=glossary-ref>（第 2 章：整式的乘法与乘法公式）<\/span><\/li><li data-term='长除法'>长除法 — 逐次消去最高次项的多项式除法。 <span class=glossary-ref>（第 3 章：整式的除法）<\/span><\/li><li data-term='带余除式'>带余除式 — A=BQ+R，余式次数低于除式。 <span class=glossary-ref>（第 3 章：整式的除法）<\/span><\/li><li data-term='恒等'>恒等 — 对字母的一切取值两边都相等。 <span class=glossary-ref>（第 4 章：多项式恒等定理与待定系数法）<\/span><\/li><li data-term='待定系数法'>待定系数法 — 设出含未知系数的形式，再比较系数求解。 <span class=glossary-ref>（第 4 章：多项式恒等定理与待定系数法）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：整式变形的三步<\/h2>\n<p>① 看结构（单项式／多项式、次数、项数）；② 选工具（合并同类项、分配律、公式、长除法）；③ 回代检验（取特殊值核对）。<\/p>\n<h2>框架：公式的三种用法<\/h2>\n<p>正用（展开）、逆用（分解）、数值化（把数字凑成公式结构做速算）。逆用是最容易被忽略的一种。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>单项式乘单项式<\/td><td>系数相乘，同底数幂指数相加<\/td><\/tr><tr><td>单项式除以单项式<\/td><td>系数相除，同底数幂指数相减<\/td><\/tr><tr><td>平方差<\/td><td>(a+b)(a−b)=a²−b²<\/td><\/tr><tr><td>完全平方<\/td><td>(a±b)²=a²±2ab+b²<\/td><\/tr><tr><td>立方和差<\/td><td>(a±b)(a²∓ab+b²)=a³±b³<\/td><\/tr><tr><td>带余除式<\/td><td>A=BQ+R，deg R&lt;deg B<\/td><\/tr><tr><td>恒等判据<\/td><td>次数≤n 的两式在 n+1 个不同点相等 ⇒ 恒等<\/td><\/tr><\/tbody><\/table>"}};
+const pages = DATA.rendered;
+const manifest = DATA.manifest;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SLUG = manifest.slug || 'book';
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
+};
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+
+/* ---------- 导航 ---------- */
+function renderNav(){
+  const nav = $('#nav'); nav.innerHTML='';
+  const build = items => items.forEach(it=>{
+    if(it.children){
+      const sec=document.createElement('div'); sec.className='nav-sec'; sec.textContent=it.label; nav.appendChild(sec);
+      it.children.forEach(c=>{
+        const a=document.createElement('a'); a.className='nav-item'; a.href=c.href; a.textContent=c.label;
+        const id=routeId(c.href);
+        if(state.visited.includes(id)) a.innerHTML = esc(c.label)+' <span class="done">✓</span>';
+        nav.appendChild(a);
+      });
+    }else{
+      const a=document.createElement('a'); a.className='nav-item'; a.href=it.href; a.textContent=it.label;
+      const id=routeId(it.href);
+      if(state.visited.includes(id)) a.innerHTML = esc(it.label)+' <span class="done">✓</span>';
+      nav.appendChild(a);
+    }
+  });
+  build(DATA.nav);
+  updateProgress();
+}
+function routeId(href){ return href.replace('#/',''); }
+
+/* ---------- 路由 ---------- */
+function routeIdFromHash(){
+  let h = location.hash.replace(/^#\//,'');
+  if(!h) return 'path';
+  if(h==='path') return 'path';
+  const m = h.match(/^(chapter|concept)\/(.+)$/);
+  if(m) return m[1]+'/'+m[2];
+  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+}
+function showPage(rid){
+  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  const html = pages[id] || '<div class="empty">页面不存在</div>';
+  $('#view').innerHTML = html;
+  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
+    state.visited.push(rid); store.set('visited', state.visited); renderNav();
+  }
+  window.scrollTo(0,0);
+  if(rid==='cards') initCards();
+  if(rid==='glossary') initGlossary();
+  if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(id==='__path__') updatePath();
+  renderMermaid();
+}
+
+/* ---------- 进度 ---------- */
+function updateProgress(){
+  const chs = (manifest.chapters||[]).length;
+  const done = (manifest.chapters||[]).filter(c=>state.visited.includes('chapter/'+c.id)).length;
+  const pct = chs? Math.round(done/chs*100) : 0;
+  $('#progress-fill').style.width = pct+'%';
+  $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
+}
+function updatePath(){
+  document.querySelectorAll('.path-step').forEach(el=>{
+    const step = el.id.replace('path-','');
+    const s = (manifest.learningPath||[]).find(x=>x.step===step);
+    if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
+      el.classList.add('passed');
+      const lbl = el.querySelector('.checkpoint-ok'); if(!lbl){ const sp=document.createElement('span'); sp.className='done'; sp.textContent=' ✓ 已完成'; el.appendChild(sp); }
+    }
+  });
+}
+
+/* ---------- 测验 ---------- */
+function initQuizzes(rid){
+  document.querySelectorAll('.quiz-item').forEach(item=>{
+    const btn = item.querySelector('.quiz-check');
+    if(!btn || item.dataset.inited){ return }
+    item.dataset.inited='1';
+    btn.addEventListener('click', ()=>{
+      const qid = item.dataset.qid; const type = item.dataset.type;
+      const q = (manifest.quizzes||[]).find(x=>x.id===qid); if(!q) return;
+      let user, correct=false, fb;
+      if(type==='single'){
+        const sel = item.querySelector('input:checked');
+        user = sel? parseInt(sel.value) : null;
+        correct = user===q.answer;
+        fb = correct?'✓ 正确':'✗ 错误'+(user==null?'（未作答）':'');
+      } else if(type==='multi'){
+        user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+        const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+        correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+        fb = correct?'✓ 正确':'✗ 错误';
+      } else if(type==='blank'){
+        const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+        const a = String(q.answer).trim().toLowerCase();
+        correct = v===a;
+        fb = correct?'✓ 正确':'✗ 错误'+(v?'':'（未作答）');
+      }
+      item.querySelectorAll('input:checked').forEach(i=>{
+        const val=parseInt(i.value);
+        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
+        else i.parentElement.style.color='var(--bad)';
+      });
+      const feed = item.querySelector('.quiz-feedback');
+      feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
+      feed.textContent = fb;
+      let ex = item.querySelector('.quiz-explain');
+      if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
+      ex.innerHTML = '解析：' + esc(q.explain||'');
+      // 记录成绩（按章聚合）
+      const ch = q.chapterId||'__all__';
+      if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
+      state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
+      state.quiz[ch].total += 1;
+      store.set('quiz', state.quiz);
+    });
+  });
+}
+
+/* ---------- 抽认卡 ---------- */
+let cardIdx = 0, cardList = [];
+function initCards(){
+  const cards = manifest.flashcards||[];
+  cardList = cards.slice();
+  cardIdx = 0;
+  const sel = $('#card-filter');
+  sel.innerHTML = '<option value="">全部</option>';
+  [...new Set(cards.map(c=>c.chapterId).filter(Boolean))].forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=manifestChTitle(c); sel.appendChild(o);
+  });
+  sel.onchange = ()=>{ const v=sel.value; cardList = v? cards.filter(c=>c.chapterId===v): cards.slice(); cardIdx=0; showCard(); };
+  $('#flashcard').onclick = ()=>$('#flashcard').classList.toggle('flip');
+  $('#card-known-btn').onclick = ()=>{ markCard(true); };
+  $('#card-again-btn').onclick = ()=>{ markCard(false); };
+  showCard();
+}
+function showCard(){
+  updateCardCounts();
+  if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
+  const c = cardList[cardIdx];
+  document.querySelector('.fc-front').textContent = c.front;
+  document.querySelector('.fc-back').textContent = c.back;
+  $('#flashcard').classList.remove('flip');
+}
+function markCard(known){
+  const c = cardList[cardIdx]; if(!c) return;
+  state.cards[c.id] = known?'known':'again';
+  store.set('cards', state.cards);
+  cardIdx++; showCard();
+}
+function updateCardCounts(){
+  const known = Object.values(state.cards).filter(v=>v==='known').length;
+  const again = Object.values(state.cards).filter(v=>v==='again').length;
+  $('#card-known').textContent = known;
+  $('#card-again').textContent = again;
+  $('#card-left').textContent = Math.max(0, cardList.length-cardIdx);
+}
+function manifestChTitle(id){
+  const c=(manifest.chapters||[]).find(x=>x.id===id); return c? c.title : id;
+}
+
+/* ---------- 术语表 ---------- */
+function initGlossary(){
+  const input = $('#glossary-filter');
+  if(!input || input.dataset.inited) return;
+  input.dataset.inited='1';
+  input.oninput = ()=>{
+    const v = input.value.trim().toLowerCase();
+    document.querySelectorAll('#glossary-list li').forEach(li=>{
+      li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
+    });
+  };
+}
+
+/* ---------- 搜索 ---------- */
+let searchIndex = null;
+function buildSearchIndex(){
+  if(searchIndex) return searchIndex;
+  searchIndex = [];
+  Object.entries(pages).forEach(([id, htmlText])=>{
+    if(id.startsWith('__')) return;
+    const text = htmlText.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+    searchIndex.push({id, text});
+  });
+  return searchIndex;
+}
+$('#q').addEventListener('input', e=>{
+  const v = e.target.value.trim().toLowerCase();
+  if(!v){ showPage(routeIdFromHash()); return; }
+  buildSearchIndex();
+  const hits = searchIndex.filter(p=>p.text.toLowerCase().includes(v)).slice(0,20);
+  const label = id => id.startsWith('chapter/')? ('章节：'+manifestChTitle(id.split('/')[1])) : id.startsWith('concept/')? ('概念：'+id.split('/')[1]) : id;
+  $('#view').innerHTML = '<h1>搜索结果：'+esc(v)+'</h1>' +
+    (hits.length? hits.map(h=>`<div class="search-hit"><a href="#/${h.id}">${esc(label(h.id))}</a><br><span class="sub">${esc(h.text.slice(0,180))}</span></div>`).join('')
+                 : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
+});
+
+/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+function renderMermaid(){
+  if(!document.querySelector('.mermaid')) return;
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+  s.onload=()=>{ try{
+    mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
+    document.querySelectorAll('.mermaid').forEach(el=>{
+      const code=el.textContent;
+      mermaid.render('mm'+Math.random().toString(36).slice(2), code)
+        .then(({svg})=>{ el.innerHTML=svg; })
+        .catch(()=>{ el.textContent=code; });
+    });
+  }catch(e){} };
+  document.head.appendChild(s);
+}
+
+/* ---------- 深色模式 ---------- */
+const themeBtn=$('#theme-btn');
+themeBtn.onclick=()=>{
+  const d = document.body.dataset.theme==='dark';
+  document.body.dataset.theme = d? '' : 'dark';
+  themeBtn.textContent = d? '🌙 深色' : '☀️ 浅色';
+};
+
+/* ---------- 启动 ---------- */
+renderNav();
+window.addEventListener('hashchange', ()=>showPage(routeIdFromHash()));
+(function(){
+  const sb=document.querySelector('.sidebar'); if(!sb) return;
+  const btn=document.createElement('button'); btn.id='nav-toggle'; btn.textContent='目录（点开选择章节）';
+  btn.onclick=()=>sb.classList.toggle('open');
+  sb.insertBefore(btn, sb.querySelector('#nav'));
+  window.addEventListener('hashchange',()=>{ if(window.innerWidth<=760) sb.classList.remove('open'); });
+})();
+showPage(routeIdFromHash());
+</script>
+</body>
+</html>

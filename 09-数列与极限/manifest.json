@@ -1,0 +1,370 @@
+{
+ "slug": "sequences-limits",
+ "title": "数列与极限",
+ "subtitle": "从一串数看到趋势：数列、级数与极限",
+ "book": {
+  "title": "数列与极限",
+  "author": "周伯堳",
+  "source": [
+   "数学基础知识丛书-09-数列与极限 周伯堳.pdf"
+  ]
+ },
+ "audience": "零基础",
+ "goal": "掌握数列的通项与递推，推导等差、等比数列的通项与求和公式，理解极限的直观含义并会求简单极限。",
+ "learningPath": [
+  {
+   "step": "01",
+   "title": "数列与通项",
+   "chapterIds": [
+    "ch01"
+   ],
+   "checkpoint": "能由一个通项公式写出前几项"
+  },
+  {
+   "step": "02",
+   "title": "等差数列与等比数列",
+   "chapterIds": [
+    "ch02"
+   ],
+   "checkpoint": "能默写两组通项与求和公式"
+  },
+  {
+   "step": "03",
+   "title": "级数与极限",
+   "chapterIds": [
+    "ch03"
+   ],
+   "checkpoint": "能用 |q|<1 求和并解释极限"
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch01",
+   "title": "第 1 章：数列与通项",
+   "file": "chapters/ch01-sequence.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch02",
+   "title": "第 2 章：等差数列与等比数列",
+   "file": "chapters/ch02-ap-gp.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch03",
+   "title": "第 3 章：级数与极限",
+   "file": "chapters/ch03-series-limit.md",
+   "difficulty": 3
+  }
+ ],
+ "concepts": [
+  {
+   "id": "c01",
+   "title": "通项与递推",
+   "file": "concepts/c01-general-recurrence.md",
+   "chapterIds": [
+    "ch01",
+    "ch02"
+   ]
+  },
+  {
+   "id": "c02",
+   "title": "极限与收敛",
+   "file": "concepts/c02-limit-convergence.md",
+   "chapterIds": [
+    "ch03"
+   ]
+  }
+ ],
+ "glossary": [
+  {
+   "term": "数列",
+   "def": "按顺序排列的一列数。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "通项公式",
+   "def": "用 n 表示第 n 项的公式。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "递推公式",
+   "def": "用前项表示后项的关系式加初值。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "等差数列",
+   "def": "相邻两项差为常数的数列。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "等比数列",
+   "def": "相邻两项比为常数的数列。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "部分和",
+   "def": "前 n 项相加得到的 Sₙ。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "极限",
+   "def": "n 无限增大时数列趋向的定值。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "收敛",
+   "def": "极限存在，部分和趋向有限值。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "连分数",
+   "def": "分母中含下一层分式的无限表达式。",
+   "chapterId": "ch03"
+  }
+ ],
+ "patterns": {
+  "file": "patterns.md"
+ },
+ "cheatsheet": {
+  "file": "cheatsheet.md"
+ },
+ "quizzes": [
+  {
+   "id": "q01",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "数列 aₙ=3n−2 的第 5 项是：",
+   "options": [
+    "13",
+    "15",
+    "17",
+    "12"
+   ],
+   "answer": 0,
+   "explain": "a₅=3×5−2=13。"
+  },
+  {
+   "id": "q02",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "数列 a₁=2，aₙ₊₁=aₙ+3 的第 4 项是：",
+   "options": [
+    "8",
+    "11",
+    "14",
+    "5"
+   ],
+   "answer": 1,
+   "explain": "依次得 2,5,8,11，第 4 项为 11。"
+  },
+  {
+   "id": "q03",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "等差数列首项 3、公差 4，第 10 项是：",
+   "options": [
+    "39",
+    "43",
+    "36",
+    "40"
+   ],
+   "answer": 0,
+   "explain": "a₁₀=3+9×4=39。"
+  },
+  {
+   "id": "q04",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "等比数列 2,6,18,… 的前 4 项和是：",
+   "options": [
+    "80",
+    "54",
+    "40",
+    "26"
+   ],
+   "answer": 0,
+   "explain": "q=3，S₄=2(1−3⁴)/(1−3)=2(−80)/(−2)=80。"
+  },
+  {
+   "id": "q05",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "无穷等比级数 1+1/3+1/9+… 的和是：",
+   "options": [
+    "3/2",
+    "2",
+    "3",
+    "1"
+   ],
+   "answer": 0,
+   "explain": "a₁=1，q=1/3，S=1/(1−1/3)=3/2。"
+  },
+  {
+   "id": "q06",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "数列 aₙ=1/n 当 n→∞ 时的极限是：",
+   "options": [
+    "1",
+    "0",
+    "不存在",
+    "无穷大"
+   ],
+   "answer": 1,
+   "explain": "n 越大 1/n 越接近 0。"
+  },
+  {
+   "id": "q07",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "等差数列 5,9,13,… 的第 8 项是：",
+   "options": [
+    "33",
+    "37",
+    "29",
+    "41"
+   ],
+   "answer": 0,
+   "explain": "a₈=5+7×4=33。"
+  },
+  {
+   "id": "q08",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "无穷等比级数 1+1/4+1/16+… 的和是：",
+   "options": [
+    "4/3",
+    "2",
+    "5/4",
+    "3/2"
+   ],
+   "answer": 0,
+   "explain": "q=1/4，S=1/(1−1/4)=4/3。"
+  }
+ ],
+ "flashcards": [
+  {
+   "id": "f01",
+   "chapterId": "ch01",
+   "front": "「第 1 章：数列与通项」的一句话核心是什么？",
+   "back": "数列是定义在正整数上的函数：aₙ=f(n)，顺序本身就是信息。",
+   "tags": [
+    "sequences-limits",
+    "核心"
+   ]
+  },
+  {
+   "id": "f02",
+   "chapterId": "ch02",
+   "front": "「第 2 章：等差数列与等比数列」的一句话核心是什么？",
+   "back": "等差是“加”，等比是“乘”；求和公式都能由“配对”或“错位相减”推出来。",
+   "tags": [
+    "sequences-limits",
+    "核心"
+   ]
+  },
+  {
+   "id": "f03",
+   "chapterId": "ch03",
+   "front": "「第 3 章：级数与极限」的一句话核心是什么？",
+   "back": "极限就是“n 越大越靠近某个定值”；无穷多个数相加，和可能是一个有限的数。",
+   "tags": [
+    "sequences-limits",
+    "核心"
+   ]
+  },
+  {
+   "id": "f04",
+   "chapterId": "ch01",
+   "front": "什么是「数列」？",
+   "back": "按顺序排列的一列数。",
+   "tags": [
+    "sequences-limits",
+    "术语"
+   ]
+  },
+  {
+   "id": "f05",
+   "chapterId": "ch01",
+   "front": "什么是「通项公式」？",
+   "back": "用 n 表示第 n 项的公式。",
+   "tags": [
+    "sequences-limits",
+    "术语"
+   ]
+  },
+  {
+   "id": "f06",
+   "chapterId": "ch01",
+   "front": "什么是「递推公式」？",
+   "back": "用前项表示后项的关系式加初值。",
+   "tags": [
+    "sequences-limits",
+    "术语"
+   ]
+  },
+  {
+   "id": "f07",
+   "chapterId": "ch02",
+   "front": "什么是「等差数列」？",
+   "back": "相邻两项差为常数的数列。",
+   "tags": [
+    "sequences-limits",
+    "术语"
+   ]
+  },
+  {
+   "id": "f08",
+   "chapterId": "ch02",
+   "front": "什么是「等比数列」？",
+   "back": "相邻两项比为常数的数列。",
+   "tags": [
+    "sequences-limits",
+    "术语"
+   ]
+  },
+  {
+   "id": "f09",
+   "chapterId": "ch03",
+   "front": "什么是「部分和」？",
+   "back": "前 n 项相加得到的 Sₙ。",
+   "tags": [
+    "sequences-limits",
+    "术语"
+   ]
+  },
+  {
+   "id": "f10",
+   "chapterId": "ch03",
+   "front": "什么是「极限」？",
+   "back": "n 无限增大时数列趋向的定值。",
+   "tags": [
+    "sequences-limits",
+    "术语"
+   ]
+  },
+  {
+   "id": "f11",
+   "chapterId": "ch03",
+   "front": "什么是「收敛」？",
+   "back": "极限存在，部分和趋向有限值。",
+   "tags": [
+    "sequences-limits",
+    "术语"
+   ]
+  },
+  {
+   "id": "f12",
+   "chapterId": "ch03",
+   "front": "什么是「连分数」？",
+   "back": "分母中含下一层分式的无限表达式。",
+   "tags": [
+    "sequences-limits",
+    "术语"
+   ]
+  }
+ ],
+ "companion": "sequences-limits学习伴侣.html",
+ "deriv": "sequences-limits从零推导.html"
+}

@@ -1,0 +1,370 @@
+{
+ "slug": "permutations-combinations",
+ "title": "排列与组合",
+ "subtitle": "数得清，才说得准：两条原理与三类模型",
+ "book": {
+  "title": "排列与组合",
+  "author": "吴世煦",
+  "source": [
+   "数学基础知识丛书-08-排列与组合 吴世煦.pdf"
+  ]
+ },
+ "audience": "零基础",
+ "goal": "掌握加法原理与乘法原理，会用排列数、组合数公式计数，能处理可重复与分组分配问题。",
+ "learningPath": [
+  {
+   "step": "01",
+   "title": "两条原理与排列",
+   "chapterIds": [
+    "ch01"
+   ],
+   "checkpoint": "能判断一道题该加还是该乘"
+  },
+  {
+   "step": "02",
+   "title": "组合与组合数",
+   "chapterIds": [
+    "ch02"
+   ],
+   "checkpoint": "能判断有序无序并选出正确公式"
+  },
+  {
+   "step": "03",
+   "title": "可重复排列与分组分配",
+   "chapterIds": [
+    "ch03"
+   ],
+   "checkpoint": "能把分组问题按“均匀/非均匀”分开处理"
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch01",
+   "title": "第 1 章：两条原理与排列",
+   "file": "chapters/ch01-principles-permutation.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch02",
+   "title": "第 2 章：组合与组合数",
+   "file": "chapters/ch02-combination.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch03",
+   "title": "第 3 章：可重复排列与分组分配",
+   "file": "chapters/ch03-repeat-grouping.md",
+   "difficulty": 3
+  }
+ ],
+ "concepts": [
+  {
+   "id": "c01",
+   "title": "有序与无序",
+   "file": "concepts/c01-ordered-unordered.md",
+   "chapterIds": [
+    "ch01",
+    "ch02"
+   ]
+  },
+  {
+   "id": "c02",
+   "title": "先分组后分配",
+   "file": "concepts/c02-group-then-assign.md",
+   "chapterIds": [
+    "ch03"
+   ]
+  }
+ ],
+ "glossary": [
+  {
+   "term": "加法原理",
+   "def": "分类计数，各类互斥则相加。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "乘法原理",
+   "def": "分步计数，各步相依则相乘。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "排列",
+   "def": "取出的元素要计顺序的排法。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "全排列",
+   "def": "n 个元素全部参与排列，共 n! 种。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "组合",
+   "def": "只计取出哪些元素、不计顺序。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "组合数",
+   "def": "C(n,m)=n!/[m!(n−m)!]。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "可重复排列",
+   "def": "元素可重复取用，数目为 nᵐ。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "均匀分组",
+   "def": "各组元素个数相同，需除以组数阶乘。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "分配",
+   "def": "把分好的组派到有标号的位置。",
+   "chapterId": "ch03"
+  }
+ ],
+ "patterns": {
+  "file": "patterns.md"
+ },
+ "cheatsheet": {
+  "file": "cheatsheet.md"
+ },
+ "quizzes": [
+  {
+   "id": "q01",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "从 5 人中选 3 人排成一排，共有多少种排法：",
+   "options": [
+    "10",
+    "60",
+    "125",
+    "15"
+   ],
+   "answer": 1,
+   "explain": "A(5,3)=5×4×3=60。"
+  },
+  {
+   "id": "q02",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：",
+   "options": [
+    "7",
+    "12",
+    "34",
+    "4"
+   ],
+   "answer": 1,
+   "explain": "分两步，用乘法原理：3×4=12。"
+  },
+  {
+   "id": "q03",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "从 6 名同学中选 2 名当代表，共有多少种选法：",
+   "options": [
+    "30",
+    "15",
+    "12",
+    "36"
+   ],
+   "answer": 1,
+   "explain": "不分顺序，C(6,2)=15。"
+  },
+  {
+   "id": "q04",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "C(10,3) 的值是：",
+   "options": [
+    "120",
+    "720",
+    "240",
+    "90"
+   ],
+   "answer": 0,
+   "explain": "C(10,3)=10×9×8/6=120。"
+  },
+  {
+   "id": "q05",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "用 1、2、3 组成允许重复的三位数，共有多少个：",
+   "options": [
+    "6",
+    "9",
+    "27",
+    "81"
+   ],
+   "answer": 2,
+   "explain": "每一位都有 3 种选择：3³=27。"
+  },
+  {
+   "id": "q06",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "6 人平均分成 3 组，每组 2 人，共有多少种分法：",
+   "options": [
+    "90",
+    "15",
+    "60",
+    "20"
+   ],
+   "answer": 1,
+   "explain": "C(6,2)C(4,2)C(2,2)/3!=15×6×1/6=15。"
+  },
+  {
+   "id": "q07",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "从 7 人中选 3 人排成一排照相，共有多少种排法：",
+   "options": [
+    "35",
+    "210",
+    "343",
+    "21"
+   ],
+   "answer": 1,
+   "explain": "有序，A(7,3)=7×6×5=210。"
+  },
+  {
+   "id": "q08",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "把 4 本不同的书平均分成两堆，每堆 2 本，共有多少种分法：",
+   "options": [
+    "6",
+    "3",
+    "12",
+    "4"
+   ],
+   "answer": 1,
+   "explain": "C(4,2)C(2,2)/2!=3，两堆无标号要除以 2!。"
+  }
+ ],
+ "flashcards": [
+  {
+   "id": "f01",
+   "chapterId": "ch01",
+   "front": "「第 1 章：两条原理与排列」的一句话核心是什么？",
+   "back": "分类用加法、分步用乘法；有序用排列。",
+   "tags": [
+    "permutations-combinations",
+    "核心"
+   ]
+  },
+  {
+   "id": "f02",
+   "chapterId": "ch02",
+   "front": "「第 2 章：组合与组合数」的一句话核心是什么？",
+   "back": "组合只问“选哪些”，不问“怎么排”；所以 C(n,m)=A(n,m)/m!。",
+   "tags": [
+    "permutations-combinations",
+    "核心"
+   ]
+  },
+  {
+   "id": "f03",
+   "chapterId": "ch03",
+   "front": "「第 3 章：可重复排列与分组分配」的一句话核心是什么？",
+   "back": "允许重复时每一步都有 n 种；分组时若各组人数相同，要除以组数的阶乘。",
+   "tags": [
+    "permutations-combinations",
+    "核心"
+   ]
+  },
+  {
+   "id": "f04",
+   "chapterId": "ch01",
+   "front": "什么是「加法原理」？",
+   "back": "分类计数，各类互斥则相加。",
+   "tags": [
+    "permutations-combinations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f05",
+   "chapterId": "ch01",
+   "front": "什么是「乘法原理」？",
+   "back": "分步计数，各步相依则相乘。",
+   "tags": [
+    "permutations-combinations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f06",
+   "chapterId": "ch01",
+   "front": "什么是「排列」？",
+   "back": "取出的元素要计顺序的排法。",
+   "tags": [
+    "permutations-combinations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f07",
+   "chapterId": "ch01",
+   "front": "什么是「全排列」？",
+   "back": "n 个元素全部参与排列，共 n! 种。",
+   "tags": [
+    "permutations-combinations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f08",
+   "chapterId": "ch02",
+   "front": "什么是「组合」？",
+   "back": "只计取出哪些元素、不计顺序。",
+   "tags": [
+    "permutations-combinations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f09",
+   "chapterId": "ch02",
+   "front": "什么是「组合数」？",
+   "back": "C(n,m)=n!/[m!(n−m)!]。",
+   "tags": [
+    "permutations-combinations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f10",
+   "chapterId": "ch03",
+   "front": "什么是「可重复排列」？",
+   "back": "元素可重复取用，数目为 nᵐ。",
+   "tags": [
+    "permutations-combinations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f11",
+   "chapterId": "ch03",
+   "front": "什么是「均匀分组」？",
+   "back": "各组元素个数相同，需除以组数阶乘。",
+   "tags": [
+    "permutations-combinations",
+    "术语"
+   ]
+  },
+  {
+   "id": "f12",
+   "chapterId": "ch03",
+   "front": "什么是「分配」？",
+   "back": "把分好的组派到有标号的位置。",
+   "tags": [
+    "permutations-combinations",
+    "术语"
+   ]
+  }
+ ],
+ "companion": "permutations-combinations学习伴侣.html",
+ "deriv": "permutations-combinations从零推导.html"
+}

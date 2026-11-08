@@ -1,0 +1,372 @@
+{
+ "slug": "exponents-logarithms",
+ "title": "指数与对数",
+ "subtitle": "同一件事的两种说法：指数增长与对数刻度",
+ "book": {
+  "title": "指数与对数",
+  "author": "沈超",
+  "source": [
+   "数学基础知识丛书-07-指数与对数 沈超.pdf"
+  ]
+ },
+ "audience": "零基础",
+ "goal": "把指数从整数推广到实数，掌握指数函数、对数与对数函数的性质与图象，会解指数方程与对数方程。",
+ "learningPath": [
+  {
+   "step": "01",
+   "title": "指数的推广与指数函数",
+   "chapterIds": [
+    "ch01"
+   ],
+   "checkpoint": "能说明 a⁰=1 为什么成立"
+  },
+  {
+   "step": "02",
+   "title": "对数与对数运算",
+   "chapterIds": [
+    "ch02"
+   ],
+   "checkpoint": "能把指数式与对数式互化并用法则化简"
+  },
+  {
+   "step": "03",
+   "title": "对数函数、幂函数与指对方程",
+   "chapterIds": [
+    "ch03"
+   ],
+   "checkpoint": "能解指数方程并验根"
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch01",
+   "title": "第 1 章：指数的推广与指数函数",
+   "file": "chapters/ch01-exponent.md",
+   "difficulty": 2
+  },
+  {
+   "id": "ch02",
+   "title": "第 2 章：对数与对数运算",
+   "file": "chapters/ch02-logarithm.md",
+   "difficulty": 3
+  },
+  {
+   "id": "ch03",
+   "title": "第 3 章：对数函数、幂函数与指对方程",
+   "file": "chapters/ch03-log-function-equations.md",
+   "difficulty": 3
+  }
+ ],
+ "concepts": [
+  {
+   "id": "c01",
+   "title": "互为逆运算",
+   "file": "concepts/c01-inverse-operation.md",
+   "chapterIds": [
+    "ch01",
+    "ch02",
+    "ch03"
+   ]
+  },
+  {
+   "id": "c02",
+   "title": "底数与单调性",
+   "file": "concepts/c02-base-monotonicity.md",
+   "chapterIds": [
+    "ch01",
+    "ch03"
+   ]
+  }
+ ],
+ "glossary": [
+  {
+   "term": "指数函数",
+   "def": "y=aˣ（a>0，a≠1），值域 (0,+∞)。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "零指数",
+   "def": "a⁰=1（a≠0）。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "分数指数",
+   "def": "a^(m/n)=ⁿ√(aᵐ)，把根式写成指数。",
+   "chapterId": "ch01"
+  },
+  {
+   "term": "对数",
+   "def": "log_a N=b 表示 aᵇ=N。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "真数",
+   "def": "对数记号中的 N，必须大于 0。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "换底公式",
+   "def": "log_a N=log_b N/log_b a。",
+   "chapterId": "ch02"
+  },
+  {
+   "term": "对数函数",
+   "def": "y=log_a x，与指数函数互为反函数。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "幂函数",
+   "def": "y=x^α，底是变量、指数是常数。",
+   "chapterId": "ch03"
+  },
+  {
+   "term": "增根",
+   "def": "解对数方程时使真数非正的解。",
+   "chapterId": "ch03"
+  }
+ ],
+ "patterns": {
+  "file": "patterns.md"
+ },
+ "cheatsheet": {
+  "file": "cheatsheet.md"
+ },
+ "quizzes": [
+  {
+   "id": "q01",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "计算 27^(2/3) 的值：",
+   "options": [
+    "9",
+    "18",
+    "3",
+    "6"
+   ],
+   "answer": 0,
+   "explain": "27^(2/3)=(³√27)²=3²=9。"
+  },
+  {
+   "id": "q02",
+   "chapterId": "ch01",
+   "type": "single",
+   "question": "函数 y=(1/2)ˣ 的单调性是：",
+   "options": [
+    "在 R 上递增",
+    "在 R 上递减",
+    "先增后减",
+    "不单调"
+   ],
+   "answer": 1,
+   "explain": "底数 0<1/2<1，指数函数单调递减。"
+  },
+  {
+   "id": "q03",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "log₄16 的值是：",
+   "options": [
+    "2",
+    "4",
+    "8",
+    "1/2"
+   ],
+   "answer": 0,
+   "explain": "4²=16，故 log₄16=2。"
+  },
+  {
+   "id": "q04",
+   "chapterId": "ch02",
+   "type": "single",
+   "question": "化简 log₂6−log₂3：",
+   "options": [
+    "log₂3",
+    "1",
+    "2",
+    "log₂9"
+   ],
+   "answer": 1,
+   "explain": "log₂6−log₂3=log₂(6/3)=log₂2=1。"
+  },
+  {
+   "id": "q05",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：",
+   "options": [
+    "y 轴",
+    "x 轴",
+    "y=x",
+    "y=−x"
+   ],
+   "answer": 2,
+   "explain": "互为反函数的图象关于直线 y=x 对称。"
+  },
+  {
+   "id": "q06",
+   "chapterId": "ch03",
+   "type": "single",
+   "question": "方程 log₂(x−3)=2 的解是：",
+   "options": [
+    "x=7",
+    "x=1",
+    "x=4",
+    "x=5"
+   ],
+   "answer": 0,
+   "explain": "x−3=2²=4，得 x=7；真数 4>0，成立。"
+  },
+  {
+   "id": "q07",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "计算 lg2+lg5 的值：",
+   "options": [
+    "1",
+    "lg7",
+    "10",
+    "0"
+   ],
+   "answer": 0,
+   "explain": "lg2+lg5=lg10=1。"
+  },
+  {
+   "id": "q08",
+   "chapterId": "__all__",
+   "type": "single",
+   "question": "若 3ˣ=7，则 x 等于：",
+   "options": [
+    "log₇3",
+    "log₃7",
+    "7/3",
+    "3/7"
+   ],
+   "answer": 1,
+   "explain": "由定义 3ˣ=7 即 x=log₃7。"
+  }
+ ],
+ "flashcards": [
+  {
+   "id": "f01",
+   "chapterId": "ch01",
+   "front": "「第 1 章：指数的推广与指数函数」的一句话核心是什么？",
+   "back": "指数每推广一步，都要求原来的运算法则继续成立；指数函数的值域恒为正。",
+   "tags": [
+    "exponents-logarithms",
+    "核心"
+   ]
+  },
+  {
+   "id": "f02",
+   "chapterId": "ch02",
+   "front": "「第 2 章：对数与对数运算」的一句话核心是什么？",
+   "back": "对数就是“问指数”：log_a N 是“a 的几次方等于 N”。",
+   "tags": [
+    "exponents-logarithms",
+    "核心"
+   ]
+  },
+  {
+   "id": "f03",
+   "chapterId": "ch03",
+   "front": "「第 3 章：对数函数、幂函数与指对方程」的一句话核心是什么？",
+   "back": "对数函数与指数函数关于 y=x 对称；解指对方程靠“化同底”或“取对数”。",
+   "tags": [
+    "exponents-logarithms",
+    "核心"
+   ]
+  },
+  {
+   "id": "f04",
+   "chapterId": "ch01",
+   "front": "什么是「指数函数」？",
+   "back": "y=aˣ（a>0，a≠1），值域 (0,+∞)。",
+   "tags": [
+    "exponents-logarithms",
+    "术语"
+   ]
+  },
+  {
+   "id": "f05",
+   "chapterId": "ch01",
+   "front": "什么是「零指数」？",
+   "back": "a⁰=1（a≠0）。",
+   "tags": [
+    "exponents-logarithms",
+    "术语"
+   ]
+  },
+  {
+   "id": "f06",
+   "chapterId": "ch01",
+   "front": "什么是「分数指数」？",
+   "back": "a^(m/n)=ⁿ√(aᵐ)，把根式写成指数。",
+   "tags": [
+    "exponents-logarithms",
+    "术语"
+   ]
+  },
+  {
+   "id": "f07",
+   "chapterId": "ch02",
+   "front": "什么是「对数」？",
+   "back": "log_a N=b 表示 aᵇ=N。",
+   "tags": [
+    "exponents-logarithms",
+    "术语"
+   ]
+  },
+  {
+   "id": "f08",
+   "chapterId": "ch02",
+   "front": "什么是「真数」？",
+   "back": "对数记号中的 N，必须大于 0。",
+   "tags": [
+    "exponents-logarithms",
+    "术语"
+   ]
+  },
+  {
+   "id": "f09",
+   "chapterId": "ch02",
+   "front": "什么是「换底公式」？",
+   "back": "log_a N=log_b N/log_b a。",
+   "tags": [
+    "exponents-logarithms",
+    "术语"
+   ]
+  },
+  {
+   "id": "f10",
+   "chapterId": "ch03",
+   "front": "什么是「对数函数」？",
+   "back": "y=log_a x，与指数函数互为反函数。",
+   "tags": [
+    "exponents-logarithms",
+    "术语"
+   ]
+  },
+  {
+   "id": "f11",
+   "chapterId": "ch03",
+   "front": "什么是「幂函数」？",
+   "back": "y=x^α，底是变量、指数是常数。",
+   "tags": [
+    "exponents-logarithms",
+    "术语"
+   ]
+  },
+  {
+   "id": "f12",
+   "chapterId": "ch03",
+   "front": "什么是「增根」？",
+   "back": "解对数方程时使真数非正的解。",
+   "tags": [
+    "exponents-logarithms",
+    "术语"
+   ]
+  }
+ ],
+ "companion": "exponents-logarithms学习伴侣.html",
+ "deriv": "exponents-logarithms从零推导.html"
+}

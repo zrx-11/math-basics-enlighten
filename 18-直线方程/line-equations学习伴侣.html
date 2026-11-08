@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>直线方程</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
+  --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
+  --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+}
+[data-theme="dark"]{
+  --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
+  --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
+  --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:290px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  padding:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h1{font-size:17px;margin:2px 0 2px}
+.sidebar .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+#q{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+.nav-sec{font-size:12px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.nav-item{display:block;padding:5px 10px;border-radius:6px;color:var(--text);font-size:14px}
+.nav-item:hover{background:var(--accent-soft);text-decoration:none}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .done{float:right;color:var(--ok);font-size:12px}
+#nav-toggle{display:none}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
+.page h2{font-size:20px;margin-top:26px}
+.page h3{font-size:17px;margin-top:22px}
+.page table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+.page th,.page td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.page th{background:var(--code-bg)}
+.page code{background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.9em}
+.page pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
+.page pre code{background:none;padding:0}
+.page blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:6px 14px;background:var(--accent-soft);border-radius:0 6px 6px 0}
+.page blockquote blockquote{border-color:var(--muted)}
+.page img{max-width:100%}
+.mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
+.mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
+svg{max-width:100%;height:auto}
+.quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
+.quiz-q{margin:0 0 8px;font-weight:500}
+.quiz-opts label{display:block;padding:4px 0;cursor:pointer}
+.quiz-blank{width:60%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+.quiz-check{margin-top:10px;padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.quiz-feedback{margin-left:12px;font-size:13px}
+.fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
+.quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
+.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;
+  padding:22px;border-radius:14px;border:1px solid var(--border);background:var(--panel);font-size:16px;text-align:center}
+.fc-back{transform:rotateY(180deg);background:var(--accent-soft);color:var(--text)}
+.card-controls{display:flex;gap:14px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.card-actions{display:flex;gap:12px;justify-content:center}
+.card-actions button{padding:8px 22px;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+#card-known-btn{background:var(--ok);color:#fff}
+#card-again-btn{background:var(--bad);color:#fff}
+.card-counts{color:var(--muted);font-size:13px}
+.path-step{margin:8px 0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+.path-step.passed{border-color:var(--ok)}
+#glossary-filter{width:100%;max-width:380px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+#glossary-list li{padding:6px 0;border-bottom:1px dashed var(--border)}
+.glossary-ref{color:var(--muted);font-size:12px}
+.search-hit{margin:10px 0}
+.topbar{position:sticky;top:0;background:var(--bg);padding:8px 0;display:flex;justify-content:flex-end;z-index:10}
+#theme-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+#progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
+#progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
+.empty{color:var(--muted);padding:20px 0}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+@media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
+  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
+  .layout{flex-direction:column}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>直线方程</h1>
+    <div class="sub">把直线写成方程：斜率、五种形式与距离</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div class="sub" id="progress-label">进度 0%</div>
+    <input id="q" type="search" placeholder="搜索章节 / 概念 / 术语 / 全文…">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar"><button id="theme-btn">🌙 深色</button></div>
+    <div id="view" class="page"></div>
+  </main>
+</div>
+<script>
+const DATA = {"manifest": {"slug": "line-equations", "title": "直线方程", "subtitle": "把直线写成方程：斜率、五种形式与距离", "book": {"title": "直线方程", "author": "章士藻", "source": ["数学基础知识丛书-18-直线方程 章士藻.pdf"]}, "audience": "零基础", "goal": "掌握倾斜角与斜率、直线方程的各种形式与适用条件，会判断两直线平行、垂直，会求点到直线的距离与夹角。", "learningPath": [{"step": "01", "title": "倾斜角与斜率", "chapterIds": ["ch01"], "checkpoint": "能由两点求斜率并判断倾斜角范围"}, {"step": "02", "title": "直线方程的五种形式", "chapterIds": ["ch02"], "checkpoint": "能按条件选对形式并注明适用条件"}, {"step": "03", "title": "位置关系与距离", "chapterIds": ["ch03"], "checkpoint": "能用一般式系数判断平行垂直"}], "chapters": [{"id": "ch01", "title": "第 1 章：倾斜角与斜率", "file": "chapters/ch01-slope.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：直线方程的五种形式", "file": "chapters/ch02-forms.md", "difficulty": 2}, {"id": "ch03", "title": "第 3 章：位置关系与距离", "file": "chapters/ch03-position-distance.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "斜率与方向", "file": "concepts/c01-slope-direction.md", "chapterIds": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "形式与适用条件", "file": "concepts/c02-form-conditions.md", "chapterIds": ["ch02"]}], "glossary": [{"term": "倾斜角", "def": "直线向上方向与 x 轴正方向的夹角。", "chapterId": "ch01"}, {"term": "斜率", "def": "倾斜角的正切，反映直线的倾斜程度。", "chapterId": "ch01"}, {"term": "点斜式", "def": "y−y₀=k(x−x₀)。", "chapterId": "ch02"}, {"term": "斜截式", "def": "y=kx+b。", "chapterId": "ch02"}, {"term": "截距式", "def": "x/a+y/b=1。", "chapterId": "ch02"}, {"term": "一般式", "def": "Ax+By+C=0（A、B 不全为零）。", "chapterId": "ch02"}, {"term": "点到直线距离", "def": "点与直线上最近点的距离。", "chapterId": "ch03"}, {"term": "夹角", "def": "两直线所成的锐角或直角。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "过点 (1,1) 与 (3,5) 的直线斜率是：", "options": ["1", "2", "4", "1/2"], "answer": 1, "explain": "k=(5−1)/(3−1)=2。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "直线 x=4 的斜率：", "options": ["0", "1", "不存在", "4"], "answer": 2, "explain": "竖直线与 x 轴垂直，倾斜角 90°，正切无定义，故斜率不存在。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "过点 (1,2) 且斜率为 3 的直线方程是：", "options": ["y−2=3(x−1)", "y+2=3(x+1)", "y=3x", "3x−y+1=0"], "answer": 0, "explain": "点斜式直接写成 y−2=3(x−1)。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "直线 2x−3y+6=0 的斜率是：", "options": ["2/3", "−2/3", "3/2", "−3/2"], "answer": 0, "explain": "k=−A/B=−2/(−3)=2/3。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "直线 y=3x+1 与 y=3x−2 的位置关系是：", "options": ["相交", "平行", "重合", "垂直"], "answer": 1, "explain": "斜率相同、截距不同，故平行。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "点 (2,1) 到直线 x−y+1=0 的距离是：", "options": ["2", "√2", "1", "2√2"], "answer": 1, "explain": "|2−1+1|/√2=2/√2=√2。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "过点 (0,2) 且与直线 y=2x+1 平行的直线方程是：", "options": ["y=2x+2", "y=−2x+2", "y=x+2", "y=2x−2"], "answer": 0, "explain": "平行则斜率相同为 2，过 (0,2) 得 y=2x+2。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "直线 3x+4y−10=0 与 3x+4y+5=0 之间的距离是：", "options": ["3", "15", "5", "1"], "answer": 0, "explain": "d=|−10−5|/√(9+16)=15/5=3。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：倾斜角与斜率」的一句话核心是什么？", "back": "斜率是直线倾斜程度的数：k=tanα，α 是倾斜角；竖直直线没有斜率。", "tags": ["line-equations", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：直线方程的五种形式」的一句话核心是什么？", "back": "五种形式是同一件事的五种写法；选哪种取决于题目给了什么条件。", "tags": ["line-equations", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：位置关系与距离」的一句话核心是什么？", "back": "平行看斜率相等，垂直看斜率乘积为 −1；距离靠“点到直线的公式”。", "tags": ["line-equations", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「倾斜角」？", "back": "直线向上方向与 x 轴正方向的夹角。", "tags": ["line-equations", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「斜率」？", "back": "倾斜角的正切，反映直线的倾斜程度。", "tags": ["line-equations", "术语"]}, {"id": "f06", "chapterId": "ch02", "front": "什么是「点斜式」？", "back": "y−y₀=k(x−x₀)。", "tags": ["line-equations", "术语"]}, {"id": "f07", "chapterId": "ch02", "front": "什么是「斜截式」？", "back": "y=kx+b。", "tags": ["line-equations", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「截距式」？", "back": "x/a+y/b=1。", "tags": ["line-equations", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「一般式」？", "back": "Ax+By+C=0（A、B 不全为零）。", "tags": ["line-equations", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「点到直线距离」？", "back": "点与直线上最近点的距离。", "tags": ["line-equations", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「夹角」？", "back": "两直线所成的锐角或直角。", "tags": ["line-equations", "术语"]}], "companion": "line-equations学习伴侣.html", "deriv": "line-equations从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：倾斜角与斜率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：坐标、三角比\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由两点求斜率\n<\/li><li>\n判断倾斜角与斜率的对应\n<\/li><li>\n处理斜率不存在的情形\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>斜率是直线倾斜程度的数：k=tanα，α 是倾斜角；竖直直线没有斜率。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 倾斜角<\/h3>\n<p>直线向上的方向与 x 轴正方向的夹角叫倾斜角 α，范围 [0°,180°)。水平线 α=0°，竖直线 α=90°。<\/p>\n<h3>1.2 斜率<\/h3>\n<p>k=tanα（α≠90°）。由两点 P₁(x₁,y₁)、P₂(x₂,y₂)：<\/p>\n<p>k=(y₂−y₁)/(x₂−x₁)，要求 x₂≠x₁。<\/p>\n<ul><li>\nk&gt;0：直线上升，α 为锐角；\n<\/li><li>\nk&lt;0：直线下降，α 为钝角；\n<\/li><li>\nk=0：水平线；\n<\/li><li>\n斜率不存在：竖直线 x=x₀。\n<\/ul>\n<h3>1.3 斜率的用途<\/h3>\n<p>斜率是解析几何的“万能钥匙”：平行、垂直、夹角、切线，几乎都先算斜率。看到“直线过两点”，第一反应就该是算 k。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：斜率像坡道的陡度：每向右走 1 米，升高几米。<\/p>\n<p><strong>失效边界<\/strong>：竖直坡道的陡度无法用“每米升高”描述，所以竖直直线没有斜率。<\/p>\n<p><strong>实例<\/strong>：过 A(1,2)、B(4,11) 的直线，k=(11−2)/(4−1)=3，倾斜角 arctan3≈71.6°。 过 C(2,5)、D(2,−1) 的直线，x 坐标相同，斜率不存在，方程是 x=2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 所有直线都有斜率 —— 实际上 竖直线没有斜率；解题时要单独讨论 x 坐标相同的情形。\n<\/li><li>\n别以为 斜率大就是直线长 —— 实际上 斜率只表示倾斜程度，与长度无关。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n过点 (1,1) 与 (3,5) 的直线斜率是：\n<\/li><li>\n直线 x=4 的斜率：\n<p>A. 1 ｜ B. 2 ｜ C. 4 ｜ D. 1/2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：k=(5−1)/(3−1)=2。 A. 0 ｜ B. 1 ｜ C. 不存在 ｜ D. 4 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：竖直线与 x 轴垂直，倾斜角 90°，正切无定义，故斜率不存在。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nk=tanα，α∈[0°,180°)\n<\/li><li>\nk=(y₂−y₁)/(x₂−x₁)，x₂≠x₁\n<\/li><li>\n竖直直线无斜率\n<\/ul>", "kind": "chapter", "title": "第 1 章：倾斜角与斜率"}, "ch02": {"html": "<h1>第 2 章：直线方程的五种形式<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n按条件写出点斜式、斜截式、两点式、截距式\n<\/li><li>\n把各种形式化为一般式\n<\/li><li>\n识别每种形式的失效条件\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>五种形式是同一件事的五种写法；选哪种取决于题目给了什么条件。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 五种形式<\/h3>\n<ul><li>\n点斜式：y−y₀=k(x−x₀)，已知一点与斜率；不能表示竖直线；\n<\/li><li>\n斜截式：y=kx+b，已知斜率与 y 轴截距；\n<\/li><li>\n两点式：(y−y₁)/(y₂−y₁)=(x−x₁)/(x₂−x₁)，已知两点；不能表示水平线与竖直线；\n<\/li><li>\n截距式：x/a+y/b=1，已知两轴截距；不能表示过原点或平行于坐标轴的直线；\n<\/li><li>\n一般式：Ax+By+C=0（A、B 不全为零），可以表示所有直线。\n<\/ul>\n<h3>2.2 选择策略<\/h3>\n<p>给点与斜率 → 点斜式；给两点 → 两点式或先求斜率；给截距 → 截距式；题目要求“求直线方程”且无特殊条件 → 一般式收尾。<\/p>\n<h3>2.3 一般式的系数含义<\/h3>\n<p>Ax+By+C=0 中，斜率 k=−A/B（B≠0），y 轴截距 −C/B，x 轴截距 −C/A。<\/p>\n<p>用一般式判断平行垂直最省事：平行看 A₁B₂=A₂B₁，垂直看 A₁A₂+B₁B₂=0（不必讨论斜率是否存在）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：五种形式像同一件衣服的五种穿法，场合不同选不同，但都是同一件衣服。<\/p>\n<p><strong>失效边界<\/strong>：每种形式都有“表示不了”的直线，写答案时要注明或改用一般式。<\/p>\n<p><strong>实例<\/strong>：过点 (2,3) 且斜率 4：y−3=4(x−2)，即 4x−y−5=0。 过 (1,0) 与 (0,2)：x/1+y/2=1，即 2x+y−2=0。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 一般式与斜截式不能互化 —— 实际上 B≠0 时一般式可化为 y=−(A/B)x−C/B，就是斜截式。\n<\/li><li>\n别以为 截距式可以表示任何直线 —— 实际上 过原点的直线两截距都为零，分母为零，截距式失效。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n过点 (1,2) 且斜率为 3 的直线方程是：\n<\/li><li>\n直线 2x−3y+6=0 的斜率是：\n<p>A. y−2=3(x−1) ｜ B. y+2=3(x+1) ｜ C. y=3x ｜ D. 3x−y+1=0 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：点斜式直接写成 y−2=3(x−1)。 A. 2/3 ｜ B. −2/3 ｜ C. 3/2 ｜ D. −3/2 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：k=−A/B=−2/(−3)=2/3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n点斜式、斜截式、两点式、截距式、一般式\n<\/li><li>\n每种形式都有表示不了的直线\n<\/li><li>\n一般式斜率 k=−A/B\n<\/ul>", "kind": "chapter", "title": "第 2 章：直线方程的五种形式"}, "ch03": {"html": "<h1>第 3 章：位置关系与距离<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n判断两直线平行、垂直、相交\n<\/li><li>\n求点到直线的距离\n<\/li><li>\n求两平行线间的距离与夹角\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>平行看斜率相等，垂直看斜率乘积为 −1；距离靠“点到直线的公式”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 两直线位置关系<\/h3>\n<p>设 l₁: y=k₁x+b₁，l₂: y=k₂x+b₂：<\/p>\n<ul><li>\n平行：k₁=k₂ 且 b₁≠b₂；\n<\/li><li>\n重合：k₁=k₂ 且 b₁=b₂；\n<\/li><li>\n垂直：k₁k₂=−1；\n<\/li><li>\n相交：其余情形。\n<\/ul>\n<p>用一般式时不必讨论斜率：平行 ⇔ A₁B₂=A₂B₁ 且不同时重合；垂直 ⇔ A₁A₂+B₁B₂=0。<\/p>\n<h3>3.2 点到直线的距离<\/h3>\n<p>点 P(x₀,y₀) 到直线 Ax+By+C=0 的距离：<\/p>\n<p>d=|Ax₀+By₀+C|/√(A²+B²)<\/p>\n<p>用之前必须把直线化成一般式，系数不能带分母。<\/p>\n<h3>3.3 两平行线间距离<\/h3>\n<p>两平行线 Ax+By+C₁=0 与 Ax+By+C₂=0（系数必须一致）的距离：<\/p>\n<p>d=|C₁−C₂|/√(A²+B²)<\/p>\n<p>若系数不一致，先化成一致再套公式。<\/p>\n<h3>3.4 夹角<\/h3>\n<p>两直线夹角 θ 满足 tanθ=|(k₂−k₁)/(1+k₁k₂)|。夹角取锐角或直角，范围 (0°,90°]。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：点到直线的距离像问“我离这条马路最近有多远”，最近的路就是垂线。<\/p>\n<p><strong>失效边界<\/strong>：公式要求直线是一般式且 A、B 不为零同时成立；竖直线 B=0 时公式仍成立（分母为 |A|）。<\/p>\n<p><strong>实例<\/strong>：点 (1,1) 到 3x+4y−2=0 的距离：|3+4−2|/5=1。 直线 y=2x+1 与 y=2x−3 平行，距离 |1−(−3)|/√(4+1)=4/√5≈1.79。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 两直线平行就是斜率相等 —— 实际上 还要求截距不同；截距相同则重合。\n<\/li><li>\n别以为 点到直线距离可以直接代点进斜截式 —— 实际上 要化成一般式再代，否则分母不对。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n直线 y=3x+1 与 y=3x−2 的位置关系是：\n<\/li><li>\n点 (2,1) 到直线 x−y+1=0 的距离是：\n<p>A. 相交 ｜ B. 平行 ｜ C. 重合 ｜ D. 垂直 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：斜率相同、截距不同，故平行。 A. 2 ｜ B. √2 ｜ C. 1 ｜ D. 2√2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：|2−1+1|/√2=2/√2=√2。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n平行：k 相等且 b 不同；垂直：k₁k₂=−1\n<\/li><li>\n点到直线距离 |Ax₀+By₀+C|/√(A²+B²)\n<\/li><li>\n平行线距离需先统一系数\n<\/ul>", "kind": "chapter", "title": "第 3 章：位置关系与距离"}, "c01": {"html": "<h1>斜率与方向<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>斜率是直线唯一的方向指标；平行、垂直、夹角都靠它判断。<\/p>\n<h2>为什么重要<\/h2>\n<p>解析几何里“方向”这件事，全靠斜率变成一个数。<\/p>\n<h2>详解<\/h2>\n<p>k=tanα。k 相等则平行（截距不同），k₁k₂=−1 则垂直，tanθ=|(k₂−k₁)/(1+k₁k₂)| 给夹角。竖直线无斜率，需单独讨论。<\/p>\n<h2>常见误解<\/h2>\n<p>忘记竖直线没有斜率，直接套点斜式或垂直公式。<\/p>\n<h2>相关概念<\/h2>\n<p>倾斜角（ch01）、位置关系（ch03）<\/p>", "kind": "concept", "title": "斜率与方向"}, "c02": {"html": "<h1>形式与适用条件<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>每种方程形式都漏掉一类直线，答案要写全就得知道它漏了什么。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是直线方程题最常见的扣分点：用点斜式却漏掉竖直线。<\/p>\n<h2>详解<\/h2>\n<p>点斜式漏竖直线；两点式漏水平线与竖直线；截距式漏过原点及平行于坐标轴的直线；一般式不漏。所以分类讨论时，先处理特殊直线，再写一般情形。<\/p>\n<h2>常见误解<\/h2>\n<p>只写一种形式就交卷，忽略特殊情形。<\/p>\n<h2>相关概念<\/h2>\n<p>五种形式（ch02）、分类讨论（通用）<\/p>", "kind": "concept", "title": "形式与适用条件"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：倾斜角与斜率<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：倾斜角与斜率<\/a><br>检查点：能由两点求斜率并判断倾斜角范围<\/li><li class='path-step' id='path-02'><strong>步骤 02：直线方程的五种形式<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：直线方程的五种形式<\/a><br>检查点：能按条件选对形式并注明适用条件<\/li><li class='path-step' id='path-03'><strong>步骤 03：位置关系与距离<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：位置关系与距离<\/a><br>检查点：能用一般式系数判断平行垂直<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 过点 (0,2) 且与直线 y=2x+1 平行的直线方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> y=2x+2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> y=−2x+2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> y=x+2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> y=2x−2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 直线 3x+4y−10=0 与 3x+4y+5=0 之间的距离是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 5<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：倾斜角与斜率<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 过点 (1,1) 与 (3,5) 的直线斜率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 4<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 1/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 直线 x=4 的斜率：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 0<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 1<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 不存在<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：直线方程的五种形式<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 过点 (1,2) 且斜率为 3 的直线方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> y−2=3(x−1)<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> y+2=3(x+1)<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> y=3x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 3x−y+1=0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 直线 2x−3y+6=0 的斜率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 2/3<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> −2/3<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 3/2<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> −3/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：位置关系与距离<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 直线 y=3x+1 与 y=3x−2 的位置关系是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 相交<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 平行<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 重合<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 垂直<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 点 (2,1) 到直线 x−y+1=0 的距离是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> √2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 1<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 2√2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='倾斜角'>倾斜角 — 直线向上方向与 x 轴正方向的夹角。 <span class=glossary-ref>（第 1 章：倾斜角与斜率）<\/span><\/li><li data-term='斜率'>斜率 — 倾斜角的正切，反映直线的倾斜程度。 <span class=glossary-ref>（第 1 章：倾斜角与斜率）<\/span><\/li><li data-term='点斜式'>点斜式 — y−y₀=k(x−x₀)。 <span class=glossary-ref>（第 2 章：直线方程的五种形式）<\/span><\/li><li data-term='斜截式'>斜截式 — y=kx+b。 <span class=glossary-ref>（第 2 章：直线方程的五种形式）<\/span><\/li><li data-term='截距式'>截距式 — x/a+y/b=1。 <span class=glossary-ref>（第 2 章：直线方程的五种形式）<\/span><\/li><li data-term='一般式'>一般式 — Ax+By+C=0（A、B 不全为零）。 <span class=glossary-ref>（第 2 章：直线方程的五种形式）<\/span><\/li><li data-term='点到直线距离'>点到直线距离 — 点与直线上最近点的距离。 <span class=glossary-ref>（第 3 章：位置关系与距离）<\/span><\/li><li data-term='夹角'>夹角 — 两直线所成的锐角或直角。 <span class=glossary-ref>（第 3 章：位置关系与距离）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：求直线方程四步<\/h2>\n<p>① 判断是否竖直（无斜率）；② 找已知条件（点、斜率、截距）；③ 选形式；④ 化为一般式并检查特殊情形。<\/p>\n<h2>框架：位置关系判断<\/h2>\n<p>优先用一般式系数：平行看 A₁B₂=A₂B₁，垂直看 A₁A₂+B₁B₂=0，避免讨论斜率是否存在。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>斜率<\/td><td>k=tanα=(y₂−y₁)/(x₂−x₁)<\/td><\/tr><tr><td>点斜式<\/td><td>y−y₀=k(x−x₀)<\/td><\/tr><tr><td>斜截式<\/td><td>y=kx+b<\/td><\/tr><tr><td>一般式斜率<\/td><td>k=−A/B（B≠0）<\/td><\/tr><tr><td>垂直<\/td><td>k₁k₂=−1<\/td><\/tr><tr><td>点线距离<\/td><td><\/td><td>Ax₀+By₀+C<\/td><td>/√(A²+B²)<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/18-直线方程", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：倾斜角与斜率", "href": "#/chapter/ch01"}, {"label": "第 2 章：直线方程的五种形式", "href": "#/chapter/ch02"}, {"label": "第 3 章：位置关系与距离", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "斜率与方向", "href": "#/concept/c01"}, {"label": "形式与适用条件", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：倾斜角与斜率", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：直线方程的五种形式", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：位置关系与距离", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：倾斜角与斜率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：坐标、三角比\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由两点求斜率\n<\/li><li>\n判断倾斜角与斜率的对应\n<\/li><li>\n处理斜率不存在的情形\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>斜率是直线倾斜程度的数：k=tanα，α 是倾斜角；竖直直线没有斜率。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 倾斜角<\/h3>\n<p>直线向上的方向与 x 轴正方向的夹角叫倾斜角 α，范围 [0°,180°)。水平线 α=0°，竖直线 α=90°。<\/p>\n<h3>1.2 斜率<\/h3>\n<p>k=tanα（α≠90°）。由两点 P₁(x₁,y₁)、P₂(x₂,y₂)：<\/p>\n<p>k=(y₂−y₁)/(x₂−x₁)，要求 x₂≠x₁。<\/p>\n<ul><li>\nk&gt;0：直线上升，α 为锐角；\n<\/li><li>\nk&lt;0：直线下降，α 为钝角；\n<\/li><li>\nk=0：水平线；\n<\/li><li>\n斜率不存在：竖直线 x=x₀。\n<\/ul>\n<h3>1.3 斜率的用途<\/h3>\n<p>斜率是解析几何的“万能钥匙”：平行、垂直、夹角、切线，几乎都先算斜率。看到“直线过两点”，第一反应就该是算 k。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：斜率像坡道的陡度：每向右走 1 米，升高几米。<\/p>\n<p><strong>失效边界<\/strong>：竖直坡道的陡度无法用“每米升高”描述，所以竖直直线没有斜率。<\/p>\n<p><strong>实例<\/strong>：过 A(1,2)、B(4,11) 的直线，k=(11−2)/(4−1)=3，倾斜角 arctan3≈71.6°。 过 C(2,5)、D(2,−1) 的直线，x 坐标相同，斜率不存在，方程是 x=2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 所有直线都有斜率 —— 实际上 竖直线没有斜率；解题时要单独讨论 x 坐标相同的情形。\n<\/li><li>\n别以为 斜率大就是直线长 —— 实际上 斜率只表示倾斜程度，与长度无关。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n过点 (1,1) 与 (3,5) 的直线斜率是：\n<\/li><li>\n直线 x=4 的斜率：\n<p>A. 1 ｜ B. 2 ｜ C. 4 ｜ D. 1/2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：k=(5−1)/(3−1)=2。 A. 0 ｜ B. 1 ｜ C. 不存在 ｜ D. 4 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：竖直线与 x 轴垂直，倾斜角 90°，正切无定义，故斜率不存在。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nk=tanα，α∈[0°,180°)\n<\/li><li>\nk=(y₂−y₁)/(x₂−x₁)，x₂≠x₁\n<\/li><li>\n竖直直线无斜率\n<\/ul>", "ch02": "<h1>第 2 章：直线方程的五种形式<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n按条件写出点斜式、斜截式、两点式、截距式\n<\/li><li>\n把各种形式化为一般式\n<\/li><li>\n识别每种形式的失效条件\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>五种形式是同一件事的五种写法；选哪种取决于题目给了什么条件。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 五种形式<\/h3>\n<ul><li>\n点斜式：y−y₀=k(x−x₀)，已知一点与斜率；不能表示竖直线；\n<\/li><li>\n斜截式：y=kx+b，已知斜率与 y 轴截距；\n<\/li><li>\n两点式：(y−y₁)/(y₂−y₁)=(x−x₁)/(x₂−x₁)，已知两点；不能表示水平线与竖直线；\n<\/li><li>\n截距式：x/a+y/b=1，已知两轴截距；不能表示过原点或平行于坐标轴的直线；\n<\/li><li>\n一般式：Ax+By+C=0（A、B 不全为零），可以表示所有直线。\n<\/ul>\n<h3>2.2 选择策略<\/h3>\n<p>给点与斜率 → 点斜式；给两点 → 两点式或先求斜率；给截距 → 截距式；题目要求“求直线方程”且无特殊条件 → 一般式收尾。<\/p>\n<h3>2.3 一般式的系数含义<\/h3>\n<p>Ax+By+C=0 中，斜率 k=−A/B（B≠0），y 轴截距 −C/B，x 轴截距 −C/A。<\/p>\n<p>用一般式判断平行垂直最省事：平行看 A₁B₂=A₂B₁，垂直看 A₁A₂+B₁B₂=0（不必讨论斜率是否存在）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：五种形式像同一件衣服的五种穿法，场合不同选不同，但都是同一件衣服。<\/p>\n<p><strong>失效边界<\/strong>：每种形式都有“表示不了”的直线，写答案时要注明或改用一般式。<\/p>\n<p><strong>实例<\/strong>：过点 (2,3) 且斜率 4：y−3=4(x−2)，即 4x−y−5=0。 过 (1,0) 与 (0,2)：x/1+y/2=1，即 2x+y−2=0。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 一般式与斜截式不能互化 —— 实际上 B≠0 时一般式可化为 y=−(A/B)x−C/B，就是斜截式。\n<\/li><li>\n别以为 截距式可以表示任何直线 —— 实际上 过原点的直线两截距都为零，分母为零，截距式失效。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n过点 (1,2) 且斜率为 3 的直线方程是：\n<\/li><li>\n直线 2x−3y+6=0 的斜率是：\n<p>A. y−2=3(x−1) ｜ B. y+2=3(x+1) ｜ C. y=3x ｜ D. 3x−y+1=0 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：点斜式直接写成 y−2=3(x−1)。 A. 2/3 ｜ B. −2/3 ｜ C. 3/2 ｜ D. −3/2 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：k=−A/B=−2/(−3)=2/3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n点斜式、斜截式、两点式、截距式、一般式\n<\/li><li>\n每种形式都有表示不了的直线\n<\/li><li>\n一般式斜率 k=−A/B\n<\/ul>", "ch03": "<h1>第 3 章：位置关系与距离<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n判断两直线平行、垂直、相交\n<\/li><li>\n求点到直线的距离\n<\/li><li>\n求两平行线间的距离与夹角\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>平行看斜率相等，垂直看斜率乘积为 −1；距离靠“点到直线的公式”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 两直线位置关系<\/h3>\n<p>设 l₁: y=k₁x+b₁，l₂: y=k₂x+b₂：<\/p>\n<ul><li>\n平行：k₁=k₂ 且 b₁≠b₂；\n<\/li><li>\n重合：k₁=k₂ 且 b₁=b₂；\n<\/li><li>\n垂直：k₁k₂=−1；\n<\/li><li>\n相交：其余情形。\n<\/ul>\n<p>用一般式时不必讨论斜率：平行 ⇔ A₁B₂=A₂B₁ 且不同时重合；垂直 ⇔ A₁A₂+B₁B₂=0。<\/p>\n<h3>3.2 点到直线的距离<\/h3>\n<p>点 P(x₀,y₀) 到直线 Ax+By+C=0 的距离：<\/p>\n<p>d=|Ax₀+By₀+C|/√(A²+B²)<\/p>\n<p>用之前必须把直线化成一般式，系数不能带分母。<\/p>\n<h3>3.3 两平行线间距离<\/h3>\n<p>两平行线 Ax+By+C₁=0 与 Ax+By+C₂=0（系数必须一致）的距离：<\/p>\n<p>d=|C₁−C₂|/√(A²+B²)<\/p>\n<p>若系数不一致，先化成一致再套公式。<\/p>\n<h3>3.4 夹角<\/h3>\n<p>两直线夹角 θ 满足 tanθ=|(k₂−k₁)/(1+k₁k₂)|。夹角取锐角或直角，范围 (0°,90°]。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：点到直线的距离像问“我离这条马路最近有多远”，最近的路就是垂线。<\/p>\n<p><strong>失效边界<\/strong>：公式要求直线是一般式且 A、B 不为零同时成立；竖直线 B=0 时公式仍成立（分母为 |A|）。<\/p>\n<p><strong>实例<\/strong>：点 (1,1) 到 3x+4y−2=0 的距离：|3+4−2|/5=1。 直线 y=2x+1 与 y=2x−3 平行，距离 |1−(−3)|/√(4+1)=4/√5≈1.79。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 两直线平行就是斜率相等 —— 实际上 还要求截距不同；截距相同则重合。\n<\/li><li>\n别以为 点到直线距离可以直接代点进斜截式 —— 实际上 要化成一般式再代，否则分母不对。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n直线 y=3x+1 与 y=3x−2 的位置关系是：\n<\/li><li>\n点 (2,1) 到直线 x−y+1=0 的距离是：\n<p>A. 相交 ｜ B. 平行 ｜ C. 重合 ｜ D. 垂直 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：斜率相同、截距不同，故平行。 A. 2 ｜ B. √2 ｜ C. 1 ｜ D. 2√2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：|2−1+1|/√2=2/√2=√2。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n平行：k 相等且 b 不同；垂直：k₁k₂=−1\n<\/li><li>\n点到直线距离 |Ax₀+By₀+C|/√(A²+B²)\n<\/li><li>\n平行线距离需先统一系数\n<\/ul>", "c01": "<h1>斜率与方向<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>斜率是直线唯一的方向指标；平行、垂直、夹角都靠它判断。<\/p>\n<h2>为什么重要<\/h2>\n<p>解析几何里“方向”这件事，全靠斜率变成一个数。<\/p>\n<h2>详解<\/h2>\n<p>k=tanα。k 相等则平行（截距不同），k₁k₂=−1 则垂直，tanθ=|(k₂−k₁)/(1+k₁k₂)| 给夹角。竖直线无斜率，需单独讨论。<\/p>\n<h2>常见误解<\/h2>\n<p>忘记竖直线没有斜率，直接套点斜式或垂直公式。<\/p>\n<h2>相关概念<\/h2>\n<p>倾斜角（ch01）、位置关系（ch03）<\/p>", "c02": "<h1>形式与适用条件<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>每种方程形式都漏掉一类直线，答案要写全就得知道它漏了什么。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是直线方程题最常见的扣分点：用点斜式却漏掉竖直线。<\/p>\n<h2>详解<\/h2>\n<p>点斜式漏竖直线；两点式漏水平线与竖直线；截距式漏过原点及平行于坐标轴的直线；一般式不漏。所以分类讨论时，先处理特殊直线，再写一般情形。<\/p>\n<h2>常见误解<\/h2>\n<p>只写一种形式就交卷，忽略特殊情形。<\/p>\n<h2>相关概念<\/h2>\n<p>五种形式（ch02）、分类讨论（通用）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：倾斜角与斜率<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：倾斜角与斜率<\/a><br>检查点：能由两点求斜率并判断倾斜角范围<\/li><li class='path-step' id='path-02'><strong>步骤 02：直线方程的五种形式<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：直线方程的五种形式<\/a><br>检查点：能按条件选对形式并注明适用条件<\/li><li class='path-step' id='path-03'><strong>步骤 03：位置关系与距离<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：位置关系与距离<\/a><br>检查点：能用一般式系数判断平行垂直<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 过点 (0,2) 且与直线 y=2x+1 平行的直线方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> y=2x+2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> y=−2x+2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> y=x+2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> y=2x−2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 直线 3x+4y−10=0 与 3x+4y+5=0 之间的距离是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 5<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：倾斜角与斜率<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 过点 (1,1) 与 (3,5) 的直线斜率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 4<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 1/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 直线 x=4 的斜率：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 0<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 1<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 不存在<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：直线方程的五种形式<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 过点 (1,2) 且斜率为 3 的直线方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> y−2=3(x−1)<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> y+2=3(x+1)<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> y=3x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 3x−y+1=0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 直线 2x−3y+6=0 的斜率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 2/3<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> −2/3<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 3/2<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> −3/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：位置关系与距离<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 直线 y=3x+1 与 y=3x−2 的位置关系是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 相交<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 平行<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 重合<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 垂直<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 点 (2,1) 到直线 x−y+1=0 的距离是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> √2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 1<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 2√2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='倾斜角'>倾斜角 — 直线向上方向与 x 轴正方向的夹角。 <span class=glossary-ref>（第 1 章：倾斜角与斜率）<\/span><\/li><li data-term='斜率'>斜率 — 倾斜角的正切，反映直线的倾斜程度。 <span class=glossary-ref>（第 1 章：倾斜角与斜率）<\/span><\/li><li data-term='点斜式'>点斜式 — y−y₀=k(x−x₀)。 <span class=glossary-ref>（第 2 章：直线方程的五种形式）<\/span><\/li><li data-term='斜截式'>斜截式 — y=kx+b。 <span class=glossary-ref>（第 2 章：直线方程的五种形式）<\/span><\/li><li data-term='截距式'>截距式 — x/a+y/b=1。 <span class=glossary-ref>（第 2 章：直线方程的五种形式）<\/span><\/li><li data-term='一般式'>一般式 — Ax+By+C=0（A、B 不全为零）。 <span class=glossary-ref>（第 2 章：直线方程的五种形式）<\/span><\/li><li data-term='点到直线距离'>点到直线距离 — 点与直线上最近点的距离。 <span class=glossary-ref>（第 3 章：位置关系与距离）<\/span><\/li><li data-term='夹角'>夹角 — 两直线所成的锐角或直角。 <span class=glossary-ref>（第 3 章：位置关系与距离）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：求直线方程四步<\/h2>\n<p>① 判断是否竖直（无斜率）；② 找已知条件（点、斜率、截距）；③ 选形式；④ 化为一般式并检查特殊情形。<\/p>\n<h2>框架：位置关系判断<\/h2>\n<p>优先用一般式系数：平行看 A₁B₂=A₂B₁，垂直看 A₁A₂+B₁B₂=0，避免讨论斜率是否存在。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>斜率<\/td><td>k=tanα=(y₂−y₁)/(x₂−x₁)<\/td><\/tr><tr><td>点斜式<\/td><td>y−y₀=k(x−x₀)<\/td><\/tr><tr><td>斜截式<\/td><td>y=kx+b<\/td><\/tr><tr><td>一般式斜率<\/td><td>k=−A/B（B≠0）<\/td><\/tr><tr><td>垂直<\/td><td>k₁k₂=−1<\/td><\/tr><tr><td>点线距离<\/td><td><\/td><td>Ax₀+By₀+C<\/td><td>/√(A²+B²)<\/td><\/tr><\/tbody><\/table>"}};
+const pages = DATA.rendered;
+const manifest = DATA.manifest;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SLUG = manifest.slug || 'book';
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
+};
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+
+/* ---------- 导航 ---------- */
+function renderNav(){
+  const nav = $('#nav'); nav.innerHTML='';
+  const build = items => items.forEach(it=>{
+    if(it.children){
+      const sec=document.createElement('div'); sec.className='nav-sec'; sec.textContent=it.label; nav.appendChild(sec);
+      it.children.forEach(c=>{
+        const a=document.createElement('a'); a.className='nav-item'; a.href=c.href; a.textContent=c.label;
+        const id=routeId(c.href);
+        if(state.visited.includes(id)) a.innerHTML = esc(c.label)+' <span class="done">✓</span>';
+        nav.appendChild(a);
+      });
+    }else{
+      const a=document.createElement('a'); a.className='nav-item'; a.href=it.href; a.textContent=it.label;
+      const id=routeId(it.href);
+      if(state.visited.includes(id)) a.innerHTML = esc(it.label)+' <span class="done">✓</span>';
+      nav.appendChild(a);
+    }
+  });
+  build(DATA.nav);
+  updateProgress();
+}
+function routeId(href){ return href.replace('#/',''); }
+
+/* ---------- 路由 ---------- */
+function routeIdFromHash(){
+  let h = location.hash.replace(/^#\//,'');
+  if(!h) return 'path';
+  if(h==='path') return 'path';
+  const m = h.match(/^(chapter|concept)\/(.+)$/);
+  if(m) return m[1]+'/'+m[2];
+  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+}
+function showPage(rid){
+  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  const html = pages[id] || '<div class="empty">页面不存在</div>';
+  $('#view').innerHTML = html;
+  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
+    state.visited.push(rid); store.set('visited', state.visited); renderNav();
+  }
+  window.scrollTo(0,0);
+  if(rid==='cards') initCards();
+  if(rid==='glossary') initGlossary();
+  if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(id==='__path__') updatePath();
+  renderMermaid();
+}
+
+/* ---------- 进度 ---------- */
+function updateProgress(){
+  const chs = (manifest.chapters||[]).length;
+  const done = (manifest.chapters||[]).filter(c=>state.visited.includes('chapter/'+c.id)).length;
+  const pct = chs? Math.round(done/chs*100) : 0;
+  $('#progress-fill').style.width = pct+'%';
+  $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
+}
+function updatePath(){
+  document.querySelectorAll('.path-step').forEach(el=>{
+    const step = el.id.replace('path-','');
+    const s = (manifest.learningPath||[]).find(x=>x.step===step);
+    if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
+      el.classList.add('passed');
+      const lbl = el.querySelector('.checkpoint-ok'); if(!lbl){ const sp=document.createElement('span'); sp.className='done'; sp.textContent=' ✓ 已完成'; el.appendChild(sp); }
+    }
+  });
+}
+
+/* ---------- 测验 ---------- */
+function initQuizzes(rid){
+  document.querySelectorAll('.quiz-item').forEach(item=>{
+    const btn = item.querySelector('.quiz-check');
+    if(!btn || item.dataset.inited){ return }
+    item.dataset.inited='1';
+    btn.addEventListener('click', ()=>{
+      const qid = item.dataset.qid; const type = item.dataset.type;
+      const q = (manifest.quizzes||[]).find(x=>x.id===qid); if(!q) return;
+      let user, correct=false, fb;
+      if(type==='single'){
+        const sel = item.querySelector('input:checked');
+        user = sel? parseInt(sel.value) : null;
+        correct = user===q.answer;
+        fb = correct?'✓ 正确':'✗ 错误'+(user==null?'（未作答）':'');
+      } else if(type==='multi'){
+        user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+        const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+        correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+        fb = correct?'✓ 正确':'✗ 错误';
+      } else if(type==='blank'){
+        const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+        const a = String(q.answer).trim().toLowerCase();
+        correct = v===a;
+        fb = correct?'✓ 正确':'✗ 错误'+(v?'':'（未作答）');
+      }
+      item.querySelectorAll('input:checked').forEach(i=>{
+        const val=parseInt(i.value);
+        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
+        else i.parentElement.style.color='var(--bad)';
+      });
+      const feed = item.querySelector('.quiz-feedback');
+      feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
+      feed.textContent = fb;
+      let ex = item.querySelector('.quiz-explain');
+      if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
+      ex.innerHTML = '解析：' + esc(q.explain||'');
+      // 记录成绩（按章聚合）
+      const ch = q.chapterId||'__all__';
+      if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
+      state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
+      state.quiz[ch].total += 1;
+      store.set('quiz', state.quiz);
+    });
+  });
+}
+
+/* ---------- 抽认卡 ---------- */
+let cardIdx = 0, cardList = [];
+function initCards(){
+  const cards = manifest.flashcards||[];
+  cardList = cards.slice();
+  cardIdx = 0;
+  const sel = $('#card-filter');
+  sel.innerHTML = '<option value="">全部</option>';
+  [...new Set(cards.map(c=>c.chapterId).filter(Boolean))].forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=manifestChTitle(c); sel.appendChild(o);
+  });
+  sel.onchange = ()=>{ const v=sel.value; cardList = v? cards.filter(c=>c.chapterId===v): cards.slice(); cardIdx=0; showCard(); };
+  $('#flashcard').onclick = ()=>$('#flashcard').classList.toggle('flip');
+  $('#card-known-btn').onclick = ()=>{ markCard(true); };
+  $('#card-again-btn').onclick = ()=>{ markCard(false); };
+  showCard();
+}
+function showCard(){
+  updateCardCounts();
+  if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
+  const c = cardList[cardIdx];
+  document.querySelector('.fc-front').textContent = c.front;
+  document.querySelector('.fc-back').textContent = c.back;
+  $('#flashcard').classList.remove('flip');
+}
+function markCard(known){
+  const c = cardList[cardIdx]; if(!c) return;
+  state.cards[c.id] = known?'known':'again';
+  store.set('cards', state.cards);
+  cardIdx++; showCard();
+}
+function updateCardCounts(){
+  const known = Object.values(state.cards).filter(v=>v==='known').length;
+  const again = Object.values(state.cards).filter(v=>v==='again').length;
+  $('#card-known').textContent = known;
+  $('#card-again').textContent = again;
+  $('#card-left').textContent = Math.max(0, cardList.length-cardIdx);
+}
+function manifestChTitle(id){
+  const c=(manifest.chapters||[]).find(x=>x.id===id); return c? c.title : id;
+}
+
+/* ---------- 术语表 ---------- */
+function initGlossary(){
+  const input = $('#glossary-filter');
+  if(!input || input.dataset.inited) return;
+  input.dataset.inited='1';
+  input.oninput = ()=>{
+    const v = input.value.trim().toLowerCase();
+    document.querySelectorAll('#glossary-list li').forEach(li=>{
+      li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
+    });
+  };
+}
+
+/* ---------- 搜索 ---------- */
+let searchIndex = null;
+function buildSearchIndex(){
+  if(searchIndex) return searchIndex;
+  searchIndex = [];
+  Object.entries(pages).forEach(([id, htmlText])=>{
+    if(id.startsWith('__')) return;
+    const text = htmlText.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+    searchIndex.push({id, text});
+  });
+  return searchIndex;
+}
+$('#q').addEventListener('input', e=>{
+  const v = e.target.value.trim().toLowerCase();
+  if(!v){ showPage(routeIdFromHash()); return; }
+  buildSearchIndex();
+  const hits = searchIndex.filter(p=>p.text.toLowerCase().includes(v)).slice(0,20);
+  const label = id => id.startsWith('chapter/')? ('章节：'+manifestChTitle(id.split('/')[1])) : id.startsWith('concept/')? ('概念：'+id.split('/')[1]) : id;
+  $('#view').innerHTML = '<h1>搜索结果：'+esc(v)+'</h1>' +
+    (hits.length? hits.map(h=>`<div class="search-hit"><a href="#/${h.id}">${esc(label(h.id))}</a><br><span class="sub">${esc(h.text.slice(0,180))}</span></div>`).join('')
+                 : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
+});
+
+/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+function renderMermaid(){
+  if(!document.querySelector('.mermaid')) return;
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+  s.onload=()=>{ try{
+    mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
+    document.querySelectorAll('.mermaid').forEach(el=>{
+      const code=el.textContent;
+      mermaid.render('mm'+Math.random().toString(36).slice(2), code)
+        .then(({svg})=>{ el.innerHTML=svg; })
+        .catch(()=>{ el.textContent=code; });
+    });
+  }catch(e){} };
+  document.head.appendChild(s);
+}
+
+/* ---------- 深色模式 ---------- */
+const themeBtn=$('#theme-btn');
+themeBtn.onclick=()=>{
+  const d = document.body.dataset.theme==='dark';
+  document.body.dataset.theme = d? '' : 'dark';
+  themeBtn.textContent = d? '🌙 深色' : '☀️ 浅色';
+};
+
+/* ---------- 启动 ---------- */
+renderNav();
+window.addEventListener('hashchange', ()=>showPage(routeIdFromHash()));
+(function(){
+  const sb=document.querySelector('.sidebar'); if(!sb) return;
+  const btn=document.createElement('button'); btn.id='nav-toggle'; btn.textContent='目录（点开选择章节）';
+  btn.onclick=()=>sb.classList.toggle('open');
+  sb.insertBefore(btn, sb.querySelector('#nav'));
+  window.addEventListener('hashchange',()=>{ if(window.innerWidth<=760) sb.classList.remove('open'); });
+})();
+showPage(routeIdFromHash());
+</script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>微积分初步</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
+  --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
+  --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+}
+[data-theme="dark"]{
+  --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
+  --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
+  --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:290px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  padding:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h1{font-size:17px;margin:2px 0 2px}
+.sidebar .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+#q{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+.nav-sec{font-size:12px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.nav-item{display:block;padding:5px 10px;border-radius:6px;color:var(--text);font-size:14px}
+.nav-item:hover{background:var(--accent-soft);text-decoration:none}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .done{float:right;color:var(--ok);font-size:12px}
+#nav-toggle{display:none}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
+.page h2{font-size:20px;margin-top:26px}
+.page h3{font-size:17px;margin-top:22px}
+.page table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+.page th,.page td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.page th{background:var(--code-bg)}
+.page code{background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.9em}
+.page pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
+.page pre code{background:none;padding:0}
+.page blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:6px 14px;background:var(--accent-soft);border-radius:0 6px 6px 0}
+.page blockquote blockquote{border-color:var(--muted)}
+.page img{max-width:100%}
+.mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
+.mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
+svg{max-width:100%;height:auto}
+.quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
+.quiz-q{margin:0 0 8px;font-weight:500}
+.quiz-opts label{display:block;padding:4px 0;cursor:pointer}
+.quiz-blank{width:60%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+.quiz-check{margin-top:10px;padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.quiz-feedback{margin-left:12px;font-size:13px}
+.fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
+.quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
+.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;
+  padding:22px;border-radius:14px;border:1px solid var(--border);background:var(--panel);font-size:16px;text-align:center}
+.fc-back{transform:rotateY(180deg);background:var(--accent-soft);color:var(--text)}
+.card-controls{display:flex;gap:14px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.card-actions{display:flex;gap:12px;justify-content:center}
+.card-actions button{padding:8px 22px;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+#card-known-btn{background:var(--ok);color:#fff}
+#card-again-btn{background:var(--bad);color:#fff}
+.card-counts{color:var(--muted);font-size:13px}
+.path-step{margin:8px 0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+.path-step.passed{border-color:var(--ok)}
+#glossary-filter{width:100%;max-width:380px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+#glossary-list li{padding:6px 0;border-bottom:1px dashed var(--border)}
+.glossary-ref{color:var(--muted);font-size:12px}
+.search-hit{margin:10px 0}
+.topbar{position:sticky;top:0;background:var(--bg);padding:8px 0;display:flex;justify-content:flex-end;z-index:10}
+#theme-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+#progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
+#progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
+.empty{color:var(--muted);padding:20px 0}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+@media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
+  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
+  .layout{flex-direction:column}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>微积分初步</h1>
+    <div class="sub">从实数到极限：瞬时变化的数学</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div class="sub" id="progress-label">进度 0%</div>
+    <input id="q" type="search" placeholder="搜索章节 / 概念 / 术语 / 全文…">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar"><button id="theme-btn">🌙 深色</button></div>
+    <div id="view" class="page"></div>
+  </main>
+</div>
+<script>
+const DATA = {"manifest": {"slug": "calculus-intro", "title": "微积分初步", "subtitle": "从实数到极限：瞬时变化的数学", "book": {"title": "微积分初步", "author": "高国士", "source": ["数学基础知识丛书-22-微积分初步 高国士.pdf"]}, "audience": "零基础", "goal": "理解实数与极限、连续与导数、微分与积分的基本概念与计算方法，能用导数研究单调与极值，会用定积分求面积。", "learningPath": [{"step": "01", "title": "实数与极限", "chapterIds": ["ch01"], "checkpoint": "能用 ε-N 说明一个数列趋于某个值"}, {"step": "02", "title": "连续与导数", "chapterIds": ["ch02"], "checkpoint": "能用定义求出简单函数的导数"}, {"step": "03", "title": "微分与积分", "chapterIds": ["ch03"], "checkpoint": "能由导数反求原函数并算定积分"}, {"step": "04", "title": "应用：单调、极值与面积", "chapterIds": ["ch04"], "checkpoint": "能用定积分求曲边图形面积"}], "chapters": [{"id": "ch01", "title": "第 1 章：实数与极限", "file": "chapters/ch01-real-limit.md", "difficulty": 3}, {"id": "ch02", "title": "第 2 章：连续与导数", "file": "chapters/ch02-continuity-derivative.md", "difficulty": 3}, {"id": "ch03", "title": "第 3 章：微分与积分", "file": "chapters/ch03-differential-integral.md", "difficulty": 3}, {"id": "ch04", "title": "第 4 章：单调、极值与面积", "file": "chapters/ch04-applications.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "极限", "file": "concepts/c01-limit.md", "chapterIds": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "互逆运算", "file": "concepts/c02-inverse-operations.md", "chapterIds": ["ch02", "ch03"]}], "glossary": [{"term": "极限", "def": "变量无限接近某个值的趋势的严格描述。", "chapterId": "ch01"}, {"term": "ε-N 语言", "def": "用任意小的 ε 与分界 N 表述数列极限。", "chapterId": "ch01"}, {"term": "连续", "def": "函数在某点的极限等于函数值。", "chapterId": "ch02"}, {"term": "导数", "def": "差商当 h→0 时的极限，表示瞬时变化率。", "chapterId": "ch02"}, {"term": "链式法则", "def": "复合函数求导：外层导数乘内层导数。", "chapterId": "ch02"}, {"term": "微分", "def": "增量的线性主部 dy=f'(x)dx。", "chapterId": "ch03"}, {"term": "定积分", "def": "分割求和的极限，表示累积量。", "chapterId": "ch03"}, {"term": "原函数", "def": "导数等于被积函数的函数。", "chapterId": "ch03"}, {"term": "极值", "def": "局部最大或最小值。", "chapterId": "ch04"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "数列 a_n=1/n 的极限是：", "options": ["1", "0", "不存在", "∞"], "answer": 1, "explain": "n 越大 1/n 越接近 0，可任意小。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "ε-N 定义中，N 的作用是：", "options": ["表示项数上限", "表示从第 N 项以后都满足精度要求", "表示误差", "表示极限值"], "answer": 1, "explain": "N 是“从这一项开始，之后所有项都落在 ε 范围内”的分界。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "f(x)=x³ 的导数是：", "options": ["3x²", "x²", "3x", "x³/4"], "answer": 0, "explain": "由 (x^n)'=nx^(n−1) 得 3x²。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "y=(2x+1)³ 的导数是：", "options": ["3(2x+1)²", "6(2x+1)²", "3(2x+1)³", "6(2x+1)³"], "answer": 1, "explain": "链式法则：3(2x+1)²·2=6(2x+1)²。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "∫_0^2 x dx 的值是：", "options": ["2", "4", "1", "0"], "answer": 0, "explain": "原函数 x²/2，代入得 4/2−0=2。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "微积分基本定理的作用是：", "options": ["定义极限", "把定积分化为原函数在端点的差", "求导数", "判断连续"], "answer": 1, "explain": "∫_a^b f=F(b)−F(a)，把求和变成代端点。"}, {"id": "q07", "chapterId": "ch04", "type": "single", "question": "f(x)=x²−2x 的极小值点是：", "options": ["x=1", "x=0", "x=2", "x=−1"], "answer": 0, "explain": "f'(x)=2x−2，零点 x=1，且为极小值点。"}, {"id": "q08", "chapterId": "ch04", "type": "single", "question": "y=x 与 y=x² 在 [0,1] 围成的面积是：", "options": ["1/6", "1/3", "1/2", "1"], "answer": 0, "explain": "∫_0^1(x−x²)dx=1/2−1/3=1/6。"}, {"id": "q09", "chapterId": "__all__", "type": "single", "question": "f(x)=3x²+1 的导数是：", "options": ["6x", "3x", "6x+1", "x²"], "answer": 0, "explain": "常数项导数为 0，(3x²)'=6x。"}, {"id": "q10", "chapterId": "__all__", "type": "single", "question": "∫_1^2 2x dx 的值是：", "options": ["3", "4", "2", "1"], "answer": 0, "explain": "原函数 x²，代入得 4−1=3。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：实数与极限」的一句话核心是什么？", "back": "极限描述“越来越接近”的严格含义：要多近就能多近。", "tags": ["calculus-intro", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：连续与导数」的一句话核心是什么？", "back": "连续是“极限等于函数值”；导数是“差商的极限”，即瞬时变化率。", "tags": ["calculus-intro", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：微分与积分」的一句话核心是什么？", "back": "微分是增量的线性主部；定积分是分割求和的极限；两者由基本定理连接。", "tags": ["calculus-intro", "核心"]}, {"id": "f04", "chapterId": "ch04", "front": "「第 4 章：单调、极值与面积」的一句话核心是什么？", "back": "导数正负决定增减，导数为零的点是极值候选；面积用上减下再积分。", "tags": ["calculus-intro", "核心"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「极限」？", "back": "变量无限接近某个值的趋势的严格描述。", "tags": ["calculus-intro", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「ε-N 语言」？", "back": "用任意小的 ε 与分界 N 表述数列极限。", "tags": ["calculus-intro", "术语"]}, {"id": "f07", "chapterId": "ch02", "front": "什么是「连续」？", "back": "函数在某点的极限等于函数值。", "tags": ["calculus-intro", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「导数」？", "back": "差商当 h→0 时的极限，表示瞬时变化率。", "tags": ["calculus-intro", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「链式法则」？", "back": "复合函数求导：外层导数乘内层导数。", "tags": ["calculus-intro", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「微分」？", "back": "增量的线性主部 dy=f'(x)dx。", "tags": ["calculus-intro", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「定积分」？", "back": "分割求和的极限，表示累积量。", "tags": ["calculus-intro", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「原函数」？", "back": "导数等于被积函数的函数。", "tags": ["calculus-intro", "术语"]}, {"id": "f13", "chapterId": "ch04", "front": "什么是「极值」？", "back": "局部最大或最小值。", "tags": ["calculus-intro", "术语"]}], "companion": "calculus-intro学习伴侣.html", "deriv": "calculus-intro从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：实数与极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：数列、不等式\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出实数与有理数的区别\n<\/li><li>\n用 ε-N 语言表达数列极限\n<\/li><li>\n用四则运算求简单极限\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>极限描述“越来越接近”的严格含义：要多近就能多近。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 实数<\/h3>\n<p>有理数可以写成两个整数之比，小数要么有限要么循环；无理数不能，如 √2、π。实数＝有理数＋无理数。<\/p>\n<p>实数有两个关键性质：<strong>稠密<\/strong>（任意两个实数之间还有实数）与<strong>完备<\/strong>（没有“空隙”）。完备性是极限存在的保证。<\/p>\n<h3>1.2 数列极限<\/h3>\n<p>若当 n 无限增大时，a_n 与常数 A 的距离可以任意小，就说数列的极限是 A，记 lim a_n=A。<\/p>\n<p>严格表述（ε-N）：对任意 ε&gt;0，都存在 N，使得当 n&gt;N 时，|a_n−A|&lt;ε。<\/p>\n<p>这句话的意思是：不管你要求多精确（ε 多小），总能找到一个位置（N），从那以后所有项都满足要求。<\/p>\n<h3>1.3 极限的运算<\/h3>\n<p>若 lim a_n=A、lim b_n=B，则：<\/p>\n<p>lim(a_n±b_n)=A±B，lim(a_n b_n)=AB，lim(a_n/b_n)=A/B（B≠0）。<\/p>\n<p>即极限可以“穿进”四则运算，前提是每一步的极限都存在。<\/p>\n<h3>1.4 两个重要极限<\/h3>\n<p>lim(n→∞)(1+1/n)^n=e≈2.718；lim(x→0)sinx/x=1。这两个是后续求导的基础。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：极限像火车的终点站：车可能永远到不了，但越往后越贴近站台，我们就说它的极限是站台。<\/p>\n<p><strong>失效边界<\/strong>：只有“越来越接近且能任意接近”才算极限；忽近忽远（如 1,−1,1,−1…）没有极限。<\/p>\n<p><strong>实例<\/strong>：a_n=1/n。取 ε=0.001，只要 n&gt;1000 就有 |1/n−0|&lt;0.001，故极限为 0。 a_n=(2n+1)/n=2+1/n，极限为 2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 极限就是“等于” —— 实际上 极限是趋势，a_n 可以永远不等于 A。\n<\/li><li>\n别以为 有界的数列一定有极限 —— 实际上 1,−1,1,−1… 有界但无极限。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n数列 a_n=1/n 的极限是：\n<\/li><li>\nε-N 定义中，N 的作用是：\n<p>A. 1 ｜ B. 0 ｜ C. 不存在 ｜ D. ∞ <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：n 越大 1/n 越接近 0，可任意小。 A. 表示项数上限 ｜ B. 表示从第 N 项以后都满足精度要求 ｜ C. 表示误差 ｜ D. 表示极限值 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：N 是“从这一项开始，之后所有项都落在 ε 范围内”的分界。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n实数＝有理数＋无理数，完备无空隙\n<\/li><li>\nε-N：任意 ε&gt;0，存在 N，n&gt;N 时 |a_n−A|&lt;ε\n<\/li><li>\n极限可穿入四则运算\n<\/ul>", "kind": "chapter", "title": "第 1 章：实数与极限"}, "ch02": {"html": "<h1>第 2 章：连续与导数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n判断函数在某点是否连续\n<\/li><li>\n用定义求导数\n<\/li><li>\n掌握基本求导公式与复合求导\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>连续是“极限等于函数值”；导数是“差商的极限”，即瞬时变化率。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 连续<\/h3>\n<p>若 lim(x→x₀)f(x)=f(x₀)，则 f 在 x₀ 连续。直观上是“图象不断开”。<\/p>\n<p>闭区间上连续的函数一定有最大值与最小值（最值定理），这是求最值的理论依据。<\/p>\n<h3>2.2 导数的定义<\/h3>\n<p>f&#x27;(x₀)=lim(h→0)[f(x₀+h)−f(x₀)]/h<\/p>\n<p>几何意义是曲线在该点切线的斜率；物理意义是瞬时速度。<\/p>\n<p>记号 dy/dx 是一个整体，不是两个数相除。<\/p>\n<h3>2.3 基本公式<\/h3>\n<p>(x^n)&#x27;=nx^(n−1)；(sinx)&#x27;=cosx；(cosx)&#x27;=−sinx；(e^x)&#x27;=e^x；(lnx)&#x27;=1/x。<\/p>\n<h3>2.4 求导法则<\/h3>\n<ul><li>\n和差：(u±v)&#x27;=u&#x27;±v&#x27;；\n<\/li><li>\n积：(uv)&#x27;=u&#x27;v+uv&#x27;；\n<\/li><li>\n商：(u/v)&#x27;=(u&#x27;v−uv&#x27;)/v²；\n<\/li><li>\n复合（链式法则）：y=f(g(x))，则 y&#x27;=f&#x27;(g(x))·g&#x27;(x)。\n<\/ul>\n<p>链式法则是求导中最常用也最容易漏乘的一条。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：导数像汽车仪表盘上的瞬时速度：不是全程平均，而是此刻这一瞬间的快慢。<\/p>\n<p><strong>失效边界<\/strong>：连续不一定可导（如 y=|x| 在 0 处有尖角），可导一定连续。<\/p>\n<p><strong>实例<\/strong>：f(x)=x²，f&#x27;(x)=2x。用定义验：[(x+h)²−x²]/h=(2xh+h²)/h=2x+h→2x。 y=(3x+1)⁵，y&#x27;=5(3x+1)⁴·3=15(3x+1)⁴。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 导数就是平均变化率 —— 实际上 那是差商；导数要求 h→0，是瞬时值。\n<\/li><li>\n别以为 连续就一定可导 —— 实际上 尖点、垂直切线处连续但不可导。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nf(x)=x³ 的导数是：\n<\/li><li>\ny=(2x+1)³ 的导数是：\n<p>A. 3x² ｜ B. x² ｜ C. 3x ｜ D. x³/4 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：由 (x^n)&#x27;=nx^(n−1) 得 3x²。 A. 3(2x+1)² ｜ B. 6(2x+1)² ｜ C. 3(2x+1)³ ｜ D. 6(2x+1)³ <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：链式法则：3(2x+1)²·2=6(2x+1)²。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n连续：lim f(x)=f(x₀)\n<\/li><li>\n导数 f&#x27;(x)=lim [f(x+h)−f(x)]/h\n<\/li><li>\n链式法则别忘乘内层导数\n<\/ul>", "kind": "chapter", "title": "第 2 章：连续与导数"}, "ch03": {"html": "<h1>第 3 章：微分与积分<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n理解微分与增量的关系\n<\/li><li>\n用定积分定义计算简单面积\n<\/li><li>\n用基本定理求定积分\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>微分是增量的线性主部；定积分是分割求和的极限；两者由基本定理连接。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 微分<\/h3>\n<p>dy=f&#x27;(x)dx。当 Δx 很小时，Δy≈dy，即用切线代替曲线做近似。<\/p>\n<p>这是“以直代曲”的思想：局部把曲线看成直线。<\/p>\n<h3>3.2 定积分的定义<\/h3>\n<p>把区间 [a,b] 分成 n 小段，每段取一点算 f 值，求和，再让 n→∞：<\/p>\n<p>∫_a^b f(x)dx=lim Σ f(ξ_i)Δx_i<\/p>\n<p>几何意义是曲边梯形的面积（f 为负时取负面积）。<\/p>\n<h3>3.3 微积分基本定理<\/h3>\n<p>若 F&#x27;(x)=f(x)，则 ∫_a^b f(x)dx=F(b)−F(a)。<\/p>\n<p>它把“求和取极限”这个定义，变成“找原函数再代端点”这一个动作，是微积分最关键的定理。<\/p>\n<h3>3.4 基本积分公式<\/h3>\n<p>∫x^n dx=x^(n+1)/(n+1)+C（n≠−1）；∫1/x dx=ln|x|+C；∫e^x dx=e^x+C；∫sinx dx=−cosx+C。<\/p>\n<p>求定积分时，先求原函数，再代上下限。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：积分像把一条不规则的地毯剪成很多细条，逐条量面积再加起来；分得越细越准。<\/p>\n<p><strong>失效边界<\/strong>：定积分的值可以为负（函数在 x 轴下方），这时它表示“带符号面积”。<\/p>\n<p><strong>实例<\/strong>：∫_0^1 x²dx=[x³/3]_0^1=1/3。 验证：把 [0,1] 分 100 份，右端点求和 ≈0.338，接近 1/3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 积分就是求面积，所以一定为正 —— 实际上 定积分是带符号的，x 轴下方部分算负。\n<\/li><li>\n别以为 原函数唯一 —— 实际上 原函数有无穷多个，相差一个常数 C。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n∫_0^2 x dx 的值是：\n<\/li><li>\n微积分基本定理的作用是：\n<p>A. 2 ｜ B. 4 ｜ C. 1 ｜ D. 0 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：原函数 x²/2，代入得 4/2−0=2。 A. 定义极限 ｜ B. 把定积分化为原函数在端点的差 ｜ C. 求导数 ｜ D. 判断连续 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：∫_a^b f=F(b)−F(a)，把求和变成代端点。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\ndy=f&#x27;(x)dx\n<\/li><li>\n定积分＝分割求和的极限\n<\/li><li>\n∫_a^b f=F(b)−F(a)\n<\/ul>", "kind": "chapter", "title": "第 3 章：微分与积分"}, "ch04": {"html": "<h1>第 4 章：单调、极值与面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch03\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用导数判断单调区间\n<\/li><li>\n求函数极值与最值\n<\/li><li>\n用定积分求曲边图形面积\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>导数正负决定增减，导数为零的点是极值候选；面积用上减下再积分。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>4.1 单调性<\/h3>\n<p>在区间内 f&#x27;(x)&gt;0 则函数递增；f&#x27;(x)&lt;0 则递减；f&#x27;(x)=0 的点可能是极值点。<\/p>\n<p>判断步骤：求定义域 → 求 f&#x27;(x) → 解 f&#x27;(x)=0 → 用零点把定义域分段 → 逐段判断符号。<\/p>\n<h3>4.2 极值与最值<\/h3>\n<p>f&#x27;(x₀)=0 且左右符号由正变负，x₀ 为极大值点；由负变正为极小值点。<\/p>\n<p>求闭区间最值：比较所有极值与两个端点值，取最大最小。<\/p>\n<h3>4.3 面积<\/h3>\n<p>两曲线 y=f(x)（上）与 y=g(x)（下）在 [a,b] 围成的面积：<\/p>\n<p>S=∫_a^b [f(x)−g(x)]dx<\/p>\n<p>若两曲线有交点，要先求交点分段，再逐段积分，避免正负抵消。<\/p>\n<h3>4.4 常用应用模型<\/h3>\n<ul><li>\n最大容积、最短距离：设变量、写函数、求导、取极值；\n<\/li><li>\n变速运动的位移：速度对时间积分。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：导数是“上坡下坡指示器”，导数为正代表往上走，为负代表往下走，零点就是坡顶或坡底。<\/p>\n<p><strong>失效边界<\/strong>：导数为零不一定是极值（如 y=x³ 在 0 处导数为零，但既不极大也不极小）。<\/p>\n<p><strong>实例<\/strong>：f(x)=x³−3x。f&#x27;(x)=3x²−3，零点 x=±1。x=−1 处极大值 f(−1)=2，x=1 处极小值 f(1)=−2。 面积：求 y=x 与 y=x² 在 [0,1] 围成的面积，S=∫_0^1(x−x²)dx=1/2−1/3=1/6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 导数为零就是极值点 —— 实际上 还要看左右两侧符号是否改变，否则只是驻点。\n<\/li><li>\n别以为 面积直接积分就行 —— 实际上 要先确定谁在上方，必要时分段，否则会互相抵消。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nf(x)=x²−2x 的极小值点是：\n<\/li><li>\ny=x 与 y=x² 在 [0,1] 围成的面积是：\n<p>A. x=1 ｜ B. x=0 ｜ C. x=2 ｜ D. x=−1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：f&#x27;(x)=2x−2，零点 x=1，且为极小值点。 A. 1/6 ｜ B. 1/3 ｜ C. 1/2 ｜ D. 1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：∫_0^1(x−x²)dx=1/2−1/3=1/6。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nf&#x27;&gt;0 增，f&#x27;&lt;0 减\n<\/li><li>\n极值看导数变号，最值比端点\n<\/li><li>\n面积＝上减下再积分\n<\/ul>", "kind": "chapter", "title": "第 4 章：单调、极值与面积"}, "c01": {"html": "<h1>极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>极限是“任意精度都能达到”的严格说法，是导数与积分共同的地基。<\/p>\n<h2>为什么重要<\/h2>\n<p>没有极限，就没有导数（差商的极限），也没有积分（求和的极限）。<\/p>\n<h2>详解<\/h2>\n<p>数列极限用 ε-N，函数极限用 ε-δ。极限可穿入四则运算。两个重要极限 (1+1/n)^n→e 与 sinx/x→1 是求导公式的来源。<\/p>\n<h2>常见误解<\/h2>\n<p>把极限理解成“近似值”或“最终会等于”，忽略它只是趋势。<\/p>\n<h2>相关概念<\/h2>\n<p>实数（ch01）、导数（ch02）、积分（ch03）<\/p>", "kind": "concept", "title": "极限"}, "c02": {"html": "<h1>互逆运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>求导与积分是互逆的，这是微积分基本定理的全部内容。<\/p>\n<h2>为什么重要<\/h2>\n<p>它把“求和取极限”这件麻烦事，变成了“找原函数代端点”这件简单事。<\/p>\n<h2>详解<\/h2>\n<p>若 F&#x27;=f，则 ∫_a^b f=F(b)−F(a)。所以求积分的关键是找原函数；原函数不唯一，但定积分的结果唯一。<\/p>\n<h2>常见误解<\/h2>\n<p>认为积分与导数毫无关系，只会硬算求和。<\/p>\n<h2>相关概念<\/h2>\n<p>导数（ch02）、定积分（ch03）<\/p>", "kind": "concept", "title": "互逆运算"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：实数与极限<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：实数与极限<\/a><br>检查点：能用 ε-N 说明一个数列趋于某个值<\/li><li class='path-step' id='path-02'><strong>步骤 02：连续与导数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：连续与导数<\/a><br>检查点：能用定义求出简单函数的导数<\/li><li class='path-step' id='path-03'><strong>步骤 03：微分与积分<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：微分与积分<\/a><br>检查点：能由导数反求原函数并算定积分<\/li><li class='path-step' id='path-04'><strong>步骤 04：应用：单调、极值与面积<\/strong><br>阅读：<a href=\"#/chapter/ch04\">第 4 章：单调、极值与面积<\/a><br>检查点：能用定积分求曲边图形面积<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q09' data-type='single'><p class='quiz-q'><b>Q9.<\/b> f(x)=3x²+1 的导数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q09' value='0'> 6x<\/label><label class='quiz-opt'><input type='radio' name='q09' value='1'> 3x<\/label><label class='quiz-opt'><input type='radio' name='q09' value='2'> 6x+1<\/label><label class='quiz-opt'><input type='radio' name='q09' value='3'> x²<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q10' data-type='single'><p class='quiz-q'><b>Q10.<\/b> ∫_1^2 2x dx 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q10' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q10' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q10' value='2'> 2<\/label><label class='quiz-opt'><input type='radio' name='q10' value='3'> 1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：实数与极限<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 数列 a_n=1/n 的极限是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 0<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 不存在<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> ∞<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> ε-N 定义中，N 的作用是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 表示项数上限<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 表示从第 N 项以后都满足精度要求<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 表示误差<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 表示极限值<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：连续与导数<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> f(x)=x³ 的导数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 3x²<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x²<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 3x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x³/4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> y=(2x+1)³ 的导数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 3(2x+1)²<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 6(2x+1)²<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 3(2x+1)³<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 6(2x+1)³<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：微分与积分<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> ∫_0^2 x dx 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 微积分基本定理的作用是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 定义极限<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 把定积分化为原函数在端点的差<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 求导数<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 判断连续<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch04__": {"html": "<h1>测验：第 4 章：单调、极值与面积<\/h1><div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q1.<\/b> f(x)=x²−2x 的极小值点是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> x=1<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> x=0<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> x=2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> x=−1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q2.<\/b> y=x 与 y=x² 在 [0,1] 围成的面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 1/6<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 1/3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 1/2<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='极限'>极限 — 变量无限接近某个值的趋势的严格描述。 <span class=glossary-ref>（第 1 章：实数与极限）<\/span><\/li><li data-term='ε-n 语言'>ε-N 语言 — 用任意小的 ε 与分界 N 表述数列极限。 <span class=glossary-ref>（第 1 章：实数与极限）<\/span><\/li><li data-term='连续'>连续 — 函数在某点的极限等于函数值。 <span class=glossary-ref>（第 2 章：连续与导数）<\/span><\/li><li data-term='导数'>导数 — 差商当 h→0 时的极限，表示瞬时变化率。 <span class=glossary-ref>（第 2 章：连续与导数）<\/span><\/li><li data-term='链式法则'>链式法则 — 复合函数求导：外层导数乘内层导数。 <span class=glossary-ref>（第 2 章：连续与导数）<\/span><\/li><li data-term='微分'>微分 — 增量的线性主部 dy=f&#x27;(x)dx。 <span class=glossary-ref>（第 3 章：微分与积分）<\/span><\/li><li data-term='定积分'>定积分 — 分割求和的极限，表示累积量。 <span class=glossary-ref>（第 3 章：微分与积分）<\/span><\/li><li data-term='原函数'>原函数 — 导数等于被积函数的函数。 <span class=glossary-ref>（第 3 章：微分与积分）<\/span><\/li><li data-term='极值'>极值 — 局部最大或最小值。 <span class=glossary-ref>（第 4 章：单调、极值与面积）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：求导四步<\/h2>\n<p>① 认结构（和、积、商、复合）；② 套基本公式；③ 复合处乘内层导数；④ 化简。<\/p>\n<h2>框架：用导数研究函数<\/h2>\n<p>定义域 → 求导 → 找零点 → 分段判号 → 得单调区间与极值 → 与端点比较得最值。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>极限<\/td><td>ε-N：任意 ε&gt;0，存在 N<\/td><\/tr><tr><td>导数定义<\/td><td>lim [f(x+h)−f(x)]/h<\/td><\/tr><tr><td>幂函数<\/td><td>(x^n)&#x27;=nx^(n−1)<\/td><\/tr><tr><td>链式<\/td><td>(f(g))&#x27;=f&#x27;(g)·g&#x27;<\/td><\/tr><tr><td>基本定理<\/td><td>∫_a^b f=F(b)−F(a)<\/td><\/tr><tr><td>面积<\/td><td>∫(上−下)dx<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/22-微积分初步", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：实数与极限", "href": "#/chapter/ch01"}, {"label": "第 2 章：连续与导数", "href": "#/chapter/ch02"}, {"label": "第 3 章：微分与积分", "href": "#/chapter/ch03"}, {"label": "第 4 章：单调、极值与面积", "href": "#/chapter/ch04"}]}, {"label": "概念", "children": [{"label": "极限", "href": "#/concept/c01"}, {"label": "互逆运算", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：实数与极限", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：连续与导数", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：微分与积分", "href": "#/quiz/ch03"}, {"label": "测验：第 4 章：单调、极值与面积", "href": "#/quiz/ch04"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：实数与极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：数列、不等式\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出实数与有理数的区别\n<\/li><li>\n用 ε-N 语言表达数列极限\n<\/li><li>\n用四则运算求简单极限\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>极限描述“越来越接近”的严格含义：要多近就能多近。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 实数<\/h3>\n<p>有理数可以写成两个整数之比，小数要么有限要么循环；无理数不能，如 √2、π。实数＝有理数＋无理数。<\/p>\n<p>实数有两个关键性质：<strong>稠密<\/strong>（任意两个实数之间还有实数）与<strong>完备<\/strong>（没有“空隙”）。完备性是极限存在的保证。<\/p>\n<h3>1.2 数列极限<\/h3>\n<p>若当 n 无限增大时，a_n 与常数 A 的距离可以任意小，就说数列的极限是 A，记 lim a_n=A。<\/p>\n<p>严格表述（ε-N）：对任意 ε&gt;0，都存在 N，使得当 n&gt;N 时，|a_n−A|&lt;ε。<\/p>\n<p>这句话的意思是：不管你要求多精确（ε 多小），总能找到一个位置（N），从那以后所有项都满足要求。<\/p>\n<h3>1.3 极限的运算<\/h3>\n<p>若 lim a_n=A、lim b_n=B，则：<\/p>\n<p>lim(a_n±b_n)=A±B，lim(a_n b_n)=AB，lim(a_n/b_n)=A/B（B≠0）。<\/p>\n<p>即极限可以“穿进”四则运算，前提是每一步的极限都存在。<\/p>\n<h3>1.4 两个重要极限<\/h3>\n<p>lim(n→∞)(1+1/n)^n=e≈2.718；lim(x→0)sinx/x=1。这两个是后续求导的基础。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：极限像火车的终点站：车可能永远到不了，但越往后越贴近站台，我们就说它的极限是站台。<\/p>\n<p><strong>失效边界<\/strong>：只有“越来越接近且能任意接近”才算极限；忽近忽远（如 1,−1,1,−1…）没有极限。<\/p>\n<p><strong>实例<\/strong>：a_n=1/n。取 ε=0.001，只要 n&gt;1000 就有 |1/n−0|&lt;0.001，故极限为 0。 a_n=(2n+1)/n=2+1/n，极限为 2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 极限就是“等于” —— 实际上 极限是趋势，a_n 可以永远不等于 A。\n<\/li><li>\n别以为 有界的数列一定有极限 —— 实际上 1,−1,1,−1… 有界但无极限。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n数列 a_n=1/n 的极限是：\n<\/li><li>\nε-N 定义中，N 的作用是：\n<p>A. 1 ｜ B. 0 ｜ C. 不存在 ｜ D. ∞ <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：n 越大 1/n 越接近 0，可任意小。 A. 表示项数上限 ｜ B. 表示从第 N 项以后都满足精度要求 ｜ C. 表示误差 ｜ D. 表示极限值 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：N 是“从这一项开始，之后所有项都落在 ε 范围内”的分界。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n实数＝有理数＋无理数，完备无空隙\n<\/li><li>\nε-N：任意 ε&gt;0，存在 N，n&gt;N 时 |a_n−A|&lt;ε\n<\/li><li>\n极限可穿入四则运算\n<\/ul>", "ch02": "<h1>第 2 章：连续与导数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n判断函数在某点是否连续\n<\/li><li>\n用定义求导数\n<\/li><li>\n掌握基本求导公式与复合求导\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>连续是“极限等于函数值”；导数是“差商的极限”，即瞬时变化率。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 连续<\/h3>\n<p>若 lim(x→x₀)f(x)=f(x₀)，则 f 在 x₀ 连续。直观上是“图象不断开”。<\/p>\n<p>闭区间上连续的函数一定有最大值与最小值（最值定理），这是求最值的理论依据。<\/p>\n<h3>2.2 导数的定义<\/h3>\n<p>f&#x27;(x₀)=lim(h→0)[f(x₀+h)−f(x₀)]/h<\/p>\n<p>几何意义是曲线在该点切线的斜率；物理意义是瞬时速度。<\/p>\n<p>记号 dy/dx 是一个整体，不是两个数相除。<\/p>\n<h3>2.3 基本公式<\/h3>\n<p>(x^n)&#x27;=nx^(n−1)；(sinx)&#x27;=cosx；(cosx)&#x27;=−sinx；(e^x)&#x27;=e^x；(lnx)&#x27;=1/x。<\/p>\n<h3>2.4 求导法则<\/h3>\n<ul><li>\n和差：(u±v)&#x27;=u&#x27;±v&#x27;；\n<\/li><li>\n积：(uv)&#x27;=u&#x27;v+uv&#x27;；\n<\/li><li>\n商：(u/v)&#x27;=(u&#x27;v−uv&#x27;)/v²；\n<\/li><li>\n复合（链式法则）：y=f(g(x))，则 y&#x27;=f&#x27;(g(x))·g&#x27;(x)。\n<\/ul>\n<p>链式法则是求导中最常用也最容易漏乘的一条。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：导数像汽车仪表盘上的瞬时速度：不是全程平均，而是此刻这一瞬间的快慢。<\/p>\n<p><strong>失效边界<\/strong>：连续不一定可导（如 y=|x| 在 0 处有尖角），可导一定连续。<\/p>\n<p><strong>实例<\/strong>：f(x)=x²，f&#x27;(x)=2x。用定义验：[(x+h)²−x²]/h=(2xh+h²)/h=2x+h→2x。 y=(3x+1)⁵，y&#x27;=5(3x+1)⁴·3=15(3x+1)⁴。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 导数就是平均变化率 —— 实际上 那是差商；导数要求 h→0，是瞬时值。\n<\/li><li>\n别以为 连续就一定可导 —— 实际上 尖点、垂直切线处连续但不可导。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nf(x)=x³ 的导数是：\n<\/li><li>\ny=(2x+1)³ 的导数是：\n<p>A. 3x² ｜ B. x² ｜ C. 3x ｜ D. x³/4 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：由 (x^n)&#x27;=nx^(n−1) 得 3x²。 A. 3(2x+1)² ｜ B. 6(2x+1)² ｜ C. 3(2x+1)³ ｜ D. 6(2x+1)³ <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：链式法则：3(2x+1)²·2=6(2x+1)²。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n连续：lim f(x)=f(x₀)\n<\/li><li>\n导数 f&#x27;(x)=lim [f(x+h)−f(x)]/h\n<\/li><li>\n链式法则别忘乘内层导数\n<\/ul>", "ch03": "<h1>第 3 章：微分与积分<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n理解微分与增量的关系\n<\/li><li>\n用定积分定义计算简单面积\n<\/li><li>\n用基本定理求定积分\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>微分是增量的线性主部；定积分是分割求和的极限；两者由基本定理连接。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 微分<\/h3>\n<p>dy=f&#x27;(x)dx。当 Δx 很小时，Δy≈dy，即用切线代替曲线做近似。<\/p>\n<p>这是“以直代曲”的思想：局部把曲线看成直线。<\/p>\n<h3>3.2 定积分的定义<\/h3>\n<p>把区间 [a,b] 分成 n 小段，每段取一点算 f 值，求和，再让 n→∞：<\/p>\n<p>∫_a^b f(x)dx=lim Σ f(ξ_i)Δx_i<\/p>\n<p>几何意义是曲边梯形的面积（f 为负时取负面积）。<\/p>\n<h3>3.3 微积分基本定理<\/h3>\n<p>若 F&#x27;(x)=f(x)，则 ∫_a^b f(x)dx=F(b)−F(a)。<\/p>\n<p>它把“求和取极限”这个定义，变成“找原函数再代端点”这一个动作，是微积分最关键的定理。<\/p>\n<h3>3.4 基本积分公式<\/h3>\n<p>∫x^n dx=x^(n+1)/(n+1)+C（n≠−1）；∫1/x dx=ln|x|+C；∫e^x dx=e^x+C；∫sinx dx=−cosx+C。<\/p>\n<p>求定积分时，先求原函数，再代上下限。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：积分像把一条不规则的地毯剪成很多细条，逐条量面积再加起来；分得越细越准。<\/p>\n<p><strong>失效边界<\/strong>：定积分的值可以为负（函数在 x 轴下方），这时它表示“带符号面积”。<\/p>\n<p><strong>实例<\/strong>：∫_0^1 x²dx=[x³/3]_0^1=1/3。 验证：把 [0,1] 分 100 份，右端点求和 ≈0.338，接近 1/3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 积分就是求面积，所以一定为正 —— 实际上 定积分是带符号的，x 轴下方部分算负。\n<\/li><li>\n别以为 原函数唯一 —— 实际上 原函数有无穷多个，相差一个常数 C。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n∫_0^2 x dx 的值是：\n<\/li><li>\n微积分基本定理的作用是：\n<p>A. 2 ｜ B. 4 ｜ C. 1 ｜ D. 0 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：原函数 x²/2，代入得 4/2−0=2。 A. 定义极限 ｜ B. 把定积分化为原函数在端点的差 ｜ C. 求导数 ｜ D. 判断连续 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：∫_a^b f=F(b)−F(a)，把求和变成代端点。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\ndy=f&#x27;(x)dx\n<\/li><li>\n定积分＝分割求和的极限\n<\/li><li>\n∫_a^b f=F(b)−F(a)\n<\/ul>", "ch04": "<h1>第 4 章：单调、极值与面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch03\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用导数判断单调区间\n<\/li><li>\n求函数极值与最值\n<\/li><li>\n用定积分求曲边图形面积\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>导数正负决定增减，导数为零的点是极值候选；面积用上减下再积分。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>4.1 单调性<\/h3>\n<p>在区间内 f&#x27;(x)&gt;0 则函数递增；f&#x27;(x)&lt;0 则递减；f&#x27;(x)=0 的点可能是极值点。<\/p>\n<p>判断步骤：求定义域 → 求 f&#x27;(x) → 解 f&#x27;(x)=0 → 用零点把定义域分段 → 逐段判断符号。<\/p>\n<h3>4.2 极值与最值<\/h3>\n<p>f&#x27;(x₀)=0 且左右符号由正变负，x₀ 为极大值点；由负变正为极小值点。<\/p>\n<p>求闭区间最值：比较所有极值与两个端点值，取最大最小。<\/p>\n<h3>4.3 面积<\/h3>\n<p>两曲线 y=f(x)（上）与 y=g(x)（下）在 [a,b] 围成的面积：<\/p>\n<p>S=∫_a^b [f(x)−g(x)]dx<\/p>\n<p>若两曲线有交点，要先求交点分段，再逐段积分，避免正负抵消。<\/p>\n<h3>4.4 常用应用模型<\/h3>\n<ul><li>\n最大容积、最短距离：设变量、写函数、求导、取极值；\n<\/li><li>\n变速运动的位移：速度对时间积分。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：导数是“上坡下坡指示器”，导数为正代表往上走，为负代表往下走，零点就是坡顶或坡底。<\/p>\n<p><strong>失效边界<\/strong>：导数为零不一定是极值（如 y=x³ 在 0 处导数为零，但既不极大也不极小）。<\/p>\n<p><strong>实例<\/strong>：f(x)=x³−3x。f&#x27;(x)=3x²−3，零点 x=±1。x=−1 处极大值 f(−1)=2，x=1 处极小值 f(1)=−2。 面积：求 y=x 与 y=x² 在 [0,1] 围成的面积，S=∫_0^1(x−x²)dx=1/2−1/3=1/6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 导数为零就是极值点 —— 实际上 还要看左右两侧符号是否改变，否则只是驻点。\n<\/li><li>\n别以为 面积直接积分就行 —— 实际上 要先确定谁在上方，必要时分段，否则会互相抵消。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nf(x)=x²−2x 的极小值点是：\n<\/li><li>\ny=x 与 y=x² 在 [0,1] 围成的面积是：\n<p>A. x=1 ｜ B. x=0 ｜ C. x=2 ｜ D. x=−1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：f&#x27;(x)=2x−2，零点 x=1，且为极小值点。 A. 1/6 ｜ B. 1/3 ｜ C. 1/2 ｜ D. 1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：∫_0^1(x−x²)dx=1/2−1/3=1/6。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nf&#x27;&gt;0 增，f&#x27;&lt;0 减\n<\/li><li>\n极值看导数变号，最值比端点\n<\/li><li>\n面积＝上减下再积分\n<\/ul>", "c01": "<h1>极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>极限是“任意精度都能达到”的严格说法，是导数与积分共同的地基。<\/p>\n<h2>为什么重要<\/h2>\n<p>没有极限，就没有导数（差商的极限），也没有积分（求和的极限）。<\/p>\n<h2>详解<\/h2>\n<p>数列极限用 ε-N，函数极限用 ε-δ。极限可穿入四则运算。两个重要极限 (1+1/n)^n→e 与 sinx/x→1 是求导公式的来源。<\/p>\n<h2>常见误解<\/h2>\n<p>把极限理解成“近似值”或“最终会等于”，忽略它只是趋势。<\/p>\n<h2>相关概念<\/h2>\n<p>实数（ch01）、导数（ch02）、积分（ch03）<\/p>", "c02": "<h1>互逆运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>求导与积分是互逆的，这是微积分基本定理的全部内容。<\/p>\n<h2>为什么重要<\/h2>\n<p>它把“求和取极限”这件麻烦事，变成了“找原函数代端点”这件简单事。<\/p>\n<h2>详解<\/h2>\n<p>若 F&#x27;=f，则 ∫_a^b f=F(b)−F(a)。所以求积分的关键是找原函数；原函数不唯一，但定积分的结果唯一。<\/p>\n<h2>常见误解<\/h2>\n<p>认为积分与导数毫无关系，只会硬算求和。<\/p>\n<h2>相关概念<\/h2>\n<p>导数（ch02）、定积分（ch03）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：实数与极限<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：实数与极限<\/a><br>检查点：能用 ε-N 说明一个数列趋于某个值<\/li><li class='path-step' id='path-02'><strong>步骤 02：连续与导数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：连续与导数<\/a><br>检查点：能用定义求出简单函数的导数<\/li><li class='path-step' id='path-03'><strong>步骤 03：微分与积分<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：微分与积分<\/a><br>检查点：能由导数反求原函数并算定积分<\/li><li class='path-step' id='path-04'><strong>步骤 04：应用：单调、极值与面积<\/strong><br>阅读：<a href=\"#/chapter/ch04\">第 4 章：单调、极值与面积<\/a><br>检查点：能用定积分求曲边图形面积<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q09' data-type='single'><p class='quiz-q'><b>Q9.<\/b> f(x)=3x²+1 的导数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q09' value='0'> 6x<\/label><label class='quiz-opt'><input type='radio' name='q09' value='1'> 3x<\/label><label class='quiz-opt'><input type='radio' name='q09' value='2'> 6x+1<\/label><label class='quiz-opt'><input type='radio' name='q09' value='3'> x²<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q10' data-type='single'><p class='quiz-q'><b>Q10.<\/b> ∫_1^2 2x dx 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q10' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q10' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q10' value='2'> 2<\/label><label class='quiz-opt'><input type='radio' name='q10' value='3'> 1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：实数与极限<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 数列 a_n=1/n 的极限是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 0<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 不存在<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> ∞<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> ε-N 定义中，N 的作用是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 表示项数上限<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 表示从第 N 项以后都满足精度要求<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 表示误差<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 表示极限值<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：连续与导数<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> f(x)=x³ 的导数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 3x²<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x²<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 3x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x³/4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> y=(2x+1)³ 的导数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 3(2x+1)²<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 6(2x+1)²<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 3(2x+1)³<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 6(2x+1)³<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：微分与积分<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> ∫_0^2 x dx 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 微积分基本定理的作用是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 定义极限<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 把定积分化为原函数在端点的差<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 求导数<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 判断连续<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch04__": "<h1>测验：第 4 章：单调、极值与面积<\/h1><div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q1.<\/b> f(x)=x²−2x 的极小值点是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> x=1<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> x=0<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> x=2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> x=−1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q2.<\/b> y=x 与 y=x² 在 [0,1] 围成的面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 1/6<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 1/3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 1/2<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='极限'>极限 — 变量无限接近某个值的趋势的严格描述。 <span class=glossary-ref>（第 1 章：实数与极限）<\/span><\/li><li data-term='ε-n 语言'>ε-N 语言 — 用任意小的 ε 与分界 N 表述数列极限。 <span class=glossary-ref>（第 1 章：实数与极限）<\/span><\/li><li data-term='连续'>连续 — 函数在某点的极限等于函数值。 <span class=glossary-ref>（第 2 章：连续与导数）<\/span><\/li><li data-term='导数'>导数 — 差商当 h→0 时的极限，表示瞬时变化率。 <span class=glossary-ref>（第 2 章：连续与导数）<\/span><\/li><li data-term='链式法则'>链式法则 — 复合函数求导：外层导数乘内层导数。 <span class=glossary-ref>（第 2 章：连续与导数）<\/span><\/li><li data-term='微分'>微分 — 增量的线性主部 dy=f&#x27;(x)dx。 <span class=glossary-ref>（第 3 章：微分与积分）<\/span><\/li><li data-term='定积分'>定积分 — 分割求和的极限，表示累积量。 <span class=glossary-ref>（第 3 章：微分与积分）<\/span><\/li><li data-term='原函数'>原函数 — 导数等于被积函数的函数。 <span class=glossary-ref>（第 3 章：微分与积分）<\/span><\/li><li data-term='极值'>极值 — 局部最大或最小值。 <span class=glossary-ref>（第 4 章：单调、极值与面积）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：求导四步<\/h2>\n<p>① 认结构（和、积、商、复合）；② 套基本公式；③ 复合处乘内层导数；④ 化简。<\/p>\n<h2>框架：用导数研究函数<\/h2>\n<p>定义域 → 求导 → 找零点 → 分段判号 → 得单调区间与极值 → 与端点比较得最值。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>极限<\/td><td>ε-N：任意 ε&gt;0，存在 N<\/td><\/tr><tr><td>导数定义<\/td><td>lim [f(x+h)−f(x)]/h<\/td><\/tr><tr><td>幂函数<\/td><td>(x^n)&#x27;=nx^(n−1)<\/td><\/tr><tr><td>链式<\/td><td>(f(g))&#x27;=f&#x27;(g)·g&#x27;<\/td><\/tr><tr><td>基本定理<\/td><td>∫_a^b f=F(b)−F(a)<\/td><\/tr><tr><td>面积<\/td><td>∫(上−下)dx<\/td><\/tr><\/tbody><\/table>"}};
+const pages = DATA.rendered;
+const manifest = DATA.manifest;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SLUG = manifest.slug || 'book';
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
+};
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+
+/* ---------- 导航 ---------- */
+function renderNav(){
+  const nav = $('#nav'); nav.innerHTML='';
+  const build = items => items.forEach(it=>{
+    if(it.children){
+      const sec=document.createElement('div'); sec.className='nav-sec'; sec.textContent=it.label; nav.appendChild(sec);
+      it.children.forEach(c=>{
+        const a=document.createElement('a'); a.className='nav-item'; a.href=c.href; a.textContent=c.label;
+        const id=routeId(c.href);
+        if(state.visited.includes(id)) a.innerHTML = esc(c.label)+' <span class="done">✓</span>';
+        nav.appendChild(a);
+      });
+    }else{
+      const a=document.createElement('a'); a.className='nav-item'; a.href=it.href; a.textContent=it.label;
+      const id=routeId(it.href);
+      if(state.visited.includes(id)) a.innerHTML = esc(it.label)+' <span class="done">✓</span>';
+      nav.appendChild(a);
+    }
+  });
+  build(DATA.nav);
+  updateProgress();
+}
+function routeId(href){ return href.replace('#/',''); }
+
+/* ---------- 路由 ---------- */
+function routeIdFromHash(){
+  let h = location.hash.replace(/^#\//,'');
+  if(!h) return 'path';
+  if(h==='path') return 'path';
+  const m = h.match(/^(chapter|concept)\/(.+)$/);
+  if(m) return m[1]+'/'+m[2];
+  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+}
+function showPage(rid){
+  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  const html = pages[id] || '<div class="empty">页面不存在</div>';
+  $('#view').innerHTML = html;
+  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
+    state.visited.push(rid); store.set('visited', state.visited); renderNav();
+  }
+  window.scrollTo(0,0);
+  if(rid==='cards') initCards();
+  if(rid==='glossary') initGlossary();
+  if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(id==='__path__') updatePath();
+  renderMermaid();
+}
+
+/* ---------- 进度 ---------- */
+function updateProgress(){
+  const chs = (manifest.chapters||[]).length;
+  const done = (manifest.chapters||[]).filter(c=>state.visited.includes('chapter/'+c.id)).length;
+  const pct = chs? Math.round(done/chs*100) : 0;
+  $('#progress-fill').style.width = pct+'%';
+  $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
+}
+function updatePath(){
+  document.querySelectorAll('.path-step').forEach(el=>{
+    const step = el.id.replace('path-','');
+    const s = (manifest.learningPath||[]).find(x=>x.step===step);
+    if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
+      el.classList.add('passed');
+      const lbl = el.querySelector('.checkpoint-ok'); if(!lbl){ const sp=document.createElement('span'); sp.className='done'; sp.textContent=' ✓ 已完成'; el.appendChild(sp); }
+    }
+  });
+}
+
+/* ---------- 测验 ---------- */
+function initQuizzes(rid){
+  document.querySelectorAll('.quiz-item').forEach(item=>{
+    const btn = item.querySelector('.quiz-check');
+    if(!btn || item.dataset.inited){ return }
+    item.dataset.inited='1';
+    btn.addEventListener('click', ()=>{
+      const qid = item.dataset.qid; const type = item.dataset.type;
+      const q = (manifest.quizzes||[]).find(x=>x.id===qid); if(!q) return;
+      let user, correct=false, fb;
+      if(type==='single'){
+        const sel = item.querySelector('input:checked');
+        user = sel? parseInt(sel.value) : null;
+        correct = user===q.answer;
+        fb = correct?'✓ 正确':'✗ 错误'+(user==null?'（未作答）':'');
+      } else if(type==='multi'){
+        user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+        const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+        correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+        fb = correct?'✓ 正确':'✗ 错误';
+      } else if(type==='blank'){
+        const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+        const a = String(q.answer).trim().toLowerCase();
+        correct = v===a;
+        fb = correct?'✓ 正确':'✗ 错误'+(v?'':'（未作答）');
+      }
+      item.querySelectorAll('input:checked').forEach(i=>{
+        const val=parseInt(i.value);
+        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
+        else i.parentElement.style.color='var(--bad)';
+      });
+      const feed = item.querySelector('.quiz-feedback');
+      feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
+      feed.textContent = fb;
+      let ex = item.querySelector('.quiz-explain');
+      if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
+      ex.innerHTML = '解析：' + esc(q.explain||'');
+      // 记录成绩（按章聚合）
+      const ch = q.chapterId||'__all__';
+      if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
+      state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
+      state.quiz[ch].total += 1;
+      store.set('quiz', state.quiz);
+    });
+  });
+}
+
+/* ---------- 抽认卡 ---------- */
+let cardIdx = 0, cardList = [];
+function initCards(){
+  const cards = manifest.flashcards||[];
+  cardList = cards.slice();
+  cardIdx = 0;
+  const sel = $('#card-filter');
+  sel.innerHTML = '<option value="">全部</option>';
+  [...new Set(cards.map(c=>c.chapterId).filter(Boolean))].forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=manifestChTitle(c); sel.appendChild(o);
+  });
+  sel.onchange = ()=>{ const v=sel.value; cardList = v? cards.filter(c=>c.chapterId===v): cards.slice(); cardIdx=0; showCard(); };
+  $('#flashcard').onclick = ()=>$('#flashcard').classList.toggle('flip');
+  $('#card-known-btn').onclick = ()=>{ markCard(true); };
+  $('#card-again-btn').onclick = ()=>{ markCard(false); };
+  showCard();
+}
+function showCard(){
+  updateCardCounts();
+  if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
+  const c = cardList[cardIdx];
+  document.querySelector('.fc-front').textContent = c.front;
+  document.querySelector('.fc-back').textContent = c.back;
+  $('#flashcard').classList.remove('flip');
+}
+function markCard(known){
+  const c = cardList[cardIdx]; if(!c) return;
+  state.cards[c.id] = known?'known':'again';
+  store.set('cards', state.cards);
+  cardIdx++; showCard();
+}
+function updateCardCounts(){
+  const known = Object.values(state.cards).filter(v=>v==='known').length;
+  const again = Object.values(state.cards).filter(v=>v==='again').length;
+  $('#card-known').textContent = known;
+  $('#card-again').textContent = again;
+  $('#card-left').textContent = Math.max(0, cardList.length-cardIdx);
+}
+function manifestChTitle(id){
+  const c=(manifest.chapters||[]).find(x=>x.id===id); return c? c.title : id;
+}
+
+/* ---------- 术语表 ---------- */
+function initGlossary(){
+  const input = $('#glossary-filter');
+  if(!input || input.dataset.inited) return;
+  input.dataset.inited='1';
+  input.oninput = ()=>{
+    const v = input.value.trim().toLowerCase();
+    document.querySelectorAll('#glossary-list li').forEach(li=>{
+      li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
+    });
+  };
+}
+
+/* ---------- 搜索 ---------- */
+let searchIndex = null;
+function buildSearchIndex(){
+  if(searchIndex) return searchIndex;
+  searchIndex = [];
+  Object.entries(pages).forEach(([id, htmlText])=>{
+    if(id.startsWith('__')) return;
+    const text = htmlText.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+    searchIndex.push({id, text});
+  });
+  return searchIndex;
+}
+$('#q').addEventListener('input', e=>{
+  const v = e.target.value.trim().toLowerCase();
+  if(!v){ showPage(routeIdFromHash()); return; }
+  buildSearchIndex();
+  const hits = searchIndex.filter(p=>p.text.toLowerCase().includes(v)).slice(0,20);
+  const label = id => id.startsWith('chapter/')? ('章节：'+manifestChTitle(id.split('/')[1])) : id.startsWith('concept/')? ('概念：'+id.split('/')[1]) : id;
+  $('#view').innerHTML = '<h1>搜索结果：'+esc(v)+'</h1>' +
+    (hits.length? hits.map(h=>`<div class="search-hit"><a href="#/${h.id}">${esc(label(h.id))}</a><br><span class="sub">${esc(h.text.slice(0,180))}</span></div>`).join('')
+                 : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
+});
+
+/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+function renderMermaid(){
+  if(!document.querySelector('.mermaid')) return;
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+  s.onload=()=>{ try{
+    mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
+    document.querySelectorAll('.mermaid').forEach(el=>{
+      const code=el.textContent;
+      mermaid.render('mm'+Math.random().toString(36).slice(2), code)
+        .then(({svg})=>{ el.innerHTML=svg; })
+        .catch(()=>{ el.textContent=code; });
+    });
+  }catch(e){} };
+  document.head.appendChild(s);
+}
+
+/* ---------- 深色模式 ---------- */
+const themeBtn=$('#theme-btn');
+themeBtn.onclick=()=>{
+  const d = document.body.dataset.theme==='dark';
+  document.body.dataset.theme = d? '' : 'dark';
+  themeBtn.textContent = d? '🌙 深色' : '☀️ 浅色';
+};
+
+/* ---------- 启动 ---------- */
+renderNav();
+window.addEventListener('hashchange', ()=>showPage(routeIdFromHash()));
+(function(){
+  const sb=document.querySelector('.sidebar'); if(!sb) return;
+  const btn=document.createElement('button'); btn.id='nav-toggle'; btn.textContent='目录（点开选择章节）';
+  btn.onclick=()=>sb.classList.toggle('open');
+  sb.insertBefore(btn, sb.querySelector('#nav'));
+  window.addEventListener('hashchange',()=>{ if(window.innerWidth<=760) sb.classList.remove('open'); });
+})();
+showPage(routeIdFromHash());
+</script>
+</body>
+</html>

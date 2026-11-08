@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>线性方程组与矩阵</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
+  --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
+  --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+}
+[data-theme="dark"]{
+  --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
+  --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
+  --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:290px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  padding:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h1{font-size:17px;margin:2px 0 2px}
+.sidebar .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+#q{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+.nav-sec{font-size:12px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.nav-item{display:block;padding:5px 10px;border-radius:6px;color:var(--text);font-size:14px}
+.nav-item:hover{background:var(--accent-soft);text-decoration:none}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .done{float:right;color:var(--ok);font-size:12px}
+#nav-toggle{display:none}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
+.page h2{font-size:20px;margin-top:26px}
+.page h3{font-size:17px;margin-top:22px}
+.page table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+.page th,.page td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.page th{background:var(--code-bg)}
+.page code{background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.9em}
+.page pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
+.page pre code{background:none;padding:0}
+.page blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:6px 14px;background:var(--accent-soft);border-radius:0 6px 6px 0}
+.page blockquote blockquote{border-color:var(--muted)}
+.page img{max-width:100%}
+.mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
+.mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
+svg{max-width:100%;height:auto}
+.quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
+.quiz-q{margin:0 0 8px;font-weight:500}
+.quiz-opts label{display:block;padding:4px 0;cursor:pointer}
+.quiz-blank{width:60%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+.quiz-check{margin-top:10px;padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.quiz-feedback{margin-left:12px;font-size:13px}
+.fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
+.quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
+.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;
+  padding:22px;border-radius:14px;border:1px solid var(--border);background:var(--panel);font-size:16px;text-align:center}
+.fc-back{transform:rotateY(180deg);background:var(--accent-soft);color:var(--text)}
+.card-controls{display:flex;gap:14px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.card-actions{display:flex;gap:12px;justify-content:center}
+.card-actions button{padding:8px 22px;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+#card-known-btn{background:var(--ok);color:#fff}
+#card-again-btn{background:var(--bad);color:#fff}
+.card-counts{color:var(--muted);font-size:13px}
+.path-step{margin:8px 0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+.path-step.passed{border-color:var(--ok)}
+#glossary-filter{width:100%;max-width:380px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+#glossary-list li{padding:6px 0;border-bottom:1px dashed var(--border)}
+.glossary-ref{color:var(--muted);font-size:12px}
+.search-hit{margin:10px 0}
+.topbar{position:sticky;top:0;background:var(--bg);padding:8px 0;display:flex;justify-content:flex-end;z-index:10}
+#theme-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+#progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
+#progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
+.empty{color:var(--muted);padding:20px 0}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+@media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
+  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
+  .layout{flex-direction:column}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>线性方程组与矩阵</h1>
+    <div class="sub">把一堆方程压成一张表：矩阵与线性方程组</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div class="sub" id="progress-label">进度 0%</div>
+    <input id="q" type="search" placeholder="搜索章节 / 概念 / 术语 / 全文…">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar"><button id="theme-btn">🌙 深色</button></div>
+    <div id="view" class="page"></div>
+  </main>
+</div>
+<script>
+const DATA = {"manifest": {"slug": "linear-systems-matrices", "title": "线性方程组与矩阵", "subtitle": "把一堆方程压成一张表：矩阵与线性方程组", "book": {"title": "线性方程组与矩阵", "author": "王笃正", "source": ["数学基础知识丛书-21-线性方程组与矩阵 王笃正.pdf"]}, "audience": "零基础", "goal": "掌握高斯消元与方程组解的判定，会算二、三阶行列式与用克莱默法则，掌握矩阵的四则运算与逆矩阵，初步理解线性变换与二次型。", "learningPath": [{"step": "01", "title": "消元法与解的判定", "chapterIds": ["ch01"], "checkpoint": "能说出方程组是无解、唯一解还是无穷多解"}, {"step": "02", "title": "行列式与克莱默法则", "chapterIds": ["ch02"], "checkpoint": "能算三阶行列式并解二元、三元方程组"}, {"step": "03", "title": "矩阵运算与逆矩阵", "chapterIds": ["ch03"], "checkpoint": "能完成矩阵乘法与二阶逆矩阵的求法"}, {"step": "04", "title": "线性变换与二次型", "chapterIds": ["ch04"], "checkpoint": "能用矩阵表示一个线性变换"}], "chapters": [{"id": "ch01", "title": "第 1 章：消元法与解的判定", "file": "chapters/ch01-elimination.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：行列式与克莱默法则", "file": "chapters/ch02-determinant.md", "difficulty": 3}, {"id": "ch03", "title": "第 3 章：矩阵运算与逆矩阵", "file": "chapters/ch03-matrix-algebra.md", "difficulty": 3}, {"id": "ch04", "title": "第 4 章：线性变换与二次型", "file": "chapters/ch04-transform-quadratic.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "秩与解的个数", "file": "concepts/c01-rank.md", "chapterIds": ["ch01"]}, {"id": "c02", "title": "矩阵乘法与不可交换", "file": "concepts/c02-matrix-product.md", "chapterIds": ["ch03", "ch04"]}], "glossary": [{"term": "增广矩阵", "def": "系数矩阵右侧接上常数项列得到的矩阵。", "chapterId": "ch01"}, {"term": "初等行变换", "def": "交换两行、某行乘非零数、某行的倍数加到另一行。", "chapterId": "ch01"}, {"term": "秩", "def": "阶梯形中非零行的个数。", "chapterId": "ch01"}, {"term": "自由未知量", "def": "无穷多解中可以任意取值的未知量。", "chapterId": "ch01"}, {"term": "行列式", "def": "由方阵算出的一个数。", "chapterId": "ch02"}, {"term": "克莱默法则", "def": "用行列式表示唯一解的公式。", "chapterId": "ch02"}, {"term": "转置", "def": "行列互换得到的矩阵。", "chapterId": "ch03"}, {"term": "逆矩阵", "def": "满足 AA⁻¹=E 的矩阵。", "chapterId": "ch03"}, {"term": "线性变换", "def": "用矩阵乘法表示的、保持线性结构的映射。", "chapterId": "ch04"}, {"term": "二次型", "def": "二次齐次多项式，可写成 xᵀAx。", "chapterId": "ch04"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "增广矩阵化简后出现 0=2 的行，则该方程组：", "options": ["唯一解", "无穷多解", "无解", "无法判断"], "answer": 2, "explain": "0=2 是矛盾方程，说明方程组无解。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "三个未知数、系数矩阵秩为 2、增广矩阵秩为 2，则：", "options": ["唯一解", "无解", "无穷多解", "零解"], "answer": 2, "explain": "r=R=2<3，有无穷多解，自由未知量个数 3−2=1。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "行列式 |2 1; 3 4| 的值是：", "options": ["5", "11", "8", "−5"], "answer": 0, "explain": "2×4−1×3=8−3=5。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "克莱默法则适用的前提是：", "options": ["系数行列式不为零", "常数项全为零", "方程个数多于未知数", "系数全为正"], "answer": 0, "explain": "D≠0 时方程组有唯一解，才能用 x_i=D_i/D。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "A 是 2×3 矩阵，B 是 3×4 矩阵，则 AB 是：", "options": ["2×4", "3×3", "4×2", "不能相乘"], "answer": 0, "explain": "内维相同（3=3），结果为 2×4。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "二阶矩阵 A 可逆的条件是：", "options": ["元素都非零", "行列式不为零", "是对称矩阵", "对角线元素相等"], "answer": 1, "explain": "A⁻¹ 的分母是 ad−bc，必须非零。"}, {"id": "q07", "chapterId": "ch04", "type": "single", "question": "绕原点旋转 90° 的变换矩阵是：", "options": ["[[1,0],[0,1]]", "[[0,−1],[1,0]]", "[[0,1],[1,0]]", "[[−1,0],[0,1]]"], "answer": 1, "explain": "cos90°=0，sin90°=1，代入旋转矩阵得 [[0,−1],[1,0]]。"}, {"id": "q08", "chapterId": "ch04", "type": "single", "question": "二次型 2x²+6xy+5y² 的矩阵中，第一行第二列的元素是：", "options": ["6", "3", "1.5", "5"], "answer": 1, "explain": "交叉项系数 6 要除以 2，故填 3。"}, {"id": "q09", "chapterId": "__all__", "type": "single", "question": "方程组 x+y=1，2x+2y=3 的解的情况是：", "options": ["唯一解", "无解", "无穷多解", "零解"], "answer": 1, "explain": "第二式减两倍第一式得 0=1，矛盾，无解。"}, {"id": "q10", "chapterId": "__all__", "type": "single", "question": "矩阵 A=[[1,2],[0,1]] 的行列式是：", "options": ["1", "2", "0", "−1"], "answer": 0, "explain": "1×1−2×0=1。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：消元法与解的判定」的一句话核心是什么？", "back": "消元的目的是化成阶梯形；阶梯形里有几条有效的“非零行”，就有几个独立方程。", "tags": ["linear-systems-matrices", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：行列式与克莱默法则」的一句话核心是什么？", "back": "行列式是一个由方阵算出的数，它不为零就说明方程组有唯一解。", "tags": ["linear-systems-matrices", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：矩阵运算与逆矩阵」的一句话核心是什么？", "back": "矩阵乘法是“行乘列”，不是对应元素相乘；只有方阵才谈逆矩阵。", "tags": ["linear-systems-matrices", "核心"]}, {"id": "f04", "chapterId": "ch04", "front": "「第 4 章：线性变换与二次型」的一句话核心是什么？", "back": "线性变换就是“用矩阵乘向量”；二次型是“把二次多项式写成 xᵀAx”。", "tags": ["linear-systems-matrices", "核心"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「增广矩阵」？", "back": "系数矩阵右侧接上常数项列得到的矩阵。", "tags": ["linear-systems-matrices", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「初等行变换」？", "back": "交换两行、某行乘非零数、某行的倍数加到另一行。", "tags": ["linear-systems-matrices", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「秩」？", "back": "阶梯形中非零行的个数。", "tags": ["linear-systems-matrices", "术语"]}, {"id": "f08", "chapterId": "ch01", "front": "什么是「自由未知量」？", "back": "无穷多解中可以任意取值的未知量。", "tags": ["linear-systems-matrices", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「行列式」？", "back": "由方阵算出的一个数。", "tags": ["linear-systems-matrices", "术语"]}, {"id": "f10", "chapterId": "ch02", "front": "什么是「克莱默法则」？", "back": "用行列式表示唯一解的公式。", "tags": ["linear-systems-matrices", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「转置」？", "back": "行列互换得到的矩阵。", "tags": ["linear-systems-matrices", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「逆矩阵」？", "back": "满足 AA⁻¹=E 的矩阵。", "tags": ["linear-systems-matrices", "术语"]}, {"id": "f13", "chapterId": "ch04", "front": "什么是「线性变换」？", "back": "用矩阵乘法表示的、保持线性结构的映射。", "tags": ["linear-systems-matrices", "术语"]}, {"id": "f14", "chapterId": "ch04", "front": "什么是「二次型」？", "back": "二次齐次多项式，可写成 xᵀAx。", "tags": ["linear-systems-matrices", "术语"]}], "companion": "linear-systems-matrices学习伴侣.html", "deriv": "linear-systems-matrices从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：消元法与解的判定<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：一次方程组的解法\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用初等行变换把方程组化为阶梯形\n<\/li><li>\n判断无解、唯一解、无穷多解\n<\/li><li>\n用秩解释解的个数\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>消元的目的是化成阶梯形；阶梯形里有几条有效的“非零行”，就有几个独立方程。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 初等行变换<\/h3>\n<p>对方程组做以下三种操作不改变解集：<\/p>\n<ol><li>\n交换两个方程的位置；\n<\/li><li>\n用一个非零数乘某个方程；\n<\/li><li>\n把一个方程的倍数加到另一个方程上。\n<\/ol>\n<p>把系数排成增广矩阵来做，书写更简洁。<\/p>\n<h3>1.2 阶梯形与解的判定<\/h3>\n<p>消元后得到阶梯形。设系数矩阵的秩为 r，增广矩阵的秩为 R，未知数个数为 n：<\/p>\n<ul><li>\nR&gt;r（出现 0=d，d≠0 的行）：无解；\n<\/li><li>\nR=r=n：唯一解；\n<\/li><li>\nR=r&lt;n：无穷多解，有 n−r 个自由未知量。\n<\/ul>\n<p>“秩”就是阶梯形中非零行的个数，即有效方程的个数。<\/p>\n<h3>1.3 齐次方程组<\/h3>\n<p>右端全为零的方程组一定有解（零解）。当 r=n 时只有零解；当 r&lt;n 时有无穷多非零解。<\/p>\n<h3>1.4 解题流程<\/h3>\n<p>写出增广矩阵 → 只用行变换化阶梯形 → 数非零行 → 判断解的情形 → 回代求通解（含自由未知量）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：消元像解谜时不断“消掉一个线索”：每消掉一个未知数，剩下的方程就简单一层。<\/p>\n<p><strong>失效边界<\/strong>：行变换不能乘 0，也不能只改一边（必须整行同时改）。<\/p>\n<p><strong>实例<\/strong>：x+y=3，2x+2y=6。第二行减两倍第一行得 0=0，秩 r=R=1&lt;2，无穷多解，通解 x=3−t，y=t。 若第二式为 2x+2y=7，则得 0=1，无解。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 消元后 0=0 说明解是 0 —— 实际上 0=0 说明那个方程是多余的，解有无穷多个。\n<\/li><li>\n别以为 方程个数少于未知数就一定有无穷多解 —— 实际上 要看秩，还要看是否出现 0=d 的矛盾行。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n增广矩阵化简后出现 0=2 的行，则该方程组：\n<\/li><li>\n三个未知数、系数矩阵秩为 2、增广矩阵秩为 2，则：\n<p>A. 唯一解 ｜ B. 无穷多解 ｜ C. 无解 ｜ D. 无法判断 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：0=2 是矛盾方程，说明方程组无解。 A. 唯一解 ｜ B. 无解 ｜ C. 无穷多解 ｜ D. 零解 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：r=R=2&lt;3，有无穷多解，自由未知量个数 3−2=1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n三种行变换不改变解集\n<\/li><li>\nR&gt;r 无解；R=r=n 唯一；R=r&lt;n 无穷多\n<\/li><li>\n秩＝非零行数\n<\/ul>", "kind": "chapter", "title": "第 1 章：消元法与解的判定"}, "ch02": {"html": "<h1>第 2 章：行列式与克莱默法则<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n计算二、三阶行列式\n<\/li><li>\n用行列式性质化简\n<\/li><li>\n用克莱默法则解方程组\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>行列式是一个由方阵算出的数，它不为零就说明方程组有唯一解。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 二阶与三阶行列式<\/h3>\n<p>二阶：|a b; c d|=ad−bc。<\/p>\n<p>三阶用对角线法则（沙路法则）：主对角线三项相加，副对角线三项相减。<\/p>\n<h3>2.2 行列式的性质<\/h3>\n<ul><li>\n交换两行，行列式变号；\n<\/li><li>\n某行乘 k，行列式乘 k；\n<\/li><li>\n某行的倍数加到另一行，行列式不变；\n<\/li><li>\n两行相同或成比例，行列式为 0。\n<\/ul>\n<p>用这些性质把行列式化成上三角形，再对角相乘，比直接展开快得多。<\/p>\n<h3>2.3 克莱默法则<\/h3>\n<p>对 n 元线性方程组，若系数行列式 D≠0，则方程组有唯一解：<\/p>\n<p>x_i=D_i/D<\/p>\n<p>其中 D_i 是把 D 的第 i 列换成常数项后得到的行列式。<\/p>\n<p>D=0 时法则失效，要回到消元法判断是无解还是无穷多解。<\/p>\n<h3>2.4 几何意义<\/h3>\n<p>二阶行列式的绝对值等于两行向量张成的平行四边形面积；三阶行列式的绝对值等于平行六面体体积。这解释了“行列式为 0 表示退化”。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：行列式像一张“面积标尺”：它为 0 说明两条边共线，图形被压扁了。<\/p>\n<p><strong>失效边界<\/strong>：克莱默法则只在 D≠0 时可用；D=0 时不能说“无解”。<\/p>\n<p><strong>实例<\/strong>：解 x+y=3，x−y=1。D=|1 1; 1 −1|=−2，D₁=|3 1; 1 −1|=−4，D₂=|1 3; 1 1|=−2，故 x=2，y=1。 验证：2+1=3，2−1=1，正确。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 行列式为 0 就是无解 —— 实际上 可能无解，也可能无穷多解，要再看增广矩阵的秩。\n<\/li><li>\n别以为 三阶行列式可以用对角线法则推广到四阶 —— 实际上 对角线法则只适用于二阶、三阶，四阶以上必须按行展开或化三角形。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n行列式 |2 1; 3 4| 的值是：\n<\/li><li>\n克莱默法则适用的前提是：\n<p>A. 5 ｜ B. 11 ｜ C. 8 ｜ D. −5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：2×4−1×3=8−3=5。 A. 系数行列式不为零 ｜ B. 常数项全为零 ｜ C. 方程个数多于未知数 ｜ D. 系数全为正 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：D≠0 时方程组有唯一解，才能用 x_i=D_i/D。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n二阶 ad−bc；三阶对角线法则\n<\/li><li>\n换行变号、某行乘 k 值乘 k\n<\/li><li>\n克莱默法则要求 D≠0\n<\/ul>", "kind": "chapter", "title": "第 2 章：行列式与克莱默法则"}, "ch03": {"html": "<h1>第 3 章：矩阵运算与逆矩阵<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n完成矩阵加法、数乘、乘法\n<\/li><li>\n判断乘法是否可行\n<\/li><li>\n求二阶矩阵的逆\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>矩阵乘法是“行乘列”，不是对应元素相乘；只有方阵才谈逆矩阵。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 加法与数乘<\/h3>\n<p>同型矩阵才能相加：对应元素相加。数乘是每个元素都乘这个数。<\/p>\n<h3>3.2 乘法<\/h3>\n<p>A(m×n) 乘 B(n×p) 才有意义，结果 C 是 m×p，其中<\/p>\n<p>c_ij=Σ a_ik b_kj<\/p>\n<p>即“A 的第 i 行与 B 的第 j 列对应相乘再相加”。乘法的顺序不能交换，AB≠BA 一般成立。<\/p>\n<h3>3.3 转置与逆矩阵<\/h3>\n<p>转置把行换成列，记 Aᵀ。(AB)ᵀ=BᵀAᵀ，顺序要反过来。<\/p>\n<p>逆矩阵 A⁻¹ 满足 AA⁻¹=A⁻¹A=E（单位矩阵）。对二阶矩阵：<\/p>\n<p>A=[[a,b],[c,d]]，A⁻¹=1/(ad−bc)·[[d,−b],[−c,a]]<\/p>\n<p>前提是 ad−bc≠0，即行列式不为零。<\/p>\n<h3>3.4 用逆矩阵解方程组<\/h3>\n<p>AX=B 且 A 可逆时，X=A⁻¹B。这与“除法”类似，但矩阵没有除法，只有逆。<\/p>\n<h3>3.5 初等变换求逆<\/h3>\n<p>把 [A|E] 用行变换化成 [E|A⁻¹]，是求逆的通法，比记公式更通用。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：矩阵乘法像流水线的接力：第一道工序的输出正好是第二道工序的输入，所以中间尺寸必须对上。<\/p>\n<p><strong>失效边界<\/strong>：A、B 都可乘不代表 BA 也可乘；尺寸不对就不能乘。<\/p>\n<p><strong>实例<\/strong>：A=[[1,2],[3,4]]，B=[[0,1],[1,0]]。AB=[[2,1],[4,3]]，BA=[[3,4],[1,2]]，两者不同，验证乘法不可交换。 A 的行列式 1×4−2×3=−2，A⁻¹=(1/−2)[[4,−2],[−3,1]]=[[−2,1],[1.5,−0.5]]。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 矩阵乘法就是对应元素相乘 —— 实际上 那是哈达玛积，不是矩阵乘法；矩阵乘法是行乘列求和。\n<\/li><li>\n别以为 所有矩阵都有逆 —— 实际上 只有行列式不为零的方阵才可逆。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nA 是 2×3 矩阵，B 是 3×4 矩阵，则 AB 是：\n<\/li><li>\n二阶矩阵 A 可逆的条件是：\n<p>A. 2×4 ｜ B. 3×3 ｜ C. 4×2 ｜ D. 不能相乘 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：内维相同（3=3），结果为 2×4。 A. 元素都非零 ｜ B. 行列式不为零 ｜ C. 是对称矩阵 ｜ D. 对角线元素相等 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：A⁻¹ 的分母是 ad−bc，必须非零。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nA(m×n)·B(n×p)=C(m×p)\n<\/li><li>\nAB≠BA\n<\/li><li>\nA⁻¹=adj(A)/|A|，要求 |A|≠0\n<\/ul>", "kind": "chapter", "title": "第 3 章：矩阵运算与逆矩阵"}, "ch04": {"html": "<h1>第 4 章：线性变换与二次型<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch03\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用矩阵表示线性变换\n<\/li><li>\n理解旋转、伸缩、反射的矩阵形式\n<\/li><li>\n知道二次型可用矩阵表示\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>线性变换就是“用矩阵乘向量”；二次型是“把二次多项式写成 xᵀAx”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>4.1 线性变换<\/h3>\n<p>把平面上的点 (x,y) 映到 (x&#x27;,y&#x27;)，若规则是线性的，就可以写成：<\/p>\n<p>[x&#x27;; y&#x27;]=A[x; y]<\/p>\n<p>常见变换的矩阵：<\/p>\n<ul><li>\n绕原点旋转 θ：[[cosθ,−sinθ],[sinθ,cosθ]]；\n<\/li><li>\n沿 x 方向伸缩 k 倍：[[k,0],[0,1]]；\n<\/li><li>\n关于 x 轴对称：[[1,0],[0,−1]]。\n<\/ul>\n<p>变换的复合对应矩阵相乘，顺序与作用顺序相反（先作用 B 再作用 A，写成 AB）。<\/p>\n<h3>4.2 二次型<\/h3>\n<p>形如 ax²+bxy+cy² 的二次齐次多项式叫二次型，可写成：<\/p>\n<p>[x y]·[[a,b/2],[b/2,c]]·[x;y]ᵀ<\/p>\n<p>中间的对称矩阵叫二次型的矩阵。注意交叉项系数要除以 2，这是最常见的错误。<\/p>\n<h3>4.3 用变换化简二次型<\/h3>\n<p>通过适当的坐标旋转，可以把含 xy 项的二次型化成只有平方项的标准形，标准形中的系数决定曲线类型（椭圆、双曲线、抛物线）。这正是《圆锥曲线》里“坐标变换不改变类型”的代数解释。<\/p>\n<h3>4.4 与前面章节的联结<\/h3>\n<p>消元法处理方程组，行列式判断可逆性，矩阵乘法表示变换，二次型表示曲线——四章合起来是一套语言，而不是四个孤立工具。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：线性变换像给一张透明的方格纸做拉伸、旋转、翻转，方格仍然是方格，只是形状变了。<\/p>\n<p><strong>失效边界<\/strong>：只有线性规则（过原点的直线仍映成直线）才能用矩阵表示；平移不是线性变换（要用仿射变换）。<\/p>\n<p><strong>实例<\/strong>：把点 (1,0) 绕原点旋转 90°：[[0,−1],[1,0]]·[1;0]=[0;1]，得到 (0,1)，正确。 二次型 x²+4xy+y² 的矩阵是 [[1,2],[2,1]]，交叉项 4xy 对应 2 与 2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 平移也能用 2×2 矩阵表示 —— 实际上 2×2 矩阵只能表示过原点的线性变换；平移需要加一维（仿射）。\n<\/li><li>\n别以为 二次型矩阵的交叉项系数直接填 b —— 实际上 应填 b/2，两处各一半，乘出来才是 bxy。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n绕原点旋转 90° 的变换矩阵是：\n<\/li><li>\n二次型 2x²+6xy+5y² 的矩阵中，第一行第二列的元素是：\n<p>A. [[1,0],[0,1]] ｜ B. [[0,−1],[1,0]] ｜ C. [[0,1],[1,0]] ｜ D. [[−1,0],[0,1]] <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：cos90°=0，sin90°=1，代入旋转矩阵得 [[0,−1],[1,0]]。 A. 6 ｜ B. 3 ｜ C. 1.5 ｜ D. 5 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：交叉项系数 6 要除以 2，故填 3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n线性变换＝矩阵乘向量\n<\/li><li>\n复合的顺序与矩阵乘积顺序相反\n<\/li><li>\n二次型交叉项系数要除以 2\n<\/ul>", "kind": "chapter", "title": "第 4 章：线性变换与二次型"}, "c01": {"html": "<h1>秩与解的个数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>秩是有效方程的个数；它和未知数个数的比较决定解的情形。<\/p>\n<h2>为什么重要<\/h2>\n<p>它把“解几个”这个模糊问题变成数数，是线性代数的第一把尺子。<\/p>\n<h2>详解<\/h2>\n<p>消元化阶梯形后数非零行。R&gt;r 无解；R=r=n 唯一解；R=r&lt;n 无穷多解。齐次方程组必有零解，r&lt;n 时还有非零解。<\/p>\n<h2>常见误解<\/h2>\n<p>把“方程个数”直接当成秩，忽略有些方程是多余的。<\/p>\n<h2>相关概念<\/h2>\n<p>消元（ch01）、行列式（ch02）<\/p>", "kind": "concept", "title": "秩与解的个数"}, "c02": {"html": "<h1>矩阵乘法与不可交换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03、ch04\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>行乘列求和；AB 与 BA 一般不同，顺序有意义。<\/p>\n<h2>为什么重要<\/h2>\n<p>矩阵乘法代表“连续变换”，顺序换了解释就变了，这是线性代数的核心特性。<\/p>\n<h2>详解<\/h2>\n<p>c_ij=Σa_ik b_kj。乘法要求内维相同。转置满足 (AB)ᵀ=BᵀAᵀ。逆矩阵只在方阵且行列式非零时存在，A⁻¹=adj(A)/|A|。<\/p>\n<h2>常见误解<\/h2>\n<p>按对应元素相乘，或随意交换乘法顺序。<\/p>\n<h2>相关概念<\/h2>\n<p>矩阵运算（ch03）、线性变换（ch04）<\/p>", "kind": "concept", "title": "矩阵乘法与不可交换"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：消元法与解的判定<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：消元法与解的判定<\/a><br>检查点：能说出方程组是无解、唯一解还是无穷多解<\/li><li class='path-step' id='path-02'><strong>步骤 02：行列式与克莱默法则<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：行列式与克莱默法则<\/a><br>检查点：能算三阶行列式并解二元、三元方程组<\/li><li class='path-step' id='path-03'><strong>步骤 03：矩阵运算与逆矩阵<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：矩阵运算与逆矩阵<\/a><br>检查点：能完成矩阵乘法与二阶逆矩阵的求法<\/li><li class='path-step' id='path-04'><strong>步骤 04：线性变换与二次型<\/strong><br>阅读：<a href=\"#/chapter/ch04\">第 4 章：线性变换与二次型<\/a><br>检查点：能用矩阵表示一个线性变换<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q09' data-type='single'><p class='quiz-q'><b>Q9.<\/b> 方程组 x+y=1，2x+2y=3 的解的情况是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q09' value='0'> 唯一解<\/label><label class='quiz-opt'><input type='radio' name='q09' value='1'> 无解<\/label><label class='quiz-opt'><input type='radio' name='q09' value='2'> 无穷多解<\/label><label class='quiz-opt'><input type='radio' name='q09' value='3'> 零解<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q10' data-type='single'><p class='quiz-q'><b>Q10.<\/b> 矩阵 A=[[1,2],[0,1]] 的行列式是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q10' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q10' value='2'> 0<\/label><label class='quiz-opt'><input type='radio' name='q10' value='3'> −1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：消元法与解的判定<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 增广矩阵化简后出现 0=2 的行，则该方程组：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 唯一解<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 无穷多解<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 无解<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 无法判断<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 三个未知数、系数矩阵秩为 2、增广矩阵秩为 2，则：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 唯一解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 无解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 无穷多解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 零解<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：行列式与克莱默法则<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 行列式 |2 1; 3 4| 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 5<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 11<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 8<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> −5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 克莱默法则适用的前提是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 系数行列式不为零<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 常数项全为零<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 方程个数多于未知数<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 系数全为正<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：矩阵运算与逆矩阵<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> A 是 2×3 矩阵，B 是 3×4 矩阵，则 AB 是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 2×4<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 3×3<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 4×2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 不能相乘<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 二阶矩阵 A 可逆的条件是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 元素都非零<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 行列式不为零<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 是对称矩阵<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 对角线元素相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch04__": {"html": "<h1>测验：第 4 章：线性变换与二次型<\/h1><div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 绕原点旋转 90° 的变换矩阵是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> [[1,0],[0,1]]<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> [[0,−1],[1,0]]<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> [[0,1],[1,0]]<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> [[−1,0],[0,1]]<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 二次型 2x²+6xy+5y² 的矩阵中，第一行第二列的元素是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 1.5<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='增广矩阵'>增广矩阵 — 系数矩阵右侧接上常数项列得到的矩阵。 <span class=glossary-ref>（第 1 章：消元法与解的判定）<\/span><\/li><li data-term='初等行变换'>初等行变换 — 交换两行、某行乘非零数、某行的倍数加到另一行。 <span class=glossary-ref>（第 1 章：消元法与解的判定）<\/span><\/li><li data-term='秩'>秩 — 阶梯形中非零行的个数。 <span class=glossary-ref>（第 1 章：消元法与解的判定）<\/span><\/li><li data-term='自由未知量'>自由未知量 — 无穷多解中可以任意取值的未知量。 <span class=glossary-ref>（第 1 章：消元法与解的判定）<\/span><\/li><li data-term='行列式'>行列式 — 由方阵算出的一个数。 <span class=glossary-ref>（第 2 章：行列式与克莱默法则）<\/span><\/li><li data-term='克莱默法则'>克莱默法则 — 用行列式表示唯一解的公式。 <span class=glossary-ref>（第 2 章：行列式与克莱默法则）<\/span><\/li><li data-term='转置'>转置 — 行列互换得到的矩阵。 <span class=glossary-ref>（第 3 章：矩阵运算与逆矩阵）<\/span><\/li><li data-term='逆矩阵'>逆矩阵 — 满足 AA⁻¹=E 的矩阵。 <span class=glossary-ref>（第 3 章：矩阵运算与逆矩阵）<\/span><\/li><li data-term='线性变换'>线性变换 — 用矩阵乘法表示的、保持线性结构的映射。 <span class=glossary-ref>（第 4 章：线性变换与二次型）<\/span><\/li><li data-term='二次型'>二次型 — 二次齐次多项式，可写成 xᵀAx。 <span class=glossary-ref>（第 4 章：线性变换与二次型）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：解方程组四步<\/h2>\n<p>写增广矩阵 → 行变换化阶梯形 → 数秩判解 → 回代写通解。<\/p>\n<h2>框架：矩阵题先查尺寸<\/h2>\n<p>加法要同型，乘法要内维相等，求逆要方阵且行列式非零。三句查完再动笔。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>解的判定<\/td><td>R&gt;r 无解；R=r=n 唯一；R=r&lt;n 无穷多<\/td><\/tr><tr><td>二阶行列式<\/td><td>ad−bc<\/td><\/tr><tr><td>克莱默<\/td><td>x_i=D_i/D，D≠0<\/td><\/tr><tr><td>矩阵乘法<\/td><td>c_ij=Σa_ik b_kj<\/td><\/tr><tr><td>二阶逆<\/td><td>adj(A)/<\/td><td>A<\/td><td>，主对调副变号<\/td><\/tr><tr><td>二次型矩阵<\/td><td>交叉项系数除以 2<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/21-线性方程组与矩阵", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：消元法与解的判定", "href": "#/chapter/ch01"}, {"label": "第 2 章：行列式与克莱默法则", "href": "#/chapter/ch02"}, {"label": "第 3 章：矩阵运算与逆矩阵", "href": "#/chapter/ch03"}, {"label": "第 4 章：线性变换与二次型", "href": "#/chapter/ch04"}]}, {"label": "概念", "children": [{"label": "秩与解的个数", "href": "#/concept/c01"}, {"label": "矩阵乘法与不可交换", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：消元法与解的判定", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：行列式与克莱默法则", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：矩阵运算与逆矩阵", "href": "#/quiz/ch03"}, {"label": "测验：第 4 章：线性变换与二次型", "href": "#/quiz/ch04"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：消元法与解的判定<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：一次方程组的解法\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用初等行变换把方程组化为阶梯形\n<\/li><li>\n判断无解、唯一解、无穷多解\n<\/li><li>\n用秩解释解的个数\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>消元的目的是化成阶梯形；阶梯形里有几条有效的“非零行”，就有几个独立方程。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 初等行变换<\/h3>\n<p>对方程组做以下三种操作不改变解集：<\/p>\n<ol><li>\n交换两个方程的位置；\n<\/li><li>\n用一个非零数乘某个方程；\n<\/li><li>\n把一个方程的倍数加到另一个方程上。\n<\/ol>\n<p>把系数排成增广矩阵来做，书写更简洁。<\/p>\n<h3>1.2 阶梯形与解的判定<\/h3>\n<p>消元后得到阶梯形。设系数矩阵的秩为 r，增广矩阵的秩为 R，未知数个数为 n：<\/p>\n<ul><li>\nR&gt;r（出现 0=d，d≠0 的行）：无解；\n<\/li><li>\nR=r=n：唯一解；\n<\/li><li>\nR=r&lt;n：无穷多解，有 n−r 个自由未知量。\n<\/ul>\n<p>“秩”就是阶梯形中非零行的个数，即有效方程的个数。<\/p>\n<h3>1.3 齐次方程组<\/h3>\n<p>右端全为零的方程组一定有解（零解）。当 r=n 时只有零解；当 r&lt;n 时有无穷多非零解。<\/p>\n<h3>1.4 解题流程<\/h3>\n<p>写出增广矩阵 → 只用行变换化阶梯形 → 数非零行 → 判断解的情形 → 回代求通解（含自由未知量）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：消元像解谜时不断“消掉一个线索”：每消掉一个未知数，剩下的方程就简单一层。<\/p>\n<p><strong>失效边界<\/strong>：行变换不能乘 0，也不能只改一边（必须整行同时改）。<\/p>\n<p><strong>实例<\/strong>：x+y=3，2x+2y=6。第二行减两倍第一行得 0=0，秩 r=R=1&lt;2，无穷多解，通解 x=3−t，y=t。 若第二式为 2x+2y=7，则得 0=1，无解。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 消元后 0=0 说明解是 0 —— 实际上 0=0 说明那个方程是多余的，解有无穷多个。\n<\/li><li>\n别以为 方程个数少于未知数就一定有无穷多解 —— 实际上 要看秩，还要看是否出现 0=d 的矛盾行。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n增广矩阵化简后出现 0=2 的行，则该方程组：\n<\/li><li>\n三个未知数、系数矩阵秩为 2、增广矩阵秩为 2，则：\n<p>A. 唯一解 ｜ B. 无穷多解 ｜ C. 无解 ｜ D. 无法判断 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：0=2 是矛盾方程，说明方程组无解。 A. 唯一解 ｜ B. 无解 ｜ C. 无穷多解 ｜ D. 零解 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：r=R=2&lt;3，有无穷多解，自由未知量个数 3−2=1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n三种行变换不改变解集\n<\/li><li>\nR&gt;r 无解；R=r=n 唯一；R=r&lt;n 无穷多\n<\/li><li>\n秩＝非零行数\n<\/ul>", "ch02": "<h1>第 2 章：行列式与克莱默法则<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n计算二、三阶行列式\n<\/li><li>\n用行列式性质化简\n<\/li><li>\n用克莱默法则解方程组\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>行列式是一个由方阵算出的数，它不为零就说明方程组有唯一解。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 二阶与三阶行列式<\/h3>\n<p>二阶：|a b; c d|=ad−bc。<\/p>\n<p>三阶用对角线法则（沙路法则）：主对角线三项相加，副对角线三项相减。<\/p>\n<h3>2.2 行列式的性质<\/h3>\n<ul><li>\n交换两行，行列式变号；\n<\/li><li>\n某行乘 k，行列式乘 k；\n<\/li><li>\n某行的倍数加到另一行，行列式不变；\n<\/li><li>\n两行相同或成比例，行列式为 0。\n<\/ul>\n<p>用这些性质把行列式化成上三角形，再对角相乘，比直接展开快得多。<\/p>\n<h3>2.3 克莱默法则<\/h3>\n<p>对 n 元线性方程组，若系数行列式 D≠0，则方程组有唯一解：<\/p>\n<p>x_i=D_i/D<\/p>\n<p>其中 D_i 是把 D 的第 i 列换成常数项后得到的行列式。<\/p>\n<p>D=0 时法则失效，要回到消元法判断是无解还是无穷多解。<\/p>\n<h3>2.4 几何意义<\/h3>\n<p>二阶行列式的绝对值等于两行向量张成的平行四边形面积；三阶行列式的绝对值等于平行六面体体积。这解释了“行列式为 0 表示退化”。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：行列式像一张“面积标尺”：它为 0 说明两条边共线，图形被压扁了。<\/p>\n<p><strong>失效边界<\/strong>：克莱默法则只在 D≠0 时可用；D=0 时不能说“无解”。<\/p>\n<p><strong>实例<\/strong>：解 x+y=3，x−y=1。D=|1 1; 1 −1|=−2，D₁=|3 1; 1 −1|=−4，D₂=|1 3; 1 1|=−2，故 x=2，y=1。 验证：2+1=3，2−1=1，正确。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 行列式为 0 就是无解 —— 实际上 可能无解，也可能无穷多解，要再看增广矩阵的秩。\n<\/li><li>\n别以为 三阶行列式可以用对角线法则推广到四阶 —— 实际上 对角线法则只适用于二阶、三阶，四阶以上必须按行展开或化三角形。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n行列式 |2 1; 3 4| 的值是：\n<\/li><li>\n克莱默法则适用的前提是：\n<p>A. 5 ｜ B. 11 ｜ C. 8 ｜ D. −5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：2×4−1×3=8−3=5。 A. 系数行列式不为零 ｜ B. 常数项全为零 ｜ C. 方程个数多于未知数 ｜ D. 系数全为正 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：D≠0 时方程组有唯一解，才能用 x_i=D_i/D。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n二阶 ad−bc；三阶对角线法则\n<\/li><li>\n换行变号、某行乘 k 值乘 k\n<\/li><li>\n克莱默法则要求 D≠0\n<\/ul>", "ch03": "<h1>第 3 章：矩阵运算与逆矩阵<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n完成矩阵加法、数乘、乘法\n<\/li><li>\n判断乘法是否可行\n<\/li><li>\n求二阶矩阵的逆\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>矩阵乘法是“行乘列”，不是对应元素相乘；只有方阵才谈逆矩阵。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 加法与数乘<\/h3>\n<p>同型矩阵才能相加：对应元素相加。数乘是每个元素都乘这个数。<\/p>\n<h3>3.2 乘法<\/h3>\n<p>A(m×n) 乘 B(n×p) 才有意义，结果 C 是 m×p，其中<\/p>\n<p>c_ij=Σ a_ik b_kj<\/p>\n<p>即“A 的第 i 行与 B 的第 j 列对应相乘再相加”。乘法的顺序不能交换，AB≠BA 一般成立。<\/p>\n<h3>3.3 转置与逆矩阵<\/h3>\n<p>转置把行换成列，记 Aᵀ。(AB)ᵀ=BᵀAᵀ，顺序要反过来。<\/p>\n<p>逆矩阵 A⁻¹ 满足 AA⁻¹=A⁻¹A=E（单位矩阵）。对二阶矩阵：<\/p>\n<p>A=[[a,b],[c,d]]，A⁻¹=1/(ad−bc)·[[d,−b],[−c,a]]<\/p>\n<p>前提是 ad−bc≠0，即行列式不为零。<\/p>\n<h3>3.4 用逆矩阵解方程组<\/h3>\n<p>AX=B 且 A 可逆时，X=A⁻¹B。这与“除法”类似，但矩阵没有除法，只有逆。<\/p>\n<h3>3.5 初等变换求逆<\/h3>\n<p>把 [A|E] 用行变换化成 [E|A⁻¹]，是求逆的通法，比记公式更通用。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：矩阵乘法像流水线的接力：第一道工序的输出正好是第二道工序的输入，所以中间尺寸必须对上。<\/p>\n<p><strong>失效边界<\/strong>：A、B 都可乘不代表 BA 也可乘；尺寸不对就不能乘。<\/p>\n<p><strong>实例<\/strong>：A=[[1,2],[3,4]]，B=[[0,1],[1,0]]。AB=[[2,1],[4,3]]，BA=[[3,4],[1,2]]，两者不同，验证乘法不可交换。 A 的行列式 1×4−2×3=−2，A⁻¹=(1/−2)[[4,−2],[−3,1]]=[[−2,1],[1.5,−0.5]]。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 矩阵乘法就是对应元素相乘 —— 实际上 那是哈达玛积，不是矩阵乘法；矩阵乘法是行乘列求和。\n<\/li><li>\n别以为 所有矩阵都有逆 —— 实际上 只有行列式不为零的方阵才可逆。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nA 是 2×3 矩阵，B 是 3×4 矩阵，则 AB 是：\n<\/li><li>\n二阶矩阵 A 可逆的条件是：\n<p>A. 2×4 ｜ B. 3×3 ｜ C. 4×2 ｜ D. 不能相乘 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：内维相同（3=3），结果为 2×4。 A. 元素都非零 ｜ B. 行列式不为零 ｜ C. 是对称矩阵 ｜ D. 对角线元素相等 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：A⁻¹ 的分母是 ad−bc，必须非零。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nA(m×n)·B(n×p)=C(m×p)\n<\/li><li>\nAB≠BA\n<\/li><li>\nA⁻¹=adj(A)/|A|，要求 |A|≠0\n<\/ul>", "ch04": "<h1>第 4 章：线性变换与二次型<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch03\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用矩阵表示线性变换\n<\/li><li>\n理解旋转、伸缩、反射的矩阵形式\n<\/li><li>\n知道二次型可用矩阵表示\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>线性变换就是“用矩阵乘向量”；二次型是“把二次多项式写成 xᵀAx”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>4.1 线性变换<\/h3>\n<p>把平面上的点 (x,y) 映到 (x&#x27;,y&#x27;)，若规则是线性的，就可以写成：<\/p>\n<p>[x&#x27;; y&#x27;]=A[x; y]<\/p>\n<p>常见变换的矩阵：<\/p>\n<ul><li>\n绕原点旋转 θ：[[cosθ,−sinθ],[sinθ,cosθ]]；\n<\/li><li>\n沿 x 方向伸缩 k 倍：[[k,0],[0,1]]；\n<\/li><li>\n关于 x 轴对称：[[1,0],[0,−1]]。\n<\/ul>\n<p>变换的复合对应矩阵相乘，顺序与作用顺序相反（先作用 B 再作用 A，写成 AB）。<\/p>\n<h3>4.2 二次型<\/h3>\n<p>形如 ax²+bxy+cy² 的二次齐次多项式叫二次型，可写成：<\/p>\n<p>[x y]·[[a,b/2],[b/2,c]]·[x;y]ᵀ<\/p>\n<p>中间的对称矩阵叫二次型的矩阵。注意交叉项系数要除以 2，这是最常见的错误。<\/p>\n<h3>4.3 用变换化简二次型<\/h3>\n<p>通过适当的坐标旋转，可以把含 xy 项的二次型化成只有平方项的标准形，标准形中的系数决定曲线类型（椭圆、双曲线、抛物线）。这正是《圆锥曲线》里“坐标变换不改变类型”的代数解释。<\/p>\n<h3>4.4 与前面章节的联结<\/h3>\n<p>消元法处理方程组，行列式判断可逆性，矩阵乘法表示变换，二次型表示曲线——四章合起来是一套语言，而不是四个孤立工具。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：线性变换像给一张透明的方格纸做拉伸、旋转、翻转，方格仍然是方格，只是形状变了。<\/p>\n<p><strong>失效边界<\/strong>：只有线性规则（过原点的直线仍映成直线）才能用矩阵表示；平移不是线性变换（要用仿射变换）。<\/p>\n<p><strong>实例<\/strong>：把点 (1,0) 绕原点旋转 90°：[[0,−1],[1,0]]·[1;0]=[0;1]，得到 (0,1)，正确。 二次型 x²+4xy+y² 的矩阵是 [[1,2],[2,1]]，交叉项 4xy 对应 2 与 2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 平移也能用 2×2 矩阵表示 —— 实际上 2×2 矩阵只能表示过原点的线性变换；平移需要加一维（仿射）。\n<\/li><li>\n别以为 二次型矩阵的交叉项系数直接填 b —— 实际上 应填 b/2，两处各一半，乘出来才是 bxy。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n绕原点旋转 90° 的变换矩阵是：\n<\/li><li>\n二次型 2x²+6xy+5y² 的矩阵中，第一行第二列的元素是：\n<p>A. [[1,0],[0,1]] ｜ B. [[0,−1],[1,0]] ｜ C. [[0,1],[1,0]] ｜ D. [[−1,0],[0,1]] <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：cos90°=0，sin90°=1，代入旋转矩阵得 [[0,−1],[1,0]]。 A. 6 ｜ B. 3 ｜ C. 1.5 ｜ D. 5 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：交叉项系数 6 要除以 2，故填 3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n线性变换＝矩阵乘向量\n<\/li><li>\n复合的顺序与矩阵乘积顺序相反\n<\/li><li>\n二次型交叉项系数要除以 2\n<\/ul>", "c01": "<h1>秩与解的个数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>秩是有效方程的个数；它和未知数个数的比较决定解的情形。<\/p>\n<h2>为什么重要<\/h2>\n<p>它把“解几个”这个模糊问题变成数数，是线性代数的第一把尺子。<\/p>\n<h2>详解<\/h2>\n<p>消元化阶梯形后数非零行。R&gt;r 无解；R=r=n 唯一解；R=r&lt;n 无穷多解。齐次方程组必有零解，r&lt;n 时还有非零解。<\/p>\n<h2>常见误解<\/h2>\n<p>把“方程个数”直接当成秩，忽略有些方程是多余的。<\/p>\n<h2>相关概念<\/h2>\n<p>消元（ch01）、行列式（ch02）<\/p>", "c02": "<h1>矩阵乘法与不可交换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03、ch04\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>行乘列求和；AB 与 BA 一般不同，顺序有意义。<\/p>\n<h2>为什么重要<\/h2>\n<p>矩阵乘法代表“连续变换”，顺序换了解释就变了，这是线性代数的核心特性。<\/p>\n<h2>详解<\/h2>\n<p>c_ij=Σa_ik b_kj。乘法要求内维相同。转置满足 (AB)ᵀ=BᵀAᵀ。逆矩阵只在方阵且行列式非零时存在，A⁻¹=adj(A)/|A|。<\/p>\n<h2>常见误解<\/h2>\n<p>按对应元素相乘，或随意交换乘法顺序。<\/p>\n<h2>相关概念<\/h2>\n<p>矩阵运算（ch03）、线性变换（ch04）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：消元法与解的判定<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：消元法与解的判定<\/a><br>检查点：能说出方程组是无解、唯一解还是无穷多解<\/li><li class='path-step' id='path-02'><strong>步骤 02：行列式与克莱默法则<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：行列式与克莱默法则<\/a><br>检查点：能算三阶行列式并解二元、三元方程组<\/li><li class='path-step' id='path-03'><strong>步骤 03：矩阵运算与逆矩阵<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：矩阵运算与逆矩阵<\/a><br>检查点：能完成矩阵乘法与二阶逆矩阵的求法<\/li><li class='path-step' id='path-04'><strong>步骤 04：线性变换与二次型<\/strong><br>阅读：<a href=\"#/chapter/ch04\">第 4 章：线性变换与二次型<\/a><br>检查点：能用矩阵表示一个线性变换<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q09' data-type='single'><p class='quiz-q'><b>Q9.<\/b> 方程组 x+y=1，2x+2y=3 的解的情况是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q09' value='0'> 唯一解<\/label><label class='quiz-opt'><input type='radio' name='q09' value='1'> 无解<\/label><label class='quiz-opt'><input type='radio' name='q09' value='2'> 无穷多解<\/label><label class='quiz-opt'><input type='radio' name='q09' value='3'> 零解<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q10' data-type='single'><p class='quiz-q'><b>Q10.<\/b> 矩阵 A=[[1,2],[0,1]] 的行列式是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q10' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q10' value='2'> 0<\/label><label class='quiz-opt'><input type='radio' name='q10' value='3'> −1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：消元法与解的判定<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 增广矩阵化简后出现 0=2 的行，则该方程组：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 唯一解<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 无穷多解<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 无解<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 无法判断<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 三个未知数、系数矩阵秩为 2、增广矩阵秩为 2，则：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 唯一解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 无解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 无穷多解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 零解<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：行列式与克莱默法则<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 行列式 |2 1; 3 4| 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 5<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 11<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 8<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> −5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 克莱默法则适用的前提是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 系数行列式不为零<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 常数项全为零<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 方程个数多于未知数<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 系数全为正<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：矩阵运算与逆矩阵<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> A 是 2×3 矩阵，B 是 3×4 矩阵，则 AB 是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 2×4<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 3×3<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 4×2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 不能相乘<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 二阶矩阵 A 可逆的条件是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 元素都非零<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 行列式不为零<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 是对称矩阵<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 对角线元素相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch04__": "<h1>测验：第 4 章：线性变换与二次型<\/h1><div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 绕原点旋转 90° 的变换矩阵是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> [[1,0],[0,1]]<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> [[0,−1],[1,0]]<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> [[0,1],[1,0]]<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> [[−1,0],[0,1]]<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 二次型 2x²+6xy+5y² 的矩阵中，第一行第二列的元素是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 1.5<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='增广矩阵'>增广矩阵 — 系数矩阵右侧接上常数项列得到的矩阵。 <span class=glossary-ref>（第 1 章：消元法与解的判定）<\/span><\/li><li data-term='初等行变换'>初等行变换 — 交换两行、某行乘非零数、某行的倍数加到另一行。 <span class=glossary-ref>（第 1 章：消元法与解的判定）<\/span><\/li><li data-term='秩'>秩 — 阶梯形中非零行的个数。 <span class=glossary-ref>（第 1 章：消元法与解的判定）<\/span><\/li><li data-term='自由未知量'>自由未知量 — 无穷多解中可以任意取值的未知量。 <span class=glossary-ref>（第 1 章：消元法与解的判定）<\/span><\/li><li data-term='行列式'>行列式 — 由方阵算出的一个数。 <span class=glossary-ref>（第 2 章：行列式与克莱默法则）<\/span><\/li><li data-term='克莱默法则'>克莱默法则 — 用行列式表示唯一解的公式。 <span class=glossary-ref>（第 2 章：行列式与克莱默法则）<\/span><\/li><li data-term='转置'>转置 — 行列互换得到的矩阵。 <span class=glossary-ref>（第 3 章：矩阵运算与逆矩阵）<\/span><\/li><li data-term='逆矩阵'>逆矩阵 — 满足 AA⁻¹=E 的矩阵。 <span class=glossary-ref>（第 3 章：矩阵运算与逆矩阵）<\/span><\/li><li data-term='线性变换'>线性变换 — 用矩阵乘法表示的、保持线性结构的映射。 <span class=glossary-ref>（第 4 章：线性变换与二次型）<\/span><\/li><li data-term='二次型'>二次型 — 二次齐次多项式，可写成 xᵀAx。 <span class=glossary-ref>（第 4 章：线性变换与二次型）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：解方程组四步<\/h2>\n<p>写增广矩阵 → 行变换化阶梯形 → 数秩判解 → 回代写通解。<\/p>\n<h2>框架：矩阵题先查尺寸<\/h2>\n<p>加法要同型，乘法要内维相等，求逆要方阵且行列式非零。三句查完再动笔。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>解的判定<\/td><td>R&gt;r 无解；R=r=n 唯一；R=r&lt;n 无穷多<\/td><\/tr><tr><td>二阶行列式<\/td><td>ad−bc<\/td><\/tr><tr><td>克莱默<\/td><td>x_i=D_i/D，D≠0<\/td><\/tr><tr><td>矩阵乘法<\/td><td>c_ij=Σa_ik b_kj<\/td><\/tr><tr><td>二阶逆<\/td><td>adj(A)/<\/td><td>A<\/td><td>，主对调副变号<\/td><\/tr><tr><td>二次型矩阵<\/td><td>交叉项系数除以 2<\/td><\/tr><\/tbody><\/table>"}};
+const pages = DATA.rendered;
+const manifest = DATA.manifest;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SLUG = manifest.slug || 'book';
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
+};
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+
+/* ---------- 导航 ---------- */
+function renderNav(){
+  const nav = $('#nav'); nav.innerHTML='';
+  const build = items => items.forEach(it=>{
+    if(it.children){
+      const sec=document.createElement('div'); sec.className='nav-sec'; sec.textContent=it.label; nav.appendChild(sec);
+      it.children.forEach(c=>{
+        const a=document.createElement('a'); a.className='nav-item'; a.href=c.href; a.textContent=c.label;
+        const id=routeId(c.href);
+        if(state.visited.includes(id)) a.innerHTML = esc(c.label)+' <span class="done">✓</span>';
+        nav.appendChild(a);
+      });
+    }else{
+      const a=document.createElement('a'); a.className='nav-item'; a.href=it.href; a.textContent=it.label;
+      const id=routeId(it.href);
+      if(state.visited.includes(id)) a.innerHTML = esc(it.label)+' <span class="done">✓</span>';
+      nav.appendChild(a);
+    }
+  });
+  build(DATA.nav);
+  updateProgress();
+}
+function routeId(href){ return href.replace('#/',''); }
+
+/* ---------- 路由 ---------- */
+function routeIdFromHash(){
+  let h = location.hash.replace(/^#\//,'');
+  if(!h) return 'path';
+  if(h==='path') return 'path';
+  const m = h.match(/^(chapter|concept)\/(.+)$/);
+  if(m) return m[1]+'/'+m[2];
+  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+}
+function showPage(rid){
+  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  const html = pages[id] || '<div class="empty">页面不存在</div>';
+  $('#view').innerHTML = html;
+  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
+    state.visited.push(rid); store.set('visited', state.visited); renderNav();
+  }
+  window.scrollTo(0,0);
+  if(rid==='cards') initCards();
+  if(rid==='glossary') initGlossary();
+  if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(id==='__path__') updatePath();
+  renderMermaid();
+}
+
+/* ---------- 进度 ---------- */
+function updateProgress(){
+  const chs = (manifest.chapters||[]).length;
+  const done = (manifest.chapters||[]).filter(c=>state.visited.includes('chapter/'+c.id)).length;
+  const pct = chs? Math.round(done/chs*100) : 0;
+  $('#progress-fill').style.width = pct+'%';
+  $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
+}
+function updatePath(){
+  document.querySelectorAll('.path-step').forEach(el=>{
+    const step = el.id.replace('path-','');
+    const s = (manifest.learningPath||[]).find(x=>x.step===step);
+    if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
+      el.classList.add('passed');
+      const lbl = el.querySelector('.checkpoint-ok'); if(!lbl){ const sp=document.createElement('span'); sp.className='done'; sp.textContent=' ✓ 已完成'; el.appendChild(sp); }
+    }
+  });
+}
+
+/* ---------- 测验 ---------- */
+function initQuizzes(rid){
+  document.querySelectorAll('.quiz-item').forEach(item=>{
+    const btn = item.querySelector('.quiz-check');
+    if(!btn || item.dataset.inited){ return }
+    item.dataset.inited='1';
+    btn.addEventListener('click', ()=>{
+      const qid = item.dataset.qid; const type = item.dataset.type;
+      const q = (manifest.quizzes||[]).find(x=>x.id===qid); if(!q) return;
+      let user, correct=false, fb;
+      if(type==='single'){
+        const sel = item.querySelector('input:checked');
+        user = sel? parseInt(sel.value) : null;
+        correct = user===q.answer;
+        fb = correct?'✓ 正确':'✗ 错误'+(user==null?'（未作答）':'');
+      } else if(type==='multi'){
+        user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+        const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+        correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+        fb = correct?'✓ 正确':'✗ 错误';
+      } else if(type==='blank'){
+        const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+        const a = String(q.answer).trim().toLowerCase();
+        correct = v===a;
+        fb = correct?'✓ 正确':'✗ 错误'+(v?'':'（未作答）');
+      }
+      item.querySelectorAll('input:checked').forEach(i=>{
+        const val=parseInt(i.value);
+        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
+        else i.parentElement.style.color='var(--bad)';
+      });
+      const feed = item.querySelector('.quiz-feedback');
+      feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
+      feed.textContent = fb;
+      let ex = item.querySelector('.quiz-explain');
+      if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
+      ex.innerHTML = '解析：' + esc(q.explain||'');
+      // 记录成绩（按章聚合）
+      const ch = q.chapterId||'__all__';
+      if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
+      state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
+      state.quiz[ch].total += 1;
+      store.set('quiz', state.quiz);
+    });
+  });
+}
+
+/* ---------- 抽认卡 ---------- */
+let cardIdx = 0, cardList = [];
+function initCards(){
+  const cards = manifest.flashcards||[];
+  cardList = cards.slice();
+  cardIdx = 0;
+  const sel = $('#card-filter');
+  sel.innerHTML = '<option value="">全部</option>';
+  [...new Set(cards.map(c=>c.chapterId).filter(Boolean))].forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=manifestChTitle(c); sel.appendChild(o);
+  });
+  sel.onchange = ()=>{ const v=sel.value; cardList = v? cards.filter(c=>c.chapterId===v): cards.slice(); cardIdx=0; showCard(); };
+  $('#flashcard').onclick = ()=>$('#flashcard').classList.toggle('flip');
+  $('#card-known-btn').onclick = ()=>{ markCard(true); };
+  $('#card-again-btn').onclick = ()=>{ markCard(false); };
+  showCard();
+}
+function showCard(){
+  updateCardCounts();
+  if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
+  const c = cardList[cardIdx];
+  document.querySelector('.fc-front').textContent = c.front;
+  document.querySelector('.fc-back').textContent = c.back;
+  $('#flashcard').classList.remove('flip');
+}
+function markCard(known){
+  const c = cardList[cardIdx]; if(!c) return;
+  state.cards[c.id] = known?'known':'again';
+  store.set('cards', state.cards);
+  cardIdx++; showCard();
+}
+function updateCardCounts(){
+  const known = Object.values(state.cards).filter(v=>v==='known').length;
+  const again = Object.values(state.cards).filter(v=>v==='again').length;
+  $('#card-known').textContent = known;
+  $('#card-again').textContent = again;
+  $('#card-left').textContent = Math.max(0, cardList.length-cardIdx);
+}
+function manifestChTitle(id){
+  const c=(manifest.chapters||[]).find(x=>x.id===id); return c? c.title : id;
+}
+
+/* ---------- 术语表 ---------- */
+function initGlossary(){
+  const input = $('#glossary-filter');
+  if(!input || input.dataset.inited) return;
+  input.dataset.inited='1';
+  input.oninput = ()=>{
+    const v = input.value.trim().toLowerCase();
+    document.querySelectorAll('#glossary-list li').forEach(li=>{
+      li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
+    });
+  };
+}
+
+/* ---------- 搜索 ---------- */
+let searchIndex = null;
+function buildSearchIndex(){
+  if(searchIndex) return searchIndex;
+  searchIndex = [];
+  Object.entries(pages).forEach(([id, htmlText])=>{
+    if(id.startsWith('__')) return;
+    const text = htmlText.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+    searchIndex.push({id, text});
+  });
+  return searchIndex;
+}
+$('#q').addEventListener('input', e=>{
+  const v = e.target.value.trim().toLowerCase();
+  if(!v){ showPage(routeIdFromHash()); return; }
+  buildSearchIndex();
+  const hits = searchIndex.filter(p=>p.text.toLowerCase().includes(v)).slice(0,20);
+  const label = id => id.startsWith('chapter/')? ('章节：'+manifestChTitle(id.split('/')[1])) : id.startsWith('concept/')? ('概念：'+id.split('/')[1]) : id;
+  $('#view').innerHTML = '<h1>搜索结果：'+esc(v)+'</h1>' +
+    (hits.length? hits.map(h=>`<div class="search-hit"><a href="#/${h.id}">${esc(label(h.id))}</a><br><span class="sub">${esc(h.text.slice(0,180))}</span></div>`).join('')
+                 : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
+});
+
+/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+function renderMermaid(){
+  if(!document.querySelector('.mermaid')) return;
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+  s.onload=()=>{ try{
+    mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
+    document.querySelectorAll('.mermaid').forEach(el=>{
+      const code=el.textContent;
+      mermaid.render('mm'+Math.random().toString(36).slice(2), code)
+        .then(({svg})=>{ el.innerHTML=svg; })
+        .catch(()=>{ el.textContent=code; });
+    });
+  }catch(e){} };
+  document.head.appendChild(s);
+}
+
+/* ---------- 深色模式 ---------- */
+const themeBtn=$('#theme-btn');
+themeBtn.onclick=()=>{
+  const d = document.body.dataset.theme==='dark';
+  document.body.dataset.theme = d? '' : 'dark';
+  themeBtn.textContent = d? '🌙 深色' : '☀️ 浅色';
+};
+
+/* ---------- 启动 ---------- */
+renderNav();
+window.addEventListener('hashchange', ()=>showPage(routeIdFromHash()));
+(function(){
+  const sb=document.querySelector('.sidebar'); if(!sb) return;
+  const btn=document.createElement('button'); btn.id='nav-toggle'; btn.textContent='目录（点开选择章节）';
+  btn.onclick=()=>sb.classList.toggle('open');
+  sb.insertBefore(btn, sb.querySelector('#nav'));
+  window.addEventListener('hashchange',()=>{ if(window.innerWidth<=760) sb.classList.remove('open'); });
+})();
+showPage(routeIdFromHash());
+</script>
+</body>
+</html>

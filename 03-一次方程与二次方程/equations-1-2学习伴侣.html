@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一次方程与二次方程</title>
+<style>
+:root{
+  --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
+  --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
+  --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+}
+[data-theme="dark"]{
+  --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
+  --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
+  --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:290px;flex:none;background:var(--panel);border-right:1px solid var(--border);
+  padding:14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h1{font-size:17px;margin:2px 0 2px}
+.sidebar .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+#q{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+.nav-sec{font-size:12px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.4px}
+.nav-item{display:block;padding:5px 10px;border-radius:6px;color:var(--text);font-size:14px}
+.nav-item:hover{background:var(--accent-soft);text-decoration:none}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav-item .done{float:right;color:var(--ok);font-size:12px}
+#nav-toggle{display:none}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
+.page h2{font-size:20px;margin-top:26px}
+.page h3{font-size:17px;margin-top:22px}
+.page table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+.page th,.page td{border:1px solid var(--border);padding:6px 10px;text-align:left}
+.page th{background:var(--code-bg)}
+.page code{background:var(--code-bg);padding:2px 5px;border-radius:4px;font-size:.9em}
+.page pre{background:var(--code-bg);padding:12px;border-radius:8px;overflow-x:auto;font-size:13px}
+.page pre code{background:none;padding:0}
+.page blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:6px 14px;background:var(--accent-soft);border-radius:0 6px 6px 0}
+.page blockquote blockquote{border-color:var(--muted)}
+.page img{max-width:100%}
+.mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
+.mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
+svg{max-width:100%;height:auto}
+.quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
+.quiz-q{margin:0 0 8px;font-weight:500}
+.quiz-opts label{display:block;padding:4px 0;cursor:pointer}
+.quiz-blank{width:60%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text)}
+.quiz-check{margin-top:10px;padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}
+.quiz-feedback{margin-left:12px;font-size:13px}
+.fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
+.quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
+.fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
+.flashcard.flip .fc-inner{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;
+  padding:22px;border-radius:14px;border:1px solid var(--border);background:var(--panel);font-size:16px;text-align:center}
+.fc-back{transform:rotateY(180deg);background:var(--accent-soft);color:var(--text)}
+.card-controls{display:flex;gap:14px;align-items:center;margin:12px 0;flex-wrap:wrap}
+.card-actions{display:flex;gap:12px;justify-content:center}
+.card-actions button{padding:8px 22px;border:none;border-radius:8px;cursor:pointer;font-size:14px}
+#card-known-btn{background:var(--ok);color:#fff}
+#card-again-btn{background:var(--bad);color:#fff}
+.card-counts{color:var(--muted);font-size:13px}
+.path-step{margin:8px 0;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+.path-step.passed{border-color:var(--ok)}
+#glossary-filter{width:100%;max-width:380px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);margin-bottom:10px}
+#glossary-list li{padding:6px 0;border-bottom:1px dashed var(--border)}
+.glossary-ref{color:var(--muted);font-size:12px}
+.search-hit{margin:10px 0}
+.topbar{position:sticky;top:0;background:var(--bg);padding:8px 0;display:flex;justify-content:flex-end;z-index:10}
+#theme-btn{border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:8px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+#progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
+#progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
+.empty{color:var(--muted);padding:20px 0}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+@media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
+  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
+  .layout{flex-direction:column}.main{padding:16px}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h1>一次方程与二次方程</h1>
+    <div class="sub">把未知当已知用：从移项到求根公式</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div class="sub" id="progress-label">进度 0%</div>
+    <input id="q" type="search" placeholder="搜索章节 / 概念 / 术语 / 全文…">
+    <nav id="nav"></nav>
+  </aside>
+  <main class="main">
+    <div class="topbar"><button id="theme-btn">🌙 深色</button></div>
+    <div id="view" class="page"></div>
+  </main>
+</div>
+<script>
+const DATA = {"manifest": {"slug": "equations-1-2", "title": "一次方程与二次方程", "subtitle": "把未知当已知用：从移项到求根公式", "book": {"title": "一次方程与二次方程", "author": "王厚纯 张凤韬", "source": ["数学基础知识丛书-03-一次方程与二次方程 王厚纯 张凤韬.pdf"]}, "audience": "零基础", "goal": "会用同解变形解一次方程与一次方程组，能自己推出二次方程求根公式并用判别式、韦达定理判断根的情况。", "learningPath": [{"step": "01", "title": "一元一次方程", "chapterIds": ["ch01"], "checkpoint": "能讨论 ax+b=0 的三种解情形"}, {"step": "02", "title": "一次方程组", "chapterIds": ["ch02"], "checkpoint": "能用加减消元解三元方程组"}, {"step": "03", "title": "一元二次方程", "chapterIds": ["ch03"], "checkpoint": "能默写求根公式并用判别式判断根"}, {"step": "04", "title": "二次方程组与可化归方程", "chapterIds": ["ch04"], "checkpoint": "能消元解二次方程组并验根"}], "chapters": [{"id": "ch01", "title": "第 1 章：一元一次方程", "file": "chapters/ch01-linear-equation.md", "difficulty": 1}, {"id": "ch02", "title": "第 2 章：一次方程组", "file": "chapters/ch02-linear-systems.md", "difficulty": 2}, {"id": "ch03", "title": "第 3 章：一元二次方程", "file": "chapters/ch03-quadratic-equation.md", "difficulty": 3}, {"id": "ch04", "title": "第 4 章：二次方程组与可化归方程", "file": "chapters/ch04-reducible.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "同解变形", "file": "concepts/c01-equivalent-transform.md", "chapterIds": ["ch01", "ch04"]}, {"id": "c02", "title": "判别式与韦达定理", "file": "concepts/c02-discriminant-vieta.md", "chapterIds": ["ch03"]}], "glossary": [{"term": "方程", "def": "含未知数的等式，使等式成立的未知数值叫解。", "chapterId": "ch01"}, {"term": "移项", "def": "把项从等式一边移到另一边并变号，本质是两边同加相反数。", "chapterId": "ch01"}, {"term": "消元", "def": "通过代入或加减，减少方程组中未知数的个数。", "chapterId": "ch02"}, {"term": "配方", "def": "把二次式改写成完全平方加常数的形式。", "chapterId": "ch03"}, {"term": "判别式", "def": "Δ=b²−4ac，判断二次方程实根个数。", "chapterId": "ch03"}, {"term": "韦达定理", "def": "两根之和为 −b/a，两根之积为 c/a。", "chapterId": "ch03"}, {"term": "换元", "def": "用一个新变量替换原式中的某部分，达到降次或简化。", "chapterId": "ch04"}, {"term": "增根", "def": "变形后产生、但不满足原方程的解。", "chapterId": "ch04"}, {"term": "验根", "def": "把候选解代回原方程，排除增根。", "chapterId": "ch04"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "方程 2(x−1)=x+3 的解是：", "options": ["x=1", "x=5", "x=3", "x=−5"], "answer": 1, "explain": "展开 2x−2=x+3，移项得 x=5。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "关于 x 的方程 ax=b，下列说法正确的是：", "options": ["一定有唯一解 x=b/a", "a=0 时一定无解", "a=0 且 b=0 时任意 x 都是解", "a=0 且 b≠0 时有无穷多解"], "answer": 2, "explain": "a≠0 时唯一解；a=0、b≠0 无解；a=0、b=0 时恒成立，任意解。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "方程组 x+y=7，x−y=1 的解是：", "options": ["x=4，y=3", "x=3，y=4", "x=5，y=2", "x=6，y=1"], "answer": 0, "explain": "两式相加 2x=8 得 x=4，代回得 y=3。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "消元后出现 0=5 这样的式子，说明方程组：", "options": ["有唯一解", "有无穷多解", "无解", "解为正数"], "answer": 2, "explain": "0=5 是矛盾式，说明不存在同时满足所有方程的解，即无解。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "方程 x²−5x+6=0 的两根是：", "options": ["2 和 3", "−2 和 −3", "1 和 6", "−1 和 −6"], "answer": 0, "explain": "因式分解 (x−2)(x−3)=0，或用公式：Δ=1，x=(5±1)/2。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "方程 x²+2x+5=0 的根的情况是：", "options": ["两个不等实根", "两个相等实根", "没有实根", "无法判断"], "answer": 2, "explain": "Δ=4−20=−16<0，无实根。"}, {"id": "q07", "chapterId": "ch04", "type": "single", "question": "方程 x⁴−5x²+4=0 的实根个数是：", "options": ["2", "3", "4", "0"], "answer": 2, "explain": "设 t=x²：t²−5t+4=0 得 t=1 或 4，均非负，故 x=±1、±2，共 4 个实根。"}, {"id": "q08", "chapterId": "ch04", "type": "single", "question": "解分式方程时，验根的目的是：", "options": ["检查计算是否正确", "排除使分母为零的增根", "确认解是正数", "检查是否为整数"], "answer": 1, "explain": "去分母时乘了含未知数的式子，可能引入使分母为零的根，必须代回原方程排除。"}, {"id": "q09", "chapterId": "__all__", "type": "single", "question": "方程 x²−2x−8=0 的两根之和与两根之积分别是：", "options": ["2 和 −8", "−2 和 −8", "2 和 8", "−2 和 8"], "answer": 0, "explain": "a=1，b=−2，c=−8：和为 −b/a=2，积为 c/a=−8。"}, {"id": "q10", "chapterId": "__all__", "type": "single", "question": "若关于 x 的方程 kx²+2x+1=0 有两个不相等的实根，则 k 的取值范围是：", "options": ["k<1", "k<1 且 k≠0", "k>1", "k≤1"], "answer": 1, "explain": "二次方程要求 k≠0；两个不等实根要求 Δ=4−4k>0，即 k<1。合起来 k<1 且 k≠0。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：一元一次方程」的一句话核心是什么？", "back": "解方程就是在等式两边同时做同一件事，把未知数一步步孤立出来。", "tags": ["equations-1-2", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：一次方程组」的一句话核心是什么？", "back": "解方程组只有一个策略：消元——把多个未知数一个个消掉，直到只剩一个。", "tags": ["equations-1-2", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：一元二次方程」的一句话核心是什么？", "back": "二次方程靠配方变成“完全平方＝常数”，开方就得到两个根；判别式就是那个常数是否非负。", "tags": ["equations-1-2", "核心"]}, {"id": "f04", "chapterId": "ch04", "front": "「第 4 章：二次方程组与可化归方程」的一句话核心是什么？", "back": "遇到高次或复杂方程，先想办法降次或消元；化归之后必须回代验根，因为变形可能扩大定义域。", "tags": ["equations-1-2", "核心"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「方程」？", "back": "含未知数的等式，使等式成立的未知数值叫解。", "tags": ["equations-1-2", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「移项」？", "back": "把项从等式一边移到另一边并变号，本质是两边同加相反数。", "tags": ["equations-1-2", "术语"]}, {"id": "f07", "chapterId": "ch02", "front": "什么是「消元」？", "back": "通过代入或加减，减少方程组中未知数的个数。", "tags": ["equations-1-2", "术语"]}, {"id": "f08", "chapterId": "ch03", "front": "什么是「配方」？", "back": "把二次式改写成完全平方加常数的形式。", "tags": ["equations-1-2", "术语"]}, {"id": "f09", "chapterId": "ch03", "front": "什么是「判别式」？", "back": "Δ=b²−4ac，判断二次方程实根个数。", "tags": ["equations-1-2", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「韦达定理」？", "back": "两根之和为 −b/a，两根之积为 c/a。", "tags": ["equations-1-2", "术语"]}, {"id": "f11", "chapterId": "ch04", "front": "什么是「换元」？", "back": "用一个新变量替换原式中的某部分，达到降次或简化。", "tags": ["equations-1-2", "术语"]}, {"id": "f12", "chapterId": "ch04", "front": "什么是「增根」？", "back": "变形后产生、但不满足原方程的解。", "tags": ["equations-1-2", "术语"]}, {"id": "f13", "chapterId": "ch04", "front": "什么是「验根」？", "back": "把候选解代回原方程，排除增根。", "tags": ["equations-1-2", "术语"]}], "companion": "equations-1-2学习伴侣.html", "deriv": "equations-1-2从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：一元一次方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★☆☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：等式性质、四则运算\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用移项、去分母把方程化成 ax=b\n<\/li><li>\n讨论 ax+b=0 的三种解情形\n<\/li><li>\n把应用题翻译成方程\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>解方程就是在等式两边同时做同一件事，把未知数一步步孤立出来。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 等式只有两条性质<\/h3>\n<ol><li>\n两边同加（或同减）同一个数，等式仍成立；\n<\/li><li>\n两边同乘（或同除以）同一个<strong>不为零<\/strong>的数，等式仍成立。\n<\/ol>\n<p>所有变形都由这两条推出，没有第三条。<\/p>\n<h3>1.2 移项就是两边同加相反数<\/h3>\n<p>由 x+3=7，两边同加 −3，得 x=4。习惯上把这一步叫“移项变号”——它其实不是“把项搬过去”，而是两边同时加了一个数。<\/p>\n<h3>1.3 去分母就是两边同乘公倍数<\/h3>\n<p>方程 (x/2)+(x/3)=5，两边同乘 6，得 3x+2x=30。乘以的是分母的最小公倍数，每一项都要乘，不能漏掉不含分母的项。<\/p>\n<h3>1.4 ax+b=0 的三种结局<\/h3>\n<p>化成 ax=−b 后：<\/p>\n<ul><li>\na≠0：唯一解 x=−b/a；\n<\/li><li>\na=0 且 b≠0：0=−b 不成立，无解；\n<\/li><li>\na=0 且 b=0：0=0 恒成立，任意 x 都是解。\n<\/ul>\n<p>讨论参数时必须把这三种都说到，只写 x=−b/a 是不完整的。<\/p>\n<h3>1.5 应用题的四步<\/h3>\n<p>设未知数 → 找等量关系 → 列方程 → 解并回到原题检验（单位、范围是否合理）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：方程像一架天平，两边同时加同样的砝码、同时减半，平衡都不会破。<\/p>\n<p><strong>失效边界<\/strong>：两边不能同乘 0，否则任何等式都变成 0=0，信息全丢。<\/p>\n<p><strong>实例<\/strong>：某数的 3 倍减去 5 等于它的 2 倍加 7，求这个数。 设该数为 x：3x−5=2x+7，移项得 x=12。检验：3×12−5=31，2×12+7=31。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 移项就是把项从一边搬到另一边 —— 实际上 本质是两边同加相反数；只记“搬过去变号”容易在乘除时用错规则。\n<\/li><li>\n别以为 方程两边可以同时除以任何式子 —— 实际上 除数必须不为零；含未知数的除式要先确认它不等于零。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n方程 2(x−1)=x+3 的解是：\n<\/li><li>\n关于 x 的方程 ax=b，下列说法正确的是：\n<p>A. x=1 ｜ B. x=5 ｜ C. x=3 ｜ D. x=−5 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：展开 2x−2=x+3，移项得 x=5。 A. 一定有唯一解 x=b/a ｜ B. a=0 时一定无解 ｜ C. a=0 且 b=0 时任意 x 都是解 ｜ D. a=0 且 b≠0 时有无穷多解 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：a≠0 时唯一解；a=0、b≠0 无解；a=0、b=0 时恒成立，任意解。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n等式两条性质是所有变形的来源\n<\/li><li>\n移项＝两边同加相反数；去分母＝两边同乘公倍数\n<\/li><li>\nax=b 要按 a 是否为 0 分情形讨论\n<\/ul>", "kind": "chapter", "title": "第 1 章：一元一次方程"}, "ch02": {"html": "<h1>第 2 章：一次方程组<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用代入消元与加减消元把方程组化成一元方程\n<\/li><li>\n处理三元一次方程组\n<\/li><li>\n判断方程组无解或有无穷多解\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>解方程组只有一个策略：消元——把多个未知数一个个消掉，直到只剩一个。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 代入消元<\/h3>\n<p>从一个方程里解出一个未知数，代入另一个方程。例：<\/p>\n<p>x+y=5，2x−y=1。由第一式 y=5−x，代入第二式得 2x−(5−x)=1，即 3x=6，x=2，y=3。<\/p>\n<h3>2.2 加减消元<\/h3>\n<p>把两个方程适当相乘，使某个未知数的系数相等或互为相反数，再相减或相加。<\/p>\n<p>2x+3y=12，4x−3y=6。两式相加得 6x=18，x=3，回代得 y=2。<\/p>\n<h3>2.3 三元方程组<\/h3>\n<p>先用两个方程消去同一个未知数，得到一个新的二元方程组，再解二元，最后回代求第三个未知数。消元时要固定消同一个字母，否则会绕回原处。<\/p>\n<h3>2.4 解的三种情形<\/h3>\n<p>把方程组化成阶梯形后看最后一行：<\/p>\n<ul><li>\n出现 0=非零数：无解（两直线平行或平面平行）；\n<\/li><li>\n出现 0=0：有无穷多解，需用参数表示；\n<\/li><li>\n其余：唯一解。\n<\/ul>\n<p>几何上，二元一次方程组的两条直线相交、平行、重合，正好对应这三种情形。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：消元像“逐个清点”：先确定一个人数，再据此算其他人，不必同时猜所有人。<\/p>\n<p><strong>失效边界<\/strong>：消元时若把两个方程乘的倍数搞错，会得到与原方程组不同解的方程，必须每步都保持等价。<\/p>\n<p><strong>实例<\/strong>：解 3x+2y=12，x−y=1。 由第二式 x=1+y，代入第一式 3(1+y)+2y=12 ⇒ 5y=9 ⇒ y=9/5，x=14/5。检验：3×14/5+2×9/5=42/5+18/5=60/5=12。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 两个方程相加后可以随便取一个原方程组合成新方程组 —— 实际上 相加减必须保持等价，最好固定保留一个原方程，另一式用加减结果替换。\n<\/li><li>\n别以为 三元方程组一定有三个解 —— 实际上 未知数个数不等于解的个数；可能是唯一解、无解或无穷多解。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n方程组 x+y=7，x−y=1 的解是：\n<\/li><li>\n消元后出现 0=5 这样的式子，说明方程组：\n<p>A. x=4，y=3 ｜ B. x=3，y=4 ｜ C. x=5，y=2 ｜ D. x=6，y=1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：两式相加 2x=8 得 x=4，代回得 y=3。 A. 有唯一解 ｜ B. 有无穷多解 ｜ C. 无解 ｜ D. 解为正数 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：0=5 是矛盾式，说明不存在同时满足所有方程的解，即无解。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n代入消元与加减消元本质都是消去未知数\n<\/li><li>\n三元要先化成二元，固定消同一字母\n<\/li><li>\n0=非零数 ⇒ 无解；0=0 ⇒ 无穷多解\n<\/ul>", "kind": "chapter", "title": "第 2 章：一次方程组"}, "ch03": {"html": "<h1>第 3 章：一元二次方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02、配方、开方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用配方法推出求根公式\n<\/li><li>\n用判别式判断根的个数与类型\n<\/li><li>\n用韦达定理求两根之和、之积\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>二次方程靠配方变成“完全平方＝常数”，开方就得到两个根；判别式就是那个常数是否非负。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 配方的思路<\/h3>\n<p>ax²+bx+c=0（a≠0）。两边除以 a：<\/p>\n<p>x²+(b/a)x+(c/a)=0<\/p>\n<p>把前两项配成完全平方：<\/p>\n<p>(x+b/2a)² = (b²−4ac)/(4a²)<\/p>\n<p>右边是一个确定的数，开方即可。<\/p>\n<h3>3.2 求根公式<\/h3>\n<p>由上式得<\/p>\n<p>x = (−b ± √(b²−4ac)) / (2a)<\/p>\n<p>这就是求根公式。推导只有两步：配方、开方；记不住公式时，现场推一遍比背更可靠。<\/p>\n<h3>3.3 判别式<\/h3>\n<p>记 Δ=b²−4ac：<\/p>\n<ul><li>\nΔ&gt;0：两个不相等的实根；\n<\/li><li>\nΔ=0：两个相等的实根（重根）；\n<\/li><li>\nΔ&lt;0：没有实根（在实数范围内无解）。\n<\/ul>\n<p>判别式只判断“有没有、几个”，不给出具体值。<\/p>\n<h3>3.4 韦达定理<\/h3>\n<p>若 x₁、x₂ 是两根，则<\/p>\n<p>x₁+x₂=−b/a，x₁x₂=c/a<\/p>\n<p>由此可以把二次式写成 a(x−x₁)(x−x₂)，这是后面因式分解与降次的依据。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：配方像把一块不规则的地补成一个正方形——补上的那部分正好是 (b/2a)²。<\/p>\n<p><strong>失效边界<\/strong>：配方只在 a≠0 时可行；a=0 时方程退化为一次，没有两个根。<\/p>\n<p><strong>实例<\/strong>：解 2x²−4x−6=0。 两边除以 2：x²−2x−3=0，配方 (x−1)²=4，开方 x−1=±2，得 x=3 或 x=−1。 用韦达检验：和 3+(−1)=2=−b/a=2；积 3×(−1)=−3=c/a=−3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 Δ&lt;0 时方程没有解 —— 实际上 在实数范围内无解；在复数范围内仍有两个根。说“无解”要说明数域。\n<\/li><li>\n别以为 韦达定理只适用于两根都是正数的情况 —— 实际上 对任意实根（包括负数、重根）都成立，只要求 a≠0。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n方程 x²−5x+6=0 的两根是：\n<\/li><li>\n方程 x²+2x+5=0 的根的情况是：\n<p>A. 2 和 3 ｜ B. −2 和 −3 ｜ C. 1 和 6 ｜ D. −1 和 −6 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：因式分解 (x−2)(x−3)=0，或用公式：Δ=1，x=(5±1)/2。 A. 两个不等实根 ｜ B. 两个相等实根 ｜ C. 没有实根 ｜ D. 无法判断 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：Δ=4−20=−16&lt;0，无实根。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n配方 → 开方 → 求根公式\n<\/li><li>\nΔ&gt;0 两不等实根，Δ=0 重根，Δ&lt;0 无实根\n<\/li><li>\n韦达：和 −b/a，积 c/a\n<\/ul>", "kind": "chapter", "title": "第 3 章：一元二次方程"}, "ch04": {"html": "<h1>第 4 章：二次方程组与可化归方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch03\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用代入消元解二元二次方程组\n<\/li><li>\n识别双二次方程并用换元降次\n<\/li><li>\n解分式方程、无理方程并验根\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>遇到高次或复杂方程，先想办法降次或消元；化归之后必须回代验根，因为变形可能扩大定义域。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>4.1 二元二次方程组<\/h3>\n<p>常见两类：<\/p>\n<ul><li>\n一个二次、一个一次：由一次式解出一个未知数，代入二次式，得到一元二次方程；\n<\/li><li>\n两个都是二次：若有一式可因式分解成两个一次式，就拆成两组一次方程组分别解。\n<\/ul>\n<h3>4.2 双二次方程<\/h3>\n<p>形如 ax⁴+bx²+c=0。设 t=x²，得 at²+bt+c=0；解出 t 后要求 t≥0，再开方得到 x。<\/p>\n<p>注意：解出的 t 若为负，对应的 x 没有实解，必须舍去。<\/p>\n<h3>4.3 分式方程<\/h3>\n<p>两边同乘最简公分母，化成整式方程。<strong>乘的式子可能为零<\/strong>，所以必须验根：把解代回原方程，分母为零的就是增根，要舍去。<\/p>\n<h3>4.4 无理方程<\/h3>\n<p>把含根号的项单独留在一边，两边平方。平方可能引入不满足原式的解，同样必须验根。<\/p>\n<h3>4.5 化归的通用流程<\/h3>\n<p>识别结构（二次／双二次／分式／无理）→ 选择变形（消元、换元、去分母、平方）→ 解出候选根 → 回代验根 → 写出解集。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：化归像换一条更好走的路到同一个目的地，但换路后要核对地址有没有变。<\/p>\n<p><strong>失效边界<\/strong>：平方与去分母都会扩大定义域，不做验根就可能把“假解”写进答案。<\/p>\n<p><strong>实例<\/strong>：解 √(x+1)=x−1。 两边平方：x+1=x²−2x+1 ⇒ x²−3x=0 ⇒ x=0 或 x=3。 验根：x=0 时左边 1、右边 −1，不成立；x=3 时左边 2、右边 2，成立。所以只有 x=3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 平方后解出的根都是原方程的解 —— 实际上 平方会把负数变成正数，可能产生不满足原式的根，必须验根。\n<\/li><li>\n别以为 双二次方程解出 t 就可以直接写四个根 —— 实际上 t&lt;0 时 x²=t 无实解，要舍去；只有 t≥0 才能开方。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n方程 x⁴−5x²+4=0 的实根个数是：\n<\/li><li>\n解分式方程时，验根的目的是：\n<p>A. 2 ｜ B. 3 ｜ C. 4 ｜ D. 0 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：设 t=x²：t²−5t+4=0 得 t=1 或 4，均非负，故 x=±1、±2，共 4 个实根。 A. 检查计算是否正确 ｜ B. 排除使分母为零的增根 ｜ C. 确认解是正数 ｜ D. 检查是否为整数 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：去分母时乘了含未知数的式子，可能引入使分母为零的根，必须代回原方程排除。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n二次方程组：一次式代入，或因式分解拆成一次组\n<\/li><li>\n换元降次后要检查新变量的取值范围\n<\/li><li>\n去分母、平方都要验根\n<\/ul>", "kind": "chapter", "title": "第 4 章：二次方程组与可化归方程"}, "c01": {"html": "<h1>同解变形<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch04\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>两边同时做同一件可逆的事，解集不变；做了不可逆的事（平方、去分母），就要验根。<\/p>\n<h2>为什么重要<\/h2>\n<p>整本书所有解法都建立在“变形不改变解集”上；分不清可逆与不可逆，就会写出增根或丢根。<\/p>\n<h2>详解<\/h2>\n<p>可逆变形包括：两边同加同一个数、同乘同一个非零数、移项、合并同类项。不可逆变形包括：两边平方、两边乘含未知数的式子——它们会把解集扩大，需要回代筛选。<\/p>\n<h2>常见误解<\/h2>\n<p>以为“只要按步骤算，答案一定对”。步骤正确不等于解集正确，关键看每步是否可逆。<\/p>\n<h2>相关概念<\/h2>\n<p>等式性质（ch01）、增根（ch04）<\/p>", "kind": "concept", "title": "同解变形"}, "c02": {"html": "<h1>判别式与韦达定理<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>Δ=b²−4ac 决定根的个数，韦达给出两根的和与积。<\/p>\n<h2>为什么重要<\/h2>\n<p>不解方程就能判断根的情况、求对称式的值，是二次方程最实用的两条结论。<\/p>\n<h2>详解<\/h2>\n<p>判别式来自配方后右边的符号：右边非负才有实根。韦达定理由求根公式相加、相乘得到，对重根也成立。两者结合可以反求系数、判断根的正负。<\/p>\n<h2>常见误解<\/h2>\n<p>把 Δ 当成“解的大小”；它只说明根的存在与个数，不给出数值。<\/p>\n<h2>相关概念<\/h2>\n<p>求根公式（ch03）、因式分解（ch03）<\/p>", "kind": "concept", "title": "判别式与韦达定理"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：一元一次方程<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：一元一次方程<\/a><br>检查点：能讨论 ax+b=0 的三种解情形<\/li><li class='path-step' id='path-02'><strong>步骤 02：一次方程组<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：一次方程组<\/a><br>检查点：能用加减消元解三元方程组<\/li><li class='path-step' id='path-03'><strong>步骤 03：一元二次方程<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：一元二次方程<\/a><br>检查点：能默写求根公式并用判别式判断根<\/li><li class='path-step' id='path-04'><strong>步骤 04：二次方程组与可化归方程<\/strong><br>阅读：<a href=\"#/chapter/ch04\">第 4 章：二次方程组与可化归方程<\/a><br>检查点：能消元解二次方程组并验根<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q09' data-type='single'><p class='quiz-q'><b>Q9.<\/b> 方程 x²−2x−8=0 的两根之和与两根之积分别是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q09' value='0'> 2 和 −8<\/label><label class='quiz-opt'><input type='radio' name='q09' value='1'> −2 和 −8<\/label><label class='quiz-opt'><input type='radio' name='q09' value='2'> 2 和 8<\/label><label class='quiz-opt'><input type='radio' name='q09' value='3'> −2 和 8<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q10' data-type='single'><p class='quiz-q'><b>Q10.<\/b> 若关于 x 的方程 kx²+2x+1=0 有两个不相等的实根，则 k 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q10' value='0'> k&lt;1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='1'> k&lt;1 且 k≠0<\/label><label class='quiz-opt'><input type='radio' name='q10' value='2'> k&gt;1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='3'> k≤1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：一元一次方程<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 方程 2(x−1)=x+3 的解是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> x=1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> x=5<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> x=3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> x=−5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 关于 x 的方程 ax=b，下列说法正确的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 一定有唯一解 x=b/a<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> a=0 时一定无解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> a=0 且 b=0 时任意 x 都是解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> a=0 且 b≠0 时有无穷多解<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：一次方程组<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 方程组 x+y=7，x−y=1 的解是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> x=4，y=3<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x=3，y=4<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> x=5，y=2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x=6，y=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 消元后出现 0=5 这样的式子，说明方程组：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 有唯一解<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 有无穷多解<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 无解<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 解为正数<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：一元二次方程<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 方程 x²−5x+6=0 的两根是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 2 和 3<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> −2 和 −3<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 1 和 6<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> −1 和 −6<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 方程 x²+2x+5=0 的根的情况是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 两个不等实根<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 两个相等实根<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 没有实根<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 无法判断<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch04__": {"html": "<h1>测验：第 4 章：二次方程组与可化归方程<\/h1><div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 方程 x⁴−5x²+4=0 的实根个数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 解分式方程时，验根的目的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 检查计算是否正确<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 排除使分母为零的增根<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 确认解是正数<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 检查是否为整数<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='方程'>方程 — 含未知数的等式，使等式成立的未知数值叫解。 <span class=glossary-ref>（第 1 章：一元一次方程）<\/span><\/li><li data-term='移项'>移项 — 把项从等式一边移到另一边并变号，本质是两边同加相反数。 <span class=glossary-ref>（第 1 章：一元一次方程）<\/span><\/li><li data-term='消元'>消元 — 通过代入或加减，减少方程组中未知数的个数。 <span class=glossary-ref>（第 2 章：一次方程组）<\/span><\/li><li data-term='配方'>配方 — 把二次式改写成完全平方加常数的形式。 <span class=glossary-ref>（第 3 章：一元二次方程）<\/span><\/li><li data-term='判别式'>判别式 — Δ=b²−4ac，判断二次方程实根个数。 <span class=glossary-ref>（第 3 章：一元二次方程）<\/span><\/li><li data-term='韦达定理'>韦达定理 — 两根之和为 −b/a，两根之积为 c/a。 <span class=glossary-ref>（第 3 章：一元二次方程）<\/span><\/li><li data-term='换元'>换元 — 用一个新变量替换原式中的某部分，达到降次或简化。 <span class=glossary-ref>（第 4 章：二次方程组与可化归方程）<\/span><\/li><li data-term='增根'>增根 — 变形后产生、但不满足原方程的解。 <span class=glossary-ref>（第 4 章：二次方程组与可化归方程）<\/span><\/li><li data-term='验根'>验根 — 把候选解代回原方程，排除增根。 <span class=glossary-ref>（第 4 章：二次方程组与可化归方程）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：解方程的四步<\/h2>\n<p>① 识别类型；② 选变形（移项／消元／配方／换元／去分母／平方）；③ 解出候选根；④ 回代验证（所有不可逆变形都要验）。<\/p>\n<h2>框架：参数讨论<\/h2>\n<p>含参数的方程先化成标准形，再按“最高次项系数是否为零”“判别式符号”分支讨论，不能默认唯一解。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>一元一次<\/td><td>ax+b=0：a≠0 时 x=−b/a；a=0、b≠0 无解；a=0、b=0 任意解<\/td><\/tr><tr><td>求根公式<\/td><td>x=(−b±√(b²−4ac))/(2a)<\/td><\/tr><tr><td>判别式<\/td><td>Δ&gt;0 两不等实根；Δ=0 重根；Δ&lt;0 无实根<\/td><\/tr><tr><td>韦达定理<\/td><td>x₁+x₂=−b/a；x₁x₂=c/a<\/td><\/tr><tr><td>双二次<\/td><td>设 t=x²，解出 t 后要求 t≥0<\/td><\/tr><tr><td>分式方程<\/td><td>去分母 → 解整式方程 → 验根（排除分母为零）<\/td><\/tr><tr><td>无理方程<\/td><td>孤立根号 → 两边平方 → 验根<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/03-一次方程与二次方程", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：一元一次方程", "href": "#/chapter/ch01"}, {"label": "第 2 章：一次方程组", "href": "#/chapter/ch02"}, {"label": "第 3 章：一元二次方程", "href": "#/chapter/ch03"}, {"label": "第 4 章：二次方程组与可化归方程", "href": "#/chapter/ch04"}]}, {"label": "概念", "children": [{"label": "同解变形", "href": "#/concept/c01"}, {"label": "判别式与韦达定理", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：一元一次方程", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：一次方程组", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：一元二次方程", "href": "#/quiz/ch03"}, {"label": "测验：第 4 章：二次方程组与可化归方程", "href": "#/quiz/ch04"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：一元一次方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★☆☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：等式性质、四则运算\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用移项、去分母把方程化成 ax=b\n<\/li><li>\n讨论 ax+b=0 的三种解情形\n<\/li><li>\n把应用题翻译成方程\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>解方程就是在等式两边同时做同一件事，把未知数一步步孤立出来。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 等式只有两条性质<\/h3>\n<ol><li>\n两边同加（或同减）同一个数，等式仍成立；\n<\/li><li>\n两边同乘（或同除以）同一个<strong>不为零<\/strong>的数，等式仍成立。\n<\/ol>\n<p>所有变形都由这两条推出，没有第三条。<\/p>\n<h3>1.2 移项就是两边同加相反数<\/h3>\n<p>由 x+3=7，两边同加 −3，得 x=4。习惯上把这一步叫“移项变号”——它其实不是“把项搬过去”，而是两边同时加了一个数。<\/p>\n<h3>1.3 去分母就是两边同乘公倍数<\/h3>\n<p>方程 (x/2)+(x/3)=5，两边同乘 6，得 3x+2x=30。乘以的是分母的最小公倍数，每一项都要乘，不能漏掉不含分母的项。<\/p>\n<h3>1.4 ax+b=0 的三种结局<\/h3>\n<p>化成 ax=−b 后：<\/p>\n<ul><li>\na≠0：唯一解 x=−b/a；\n<\/li><li>\na=0 且 b≠0：0=−b 不成立，无解；\n<\/li><li>\na=0 且 b=0：0=0 恒成立，任意 x 都是解。\n<\/ul>\n<p>讨论参数时必须把这三种都说到，只写 x=−b/a 是不完整的。<\/p>\n<h3>1.5 应用题的四步<\/h3>\n<p>设未知数 → 找等量关系 → 列方程 → 解并回到原题检验（单位、范围是否合理）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：方程像一架天平，两边同时加同样的砝码、同时减半，平衡都不会破。<\/p>\n<p><strong>失效边界<\/strong>：两边不能同乘 0，否则任何等式都变成 0=0，信息全丢。<\/p>\n<p><strong>实例<\/strong>：某数的 3 倍减去 5 等于它的 2 倍加 7，求这个数。 设该数为 x：3x−5=2x+7，移项得 x=12。检验：3×12−5=31，2×12+7=31。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 移项就是把项从一边搬到另一边 —— 实际上 本质是两边同加相反数；只记“搬过去变号”容易在乘除时用错规则。\n<\/li><li>\n别以为 方程两边可以同时除以任何式子 —— 实际上 除数必须不为零；含未知数的除式要先确认它不等于零。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n方程 2(x−1)=x+3 的解是：\n<\/li><li>\n关于 x 的方程 ax=b，下列说法正确的是：\n<p>A. x=1 ｜ B. x=5 ｜ C. x=3 ｜ D. x=−5 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：展开 2x−2=x+3，移项得 x=5。 A. 一定有唯一解 x=b/a ｜ B. a=0 时一定无解 ｜ C. a=0 且 b=0 时任意 x 都是解 ｜ D. a=0 且 b≠0 时有无穷多解 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：a≠0 时唯一解；a=0、b≠0 无解；a=0、b=0 时恒成立，任意解。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n等式两条性质是所有变形的来源\n<\/li><li>\n移项＝两边同加相反数；去分母＝两边同乘公倍数\n<\/li><li>\nax=b 要按 a 是否为 0 分情形讨论\n<\/ul>", "ch02": "<h1>第 2 章：一次方程组<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用代入消元与加减消元把方程组化成一元方程\n<\/li><li>\n处理三元一次方程组\n<\/li><li>\n判断方程组无解或有无穷多解\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>解方程组只有一个策略：消元——把多个未知数一个个消掉，直到只剩一个。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 代入消元<\/h3>\n<p>从一个方程里解出一个未知数，代入另一个方程。例：<\/p>\n<p>x+y=5，2x−y=1。由第一式 y=5−x，代入第二式得 2x−(5−x)=1，即 3x=6，x=2，y=3。<\/p>\n<h3>2.2 加减消元<\/h3>\n<p>把两个方程适当相乘，使某个未知数的系数相等或互为相反数，再相减或相加。<\/p>\n<p>2x+3y=12，4x−3y=6。两式相加得 6x=18，x=3，回代得 y=2。<\/p>\n<h3>2.3 三元方程组<\/h3>\n<p>先用两个方程消去同一个未知数，得到一个新的二元方程组，再解二元，最后回代求第三个未知数。消元时要固定消同一个字母，否则会绕回原处。<\/p>\n<h3>2.4 解的三种情形<\/h3>\n<p>把方程组化成阶梯形后看最后一行：<\/p>\n<ul><li>\n出现 0=非零数：无解（两直线平行或平面平行）；\n<\/li><li>\n出现 0=0：有无穷多解，需用参数表示；\n<\/li><li>\n其余：唯一解。\n<\/ul>\n<p>几何上，二元一次方程组的两条直线相交、平行、重合，正好对应这三种情形。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：消元像“逐个清点”：先确定一个人数，再据此算其他人，不必同时猜所有人。<\/p>\n<p><strong>失效边界<\/strong>：消元时若把两个方程乘的倍数搞错，会得到与原方程组不同解的方程，必须每步都保持等价。<\/p>\n<p><strong>实例<\/strong>：解 3x+2y=12，x−y=1。 由第二式 x=1+y，代入第一式 3(1+y)+2y=12 ⇒ 5y=9 ⇒ y=9/5，x=14/5。检验：3×14/5+2×9/5=42/5+18/5=60/5=12。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 两个方程相加后可以随便取一个原方程组合成新方程组 —— 实际上 相加减必须保持等价，最好固定保留一个原方程，另一式用加减结果替换。\n<\/li><li>\n别以为 三元方程组一定有三个解 —— 实际上 未知数个数不等于解的个数；可能是唯一解、无解或无穷多解。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n方程组 x+y=7，x−y=1 的解是：\n<\/li><li>\n消元后出现 0=5 这样的式子，说明方程组：\n<p>A. x=4，y=3 ｜ B. x=3，y=4 ｜ C. x=5，y=2 ｜ D. x=6，y=1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：两式相加 2x=8 得 x=4，代回得 y=3。 A. 有唯一解 ｜ B. 有无穷多解 ｜ C. 无解 ｜ D. 解为正数 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：0=5 是矛盾式，说明不存在同时满足所有方程的解，即无解。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n代入消元与加减消元本质都是消去未知数\n<\/li><li>\n三元要先化成二元，固定消同一字母\n<\/li><li>\n0=非零数 ⇒ 无解；0=0 ⇒ 无穷多解\n<\/ul>", "ch03": "<h1>第 3 章：一元二次方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02、配方、开方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用配方法推出求根公式\n<\/li><li>\n用判别式判断根的个数与类型\n<\/li><li>\n用韦达定理求两根之和、之积\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>二次方程靠配方变成“完全平方＝常数”，开方就得到两个根；判别式就是那个常数是否非负。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 配方的思路<\/h3>\n<p>ax²+bx+c=0（a≠0）。两边除以 a：<\/p>\n<p>x²+(b/a)x+(c/a)=0<\/p>\n<p>把前两项配成完全平方：<\/p>\n<p>(x+b/2a)² = (b²−4ac)/(4a²)<\/p>\n<p>右边是一个确定的数，开方即可。<\/p>\n<h3>3.2 求根公式<\/h3>\n<p>由上式得<\/p>\n<p>x = (−b ± √(b²−4ac)) / (2a)<\/p>\n<p>这就是求根公式。推导只有两步：配方、开方；记不住公式时，现场推一遍比背更可靠。<\/p>\n<h3>3.3 判别式<\/h3>\n<p>记 Δ=b²−4ac：<\/p>\n<ul><li>\nΔ&gt;0：两个不相等的实根；\n<\/li><li>\nΔ=0：两个相等的实根（重根）；\n<\/li><li>\nΔ&lt;0：没有实根（在实数范围内无解）。\n<\/ul>\n<p>判别式只判断“有没有、几个”，不给出具体值。<\/p>\n<h3>3.4 韦达定理<\/h3>\n<p>若 x₁、x₂ 是两根，则<\/p>\n<p>x₁+x₂=−b/a，x₁x₂=c/a<\/p>\n<p>由此可以把二次式写成 a(x−x₁)(x−x₂)，这是后面因式分解与降次的依据。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：配方像把一块不规则的地补成一个正方形——补上的那部分正好是 (b/2a)²。<\/p>\n<p><strong>失效边界<\/strong>：配方只在 a≠0 时可行；a=0 时方程退化为一次，没有两个根。<\/p>\n<p><strong>实例<\/strong>：解 2x²−4x−6=0。 两边除以 2：x²−2x−3=0，配方 (x−1)²=4，开方 x−1=±2，得 x=3 或 x=−1。 用韦达检验：和 3+(−1)=2=−b/a=2；积 3×(−1)=−3=c/a=−3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 Δ&lt;0 时方程没有解 —— 实际上 在实数范围内无解；在复数范围内仍有两个根。说“无解”要说明数域。\n<\/li><li>\n别以为 韦达定理只适用于两根都是正数的情况 —— 实际上 对任意实根（包括负数、重根）都成立，只要求 a≠0。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n方程 x²−5x+6=0 的两根是：\n<\/li><li>\n方程 x²+2x+5=0 的根的情况是：\n<p>A. 2 和 3 ｜ B. −2 和 −3 ｜ C. 1 和 6 ｜ D. −1 和 −6 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：因式分解 (x−2)(x−3)=0，或用公式：Δ=1，x=(5±1)/2。 A. 两个不等实根 ｜ B. 两个相等实根 ｜ C. 没有实根 ｜ D. 无法判断 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：Δ=4−20=−16&lt;0，无实根。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n配方 → 开方 → 求根公式\n<\/li><li>\nΔ&gt;0 两不等实根，Δ=0 重根，Δ&lt;0 无实根\n<\/li><li>\n韦达：和 −b/a，积 c/a\n<\/ul>", "ch04": "<h1>第 4 章：二次方程组与可化归方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch03\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用代入消元解二元二次方程组\n<\/li><li>\n识别双二次方程并用换元降次\n<\/li><li>\n解分式方程、无理方程并验根\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>遇到高次或复杂方程，先想办法降次或消元；化归之后必须回代验根，因为变形可能扩大定义域。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>4.1 二元二次方程组<\/h3>\n<p>常见两类：<\/p>\n<ul><li>\n一个二次、一个一次：由一次式解出一个未知数，代入二次式，得到一元二次方程；\n<\/li><li>\n两个都是二次：若有一式可因式分解成两个一次式，就拆成两组一次方程组分别解。\n<\/ul>\n<h3>4.2 双二次方程<\/h3>\n<p>形如 ax⁴+bx²+c=0。设 t=x²，得 at²+bt+c=0；解出 t 后要求 t≥0，再开方得到 x。<\/p>\n<p>注意：解出的 t 若为负，对应的 x 没有实解，必须舍去。<\/p>\n<h3>4.3 分式方程<\/h3>\n<p>两边同乘最简公分母，化成整式方程。<strong>乘的式子可能为零<\/strong>，所以必须验根：把解代回原方程，分母为零的就是增根，要舍去。<\/p>\n<h3>4.4 无理方程<\/h3>\n<p>把含根号的项单独留在一边，两边平方。平方可能引入不满足原式的解，同样必须验根。<\/p>\n<h3>4.5 化归的通用流程<\/h3>\n<p>识别结构（二次／双二次／分式／无理）→ 选择变形（消元、换元、去分母、平方）→ 解出候选根 → 回代验根 → 写出解集。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：化归像换一条更好走的路到同一个目的地，但换路后要核对地址有没有变。<\/p>\n<p><strong>失效边界<\/strong>：平方与去分母都会扩大定义域，不做验根就可能把“假解”写进答案。<\/p>\n<p><strong>实例<\/strong>：解 √(x+1)=x−1。 两边平方：x+1=x²−2x+1 ⇒ x²−3x=0 ⇒ x=0 或 x=3。 验根：x=0 时左边 1、右边 −1，不成立；x=3 时左边 2、右边 2，成立。所以只有 x=3。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 平方后解出的根都是原方程的解 —— 实际上 平方会把负数变成正数，可能产生不满足原式的根，必须验根。\n<\/li><li>\n别以为 双二次方程解出 t 就可以直接写四个根 —— 实际上 t&lt;0 时 x²=t 无实解，要舍去；只有 t≥0 才能开方。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n方程 x⁴−5x²+4=0 的实根个数是：\n<\/li><li>\n解分式方程时，验根的目的是：\n<p>A. 2 ｜ B. 3 ｜ C. 4 ｜ D. 0 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：设 t=x²：t²−5t+4=0 得 t=1 或 4，均非负，故 x=±1、±2，共 4 个实根。 A. 检查计算是否正确 ｜ B. 排除使分母为零的增根 ｜ C. 确认解是正数 ｜ D. 检查是否为整数 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：去分母时乘了含未知数的式子，可能引入使分母为零的根，必须代回原方程排除。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n二次方程组：一次式代入，或因式分解拆成一次组\n<\/li><li>\n换元降次后要检查新变量的取值范围\n<\/li><li>\n去分母、平方都要验根\n<\/ul>", "c01": "<h1>同解变形<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch04\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>两边同时做同一件可逆的事，解集不变；做了不可逆的事（平方、去分母），就要验根。<\/p>\n<h2>为什么重要<\/h2>\n<p>整本书所有解法都建立在“变形不改变解集”上；分不清可逆与不可逆，就会写出增根或丢根。<\/p>\n<h2>详解<\/h2>\n<p>可逆变形包括：两边同加同一个数、同乘同一个非零数、移项、合并同类项。不可逆变形包括：两边平方、两边乘含未知数的式子——它们会把解集扩大，需要回代筛选。<\/p>\n<h2>常见误解<\/h2>\n<p>以为“只要按步骤算，答案一定对”。步骤正确不等于解集正确，关键看每步是否可逆。<\/p>\n<h2>相关概念<\/h2>\n<p>等式性质（ch01）、增根（ch04）<\/p>", "c02": "<h1>判别式与韦达定理<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>Δ=b²−4ac 决定根的个数，韦达给出两根的和与积。<\/p>\n<h2>为什么重要<\/h2>\n<p>不解方程就能判断根的情况、求对称式的值，是二次方程最实用的两条结论。<\/p>\n<h2>详解<\/h2>\n<p>判别式来自配方后右边的符号：右边非负才有实根。韦达定理由求根公式相加、相乘得到，对重根也成立。两者结合可以反求系数、判断根的正负。<\/p>\n<h2>常见误解<\/h2>\n<p>把 Δ 当成“解的大小”；它只说明根的存在与个数，不给出数值。<\/p>\n<h2>相关概念<\/h2>\n<p>求根公式（ch03）、因式分解（ch03）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：一元一次方程<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：一元一次方程<\/a><br>检查点：能讨论 ax+b=0 的三种解情形<\/li><li class='path-step' id='path-02'><strong>步骤 02：一次方程组<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：一次方程组<\/a><br>检查点：能用加减消元解三元方程组<\/li><li class='path-step' id='path-03'><strong>步骤 03：一元二次方程<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：一元二次方程<\/a><br>检查点：能默写求根公式并用判别式判断根<\/li><li class='path-step' id='path-04'><strong>步骤 04：二次方程组与可化归方程<\/strong><br>阅读：<a href=\"#/chapter/ch04\">第 4 章：二次方程组与可化归方程<\/a><br>检查点：能消元解二次方程组并验根<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q09' data-type='single'><p class='quiz-q'><b>Q9.<\/b> 方程 x²−2x−8=0 的两根之和与两根之积分别是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q09' value='0'> 2 和 −8<\/label><label class='quiz-opt'><input type='radio' name='q09' value='1'> −2 和 −8<\/label><label class='quiz-opt'><input type='radio' name='q09' value='2'> 2 和 8<\/label><label class='quiz-opt'><input type='radio' name='q09' value='3'> −2 和 8<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q10' data-type='single'><p class='quiz-q'><b>Q10.<\/b> 若关于 x 的方程 kx²+2x+1=0 有两个不相等的实根，则 k 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q10' value='0'> k&lt;1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='1'> k&lt;1 且 k≠0<\/label><label class='quiz-opt'><input type='radio' name='q10' value='2'> k&gt;1<\/label><label class='quiz-opt'><input type='radio' name='q10' value='3'> k≤1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：一元一次方程<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 方程 2(x−1)=x+3 的解是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> x=1<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> x=5<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> x=3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> x=−5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 关于 x 的方程 ax=b，下列说法正确的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 一定有唯一解 x=b/a<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> a=0 时一定无解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> a=0 且 b=0 时任意 x 都是解<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> a=0 且 b≠0 时有无穷多解<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：一次方程组<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 方程组 x+y=7，x−y=1 的解是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> x=4，y=3<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x=3，y=4<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> x=5，y=2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x=6，y=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 消元后出现 0=5 这样的式子，说明方程组：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 有唯一解<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 有无穷多解<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 无解<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 解为正数<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：一元二次方程<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 方程 x²−5x+6=0 的两根是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 2 和 3<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> −2 和 −3<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 1 和 6<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> −1 和 −6<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 方程 x²+2x+5=0 的根的情况是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 两个不等实根<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 两个相等实根<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 没有实根<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 无法判断<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch04__": "<h1>测验：第 4 章：二次方程组与可化归方程<\/h1><div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 方程 x⁴−5x²+4=0 的实根个数是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 解分式方程时，验根的目的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 检查计算是否正确<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 排除使分母为零的增根<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 确认解是正数<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 检查是否为整数<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='方程'>方程 — 含未知数的等式，使等式成立的未知数值叫解。 <span class=glossary-ref>（第 1 章：一元一次方程）<\/span><\/li><li data-term='移项'>移项 — 把项从等式一边移到另一边并变号，本质是两边同加相反数。 <span class=glossary-ref>（第 1 章：一元一次方程）<\/span><\/li><li data-term='消元'>消元 — 通过代入或加减，减少方程组中未知数的个数。 <span class=glossary-ref>（第 2 章：一次方程组）<\/span><\/li><li data-term='配方'>配方 — 把二次式改写成完全平方加常数的形式。 <span class=glossary-ref>（第 3 章：一元二次方程）<\/span><\/li><li data-term='判别式'>判别式 — Δ=b²−4ac，判断二次方程实根个数。 <span class=glossary-ref>（第 3 章：一元二次方程）<\/span><\/li><li data-term='韦达定理'>韦达定理 — 两根之和为 −b/a，两根之积为 c/a。 <span class=glossary-ref>（第 3 章：一元二次方程）<\/span><\/li><li data-term='换元'>换元 — 用一个新变量替换原式中的某部分，达到降次或简化。 <span class=glossary-ref>（第 4 章：二次方程组与可化归方程）<\/span><\/li><li data-term='增根'>增根 — 变形后产生、但不满足原方程的解。 <span class=glossary-ref>（第 4 章：二次方程组与可化归方程）<\/span><\/li><li data-term='验根'>验根 — 把候选解代回原方程，排除增根。 <span class=glossary-ref>（第 4 章：二次方程组与可化归方程）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：解方程的四步<\/h2>\n<p>① 识别类型；② 选变形（移项／消元／配方／换元／去分母／平方）；③ 解出候选根；④ 回代验证（所有不可逆变形都要验）。<\/p>\n<h2>框架：参数讨论<\/h2>\n<p>含参数的方程先化成标准形，再按“最高次项系数是否为零”“判别式符号”分支讨论，不能默认唯一解。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>一元一次<\/td><td>ax+b=0：a≠0 时 x=−b/a；a=0、b≠0 无解；a=0、b=0 任意解<\/td><\/tr><tr><td>求根公式<\/td><td>x=(−b±√(b²−4ac))/(2a)<\/td><\/tr><tr><td>判别式<\/td><td>Δ&gt;0 两不等实根；Δ=0 重根；Δ&lt;0 无实根<\/td><\/tr><tr><td>韦达定理<\/td><td>x₁+x₂=−b/a；x₁x₂=c/a<\/td><\/tr><tr><td>双二次<\/td><td>设 t=x²，解出 t 后要求 t≥0<\/td><\/tr><tr><td>分式方程<\/td><td>去分母 → 解整式方程 → 验根（排除分母为零）<\/td><\/tr><tr><td>无理方程<\/td><td>孤立根号 → 两边平方 → 验根<\/td><\/tr><\/tbody><\/table>"}};
+const pages = DATA.rendered;
+const manifest = DATA.manifest;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SLUG = manifest.slug || 'book';
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
+  set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
+};
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+
+/* ---------- 导航 ---------- */
+function renderNav(){
+  const nav = $('#nav'); nav.innerHTML='';
+  const build = items => items.forEach(it=>{
+    if(it.children){
+      const sec=document.createElement('div'); sec.className='nav-sec'; sec.textContent=it.label; nav.appendChild(sec);
+      it.children.forEach(c=>{
+        const a=document.createElement('a'); a.className='nav-item'; a.href=c.href; a.textContent=c.label;
+        const id=routeId(c.href);
+        if(state.visited.includes(id)) a.innerHTML = esc(c.label)+' <span class="done">✓</span>';
+        nav.appendChild(a);
+      });
+    }else{
+      const a=document.createElement('a'); a.className='nav-item'; a.href=it.href; a.textContent=it.label;
+      const id=routeId(it.href);
+      if(state.visited.includes(id)) a.innerHTML = esc(it.label)+' <span class="done">✓</span>';
+      nav.appendChild(a);
+    }
+  });
+  build(DATA.nav);
+  updateProgress();
+}
+function routeId(href){ return href.replace('#/',''); }
+
+/* ---------- 路由 ---------- */
+function routeIdFromHash(){
+  let h = location.hash.replace(/^#\//,'');
+  if(!h) return 'path';
+  if(h==='path') return 'path';
+  const m = h.match(/^(chapter|concept)\/(.+)$/);
+  if(m) return m[1]+'/'+m[2];
+  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+}
+function showPage(rid){
+  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  const html = pages[id] || '<div class="empty">页面不存在</div>';
+  $('#view').innerHTML = html;
+  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
+    state.visited.push(rid); store.set('visited', state.visited); renderNav();
+  }
+  window.scrollTo(0,0);
+  if(rid==='cards') initCards();
+  if(rid==='glossary') initGlossary();
+  if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(id==='__path__') updatePath();
+  renderMermaid();
+}
+
+/* ---------- 进度 ---------- */
+function updateProgress(){
+  const chs = (manifest.chapters||[]).length;
+  const done = (manifest.chapters||[]).filter(c=>state.visited.includes('chapter/'+c.id)).length;
+  const pct = chs? Math.round(done/chs*100) : 0;
+  $('#progress-fill').style.width = pct+'%';
+  $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
+}
+function updatePath(){
+  document.querySelectorAll('.path-step').forEach(el=>{
+    const step = el.id.replace('path-','');
+    const s = (manifest.learningPath||[]).find(x=>x.step===step);
+    if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
+      el.classList.add('passed');
+      const lbl = el.querySelector('.checkpoint-ok'); if(!lbl){ const sp=document.createElement('span'); sp.className='done'; sp.textContent=' ✓ 已完成'; el.appendChild(sp); }
+    }
+  });
+}
+
+/* ---------- 测验 ---------- */
+function initQuizzes(rid){
+  document.querySelectorAll('.quiz-item').forEach(item=>{
+    const btn = item.querySelector('.quiz-check');
+    if(!btn || item.dataset.inited){ return }
+    item.dataset.inited='1';
+    btn.addEventListener('click', ()=>{
+      const qid = item.dataset.qid; const type = item.dataset.type;
+      const q = (manifest.quizzes||[]).find(x=>x.id===qid); if(!q) return;
+      let user, correct=false, fb;
+      if(type==='single'){
+        const sel = item.querySelector('input:checked');
+        user = sel? parseInt(sel.value) : null;
+        correct = user===q.answer;
+        fb = correct?'✓ 正确':'✗ 错误'+(user==null?'（未作答）':'');
+      } else if(type==='multi'){
+        user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+        const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+        correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+        fb = correct?'✓ 正确':'✗ 错误';
+      } else if(type==='blank'){
+        const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+        const a = String(q.answer).trim().toLowerCase();
+        correct = v===a;
+        fb = correct?'✓ 正确':'✗ 错误'+(v?'':'（未作答）');
+      }
+      item.querySelectorAll('input:checked').forEach(i=>{
+        const val=parseInt(i.value);
+        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
+        else i.parentElement.style.color='var(--bad)';
+      });
+      const feed = item.querySelector('.quiz-feedback');
+      feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
+      feed.textContent = fb;
+      let ex = item.querySelector('.quiz-explain');
+      if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
+      ex.innerHTML = '解析：' + esc(q.explain||'');
+      // 记录成绩（按章聚合）
+      const ch = q.chapterId||'__all__';
+      if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
+      state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
+      state.quiz[ch].total += 1;
+      store.set('quiz', state.quiz);
+    });
+  });
+}
+
+/* ---------- 抽认卡 ---------- */
+let cardIdx = 0, cardList = [];
+function initCards(){
+  const cards = manifest.flashcards||[];
+  cardList = cards.slice();
+  cardIdx = 0;
+  const sel = $('#card-filter');
+  sel.innerHTML = '<option value="">全部</option>';
+  [...new Set(cards.map(c=>c.chapterId).filter(Boolean))].forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=manifestChTitle(c); sel.appendChild(o);
+  });
+  sel.onchange = ()=>{ const v=sel.value; cardList = v? cards.filter(c=>c.chapterId===v): cards.slice(); cardIdx=0; showCard(); };
+  $('#flashcard').onclick = ()=>$('#flashcard').classList.toggle('flip');
+  $('#card-known-btn').onclick = ()=>{ markCard(true); };
+  $('#card-again-btn').onclick = ()=>{ markCard(false); };
+  showCard();
+}
+function showCard(){
+  updateCardCounts();
+  if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
+  const c = cardList[cardIdx];
+  document.querySelector('.fc-front').textContent = c.front;
+  document.querySelector('.fc-back').textContent = c.back;
+  $('#flashcard').classList.remove('flip');
+}
+function markCard(known){
+  const c = cardList[cardIdx]; if(!c) return;
+  state.cards[c.id] = known?'known':'again';
+  store.set('cards', state.cards);
+  cardIdx++; showCard();
+}
+function updateCardCounts(){
+  const known = Object.values(state.cards).filter(v=>v==='known').length;
+  const again = Object.values(state.cards).filter(v=>v==='again').length;
+  $('#card-known').textContent = known;
+  $('#card-again').textContent = again;
+  $('#card-left').textContent = Math.max(0, cardList.length-cardIdx);
+}
+function manifestChTitle(id){
+  const c=(manifest.chapters||[]).find(x=>x.id===id); return c? c.title : id;
+}
+
+/* ---------- 术语表 ---------- */
+function initGlossary(){
+  const input = $('#glossary-filter');
+  if(!input || input.dataset.inited) return;
+  input.dataset.inited='1';
+  input.oninput = ()=>{
+    const v = input.value.trim().toLowerCase();
+    document.querySelectorAll('#glossary-list li').forEach(li=>{
+      li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
+    });
+  };
+}
+
+/* ---------- 搜索 ---------- */
+let searchIndex = null;
+function buildSearchIndex(){
+  if(searchIndex) return searchIndex;
+  searchIndex = [];
+  Object.entries(pages).forEach(([id, htmlText])=>{
+    if(id.startsWith('__')) return;
+    const text = htmlText.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+    searchIndex.push({id, text});
+  });
+  return searchIndex;
+}
+$('#q').addEventListener('input', e=>{
+  const v = e.target.value.trim().toLowerCase();
+  if(!v){ showPage(routeIdFromHash()); return; }
+  buildSearchIndex();
+  const hits = searchIndex.filter(p=>p.text.toLowerCase().includes(v)).slice(0,20);
+  const label = id => id.startsWith('chapter/')? ('章节：'+manifestChTitle(id.split('/')[1])) : id.startsWith('concept/')? ('概念：'+id.split('/')[1]) : id;
+  $('#view').innerHTML = '<h1>搜索结果：'+esc(v)+'</h1>' +
+    (hits.length? hits.map(h=>`<div class="search-hit"><a href="#/${h.id}">${esc(label(h.id))}</a><br><span class="sub">${esc(h.text.slice(0,180))}</span></div>`).join('')
+                 : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
+});
+
+/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+function renderMermaid(){
+  if(!document.querySelector('.mermaid')) return;
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+  s.onload=()=>{ try{
+    mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
+    document.querySelectorAll('.mermaid').forEach(el=>{
+      const code=el.textContent;
+      mermaid.render('mm'+Math.random().toString(36).slice(2), code)
+        .then(({svg})=>{ el.innerHTML=svg; })
+        .catch(()=>{ el.textContent=code; });
+    });
+  }catch(e){} };
+  document.head.appendChild(s);
+}
+
+/* ---------- 深色模式 ---------- */
+const themeBtn=$('#theme-btn');
+themeBtn.onclick=()=>{
+  const d = document.body.dataset.theme==='dark';
+  document.body.dataset.theme = d? '' : 'dark';
+  themeBtn.textContent = d? '🌙 深色' : '☀️ 浅色';
+};
+
+/* ---------- 启动 ---------- */
+renderNav();
+window.addEventListener('hashchange', ()=>showPage(routeIdFromHash()));
+(function(){
+  const sb=document.querySelector('.sidebar'); if(!sb) return;
+  const btn=document.createElement('button'); btn.id='nav-toggle'; btn.textContent='目录（点开选择章节）';
+  btn.onclick=()=>sb.classList.toggle('open');
+  sb.insertBefore(btn, sb.querySelector('#nav'));
+  window.addEventListener('hashchange',()=>{ if(window.innerWidth<=760) sb.classList.remove('open'); });
+})();
+showPage(routeIdFromHash());
+</script>
+</body>
+</html>
