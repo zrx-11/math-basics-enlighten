@@ -3,17 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
 <title>排列与组合</title>
+<link rel="stylesheet" href="https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/picocss/2.0.6/dist/css/pico.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.css">
 <style>
 :root{
   --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
   --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
   --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+  --depth-bg:#fef9c3; --depth-border:#ca8a04;
 }
 [data-theme="dark"]{
   --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
   --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
   --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+  --depth-bg:#2a2410; --depth-border:#a16207;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -33,7 +39,7 @@ a:hover{text-decoration:underline}
 .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .nav-item .done{float:right;color:var(--ok);font-size:12px}
 #nav-toggle{display:none}
-.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px;margin:0 auto}
 .page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
 .page h2{font-size:20px;margin-top:26px}
 .page h3{font-size:17px;margin-top:22px}
@@ -49,6 +55,37 @@ a:hover{text-decoration:underline}
 .mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
 .mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
 svg{max-width:100%;height:auto}
+/* 出处脚注 */
+.source-badge{font-size:12px;color:var(--muted);background:var(--code-bg);padding:4px 10px;border-radius:6px;margin:0 0 12px;display:inline-block}
+/* 前置知识条 */
+.prereq-bar{font-size:13px;color:var(--muted);border-left:3px solid var(--accent);padding:4px 10px;margin:0 0 12px;background:var(--accent-soft)}
+.prereq-hard a{color:var(--bad);font-weight:600}
+.prereq-soft a{color:var(--muted)}
+.prereq-rec a{color:var(--accent)}
+.prereq-tag{display:inline-block;font-size:10px;padding:0 4px;border-radius:3px;margin-right:2px;vertical-align:middle}
+.prereq-hard .prereq-tag{background:var(--bad);color:#fff}
+.prereq-soft .prereq-tag{background:var(--muted);color:#fff}
+.prereq-rec .prereq-tag{background:var(--accent);color:#fff}
+/* 误解卡片 */
+.misconception-card{margin-top:10px;padding:10px 14px;border-left:4px solid var(--bad);background:#fef2f2;border-radius:0 8px 8px 0;font-size:13px}
+.misconception-card b{color:var(--bad)}
+[data-theme="dark"] .misconception-card{background:#2a1215}
+/* 掌握度条 */
+.mastery-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:4px 0}
+.mastery-bar>div{height:100%;background:var(--ok);transition:width .3s}
+.mastery-label{font-size:11px;color:var(--muted)}
+/* 深度推导片段 */
+.depth-fragment{margin:18px 0;border:1px solid var(--depth-border);border-radius:10px;background:var(--depth-bg);overflow:hidden}
+.depth-fragment>summary{padding:10px 14px;cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+.depth-fragment>summary:hover{filter:brightness(.95)}
+.depth-body{padding:14px 18px;border-top:1px dashed var(--depth-border);background:var(--panel)}
+.depth-missing{color:var(--bad);font-size:13px;padding:8px;background:var(--code-bg);border-radius:6px}
+/* KaTeX */
+sup{font-size:.72em;line-height:0;vertical-align:super}
+.katex-inline{font-size:1.05em}
+.katex-block{overflow-x:auto;padding:8px 0;text-align:center}
+.katex-block .katex{font-size:1.1em}
+/* 测验 */
 .quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
 .quiz-q{margin:0 0 8px;font-weight:500}
 .quiz-opts label{display:block;padding:4px 0;cursor:pointer}
@@ -57,6 +94,8 @@ svg{max-width:100%;height:auto}
 .quiz-feedback{margin-left:12px;font-size:13px}
 .fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
 .quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.quiz-remedy{margin-top:8px;padding:8px 12px;background:var(--accent-soft);border-radius:6px;font-size:13px}
+/* 抽认卡 */
 .flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
 .fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
 .flashcard.flip .fc-inner{transform:rotateY(180deg)}
@@ -80,11 +119,26 @@ svg{max-width:100%;height:auto}
 #progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
 #progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
 .empty{color:var(--muted);padding:20px 0}
-@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+/* 诊断 */
+.diag-controls{margin:14px 0;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+#diag-start{padding:8px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer;font-size:14px}
+#diag-progress{margin-left:12px;color:var(--muted);font-size:13px}
+#diag-stage .quiz-item{margin:10px 0}
+#diag-result{margin-top:16px;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+.diag-remedy-item{padding:10px;margin:8px 0;background:var(--accent-soft);border-radius:8px;font-size:14px}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls,.diag-controls{display:none!important}.main{max-width:none;padding:0}}
 @media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
-  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav{display:none;max-height:46vh;overflow-y:auto;overscroll-behavior:contain}.sidebar.open #nav{display:block}
+  .nav-item{padding:9px 10px}
+  #q,#glossary-filter{font-size:16px}
+  .quiz-opts label{padding:8px 0;min-height:30px}
+  .quiz-check{padding:10px 18px;min-height:40px}
+  #diag-start{min-height:40px}
+  .card-actions button{min-height:40px}
   #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
-  .layout{flex-direction:column}.main{padding:16px}}
+  .layout{flex-direction:column}.main{padding:20px 18px 64px;max-width:none;width:100%}
+  .page{overflow-wrap:anywhere}.page table{display:block;overflow-x:auto;max-width:100%}
+  .page h1,.page h2,.page h3{line-height:1.35}}
 </style>
 </head>
 <body>
@@ -103,17 +157,18 @@ svg{max-width:100%;height:auto}
   </main>
 </div>
 <script>
-const DATA = {"manifest": {"slug": "permutations-combinations", "title": "排列与组合", "subtitle": "数得清，才说得准：两条原理与三类模型", "book": {"title": "排列与组合", "author": "吴世煦", "source": ["数学基础知识丛书-08-排列与组合 吴世煦.pdf"]}, "audience": "零基础", "goal": "掌握加法原理与乘法原理，会用排列数、组合数公式计数，能处理可重复与分组分配问题。", "learningPath": [{"step": "01", "title": "两条原理与排列", "chapterIds": ["ch01"], "checkpoint": "能判断一道题该加还是该乘"}, {"step": "02", "title": "组合与组合数", "chapterIds": ["ch02"], "checkpoint": "能判断有序无序并选出正确公式"}, {"step": "03", "title": "可重复排列与分组分配", "chapterIds": ["ch03"], "checkpoint": "能把分组问题按“均匀/非均匀”分开处理"}], "chapters": [{"id": "ch01", "title": "第 1 章：两条原理与排列", "file": "chapters/ch01-principles-permutation.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：组合与组合数", "file": "chapters/ch02-combination.md", "difficulty": 2}, {"id": "ch03", "title": "第 3 章：可重复排列与分组分配", "file": "chapters/ch03-repeat-grouping.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "有序与无序", "file": "concepts/c01-ordered-unordered.md", "chapterIds": ["ch01", "ch02"]}, {"id": "c02", "title": "先分组后分配", "file": "concepts/c02-group-then-assign.md", "chapterIds": ["ch03"]}], "glossary": [{"term": "加法原理", "def": "分类计数，各类互斥则相加。", "chapterId": "ch01"}, {"term": "乘法原理", "def": "分步计数，各步相依则相乘。", "chapterId": "ch01"}, {"term": "排列", "def": "取出的元素要计顺序的排法。", "chapterId": "ch01"}, {"term": "全排列", "def": "n 个元素全部参与排列，共 n! 种。", "chapterId": "ch01"}, {"term": "组合", "def": "只计取出哪些元素、不计顺序。", "chapterId": "ch02"}, {"term": "组合数", "def": "C(n,m)=n!/[m!(n−m)!]。", "chapterId": "ch02"}, {"term": "可重复排列", "def": "元素可重复取用，数目为 nᵐ。", "chapterId": "ch03"}, {"term": "均匀分组", "def": "各组元素个数相同，需除以组数阶乘。", "chapterId": "ch03"}, {"term": "分配", "def": "把分好的组派到有标号的位置。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "从 5 人中选 3 人排成一排，共有多少种排法：", "options": ["10", "60", "125", "15"], "answer": 1, "explain": "A(5,3)=5×4×3=60。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：", "options": ["7", "12", "34", "4"], "answer": 1, "explain": "分两步，用乘法原理：3×4=12。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "从 6 名同学中选 2 名当代表，共有多少种选法：", "options": ["30", "15", "12", "36"], "answer": 1, "explain": "不分顺序，C(6,2)=15。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "C(10,3) 的值是：", "options": ["120", "720", "240", "90"], "answer": 0, "explain": "C(10,3)=10×9×8/6=120。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "用 1、2、3 组成允许重复的三位数，共有多少个：", "options": ["6", "9", "27", "81"], "answer": 2, "explain": "每一位都有 3 种选择：3³=27。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "6 人平均分成 3 组，每组 2 人，共有多少种分法：", "options": ["90", "15", "60", "20"], "answer": 1, "explain": "C(6,2)C(4,2)C(2,2)/3!=15×6×1/6=15。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "从 7 人中选 3 人排成一排照相，共有多少种排法：", "options": ["35", "210", "343", "21"], "answer": 1, "explain": "有序，A(7,3)=7×6×5=210。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "把 4 本不同的书平均分成两堆，每堆 2 本，共有多少种分法：", "options": ["6", "3", "12", "4"], "answer": 1, "explain": "C(4,2)C(2,2)/2!=3，两堆无标号要除以 2!。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：两条原理与排列」的一句话核心是什么？", "back": "分类用加法、分步用乘法；有序用排列。", "tags": ["permutations-combinations", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：组合与组合数」的一句话核心是什么？", "back": "组合只问“选哪些”，不问“怎么排”；所以 C(n,m)=A(n,m)/m!。", "tags": ["permutations-combinations", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：可重复排列与分组分配」的一句话核心是什么？", "back": "允许重复时每一步都有 n 种；分组时若各组人数相同，要除以组数的阶乘。", "tags": ["permutations-combinations", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「加法原理」？", "back": "分类计数，各类互斥则相加。", "tags": ["permutations-combinations", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「乘法原理」？", "back": "分步计数，各步相依则相乘。", "tags": ["permutations-combinations", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「排列」？", "back": "取出的元素要计顺序的排法。", "tags": ["permutations-combinations", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「全排列」？", "back": "n 个元素全部参与排列，共 n! 种。", "tags": ["permutations-combinations", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「组合」？", "back": "只计取出哪些元素、不计顺序。", "tags": ["permutations-combinations", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「组合数」？", "back": "C(n,m)=n!/[m!(n−m)!]。", "tags": ["permutations-combinations", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「可重复排列」？", "back": "元素可重复取用，数目为 nᵐ。", "tags": ["permutations-combinations", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「均匀分组」？", "back": "各组元素个数相同，需除以组数阶乘。", "tags": ["permutations-combinations", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「分配」？", "back": "把分好的组派到有标号的位置。", "tags": ["permutations-combinations", "术语"]}], "companion": "permutations-combinations学习伴侣.html", "deriv": "permutations-combinations从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：两条原理与排列<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：乘法、阶乘\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n区分分类与分步并选用加法或乘法原理\n<\/li><li>\n推导排列数公式\n<\/li><li>\n处理有限制条件的排列\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>分类用加法、分步用乘法；有序用排列。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 加法原理<\/h3>\n<p>完成一件事有 k 类互斥的办法，第 i 类有 nᵢ 种，则总数为 n₁+n₂+…+n_k。<\/p>\n<p>关键词是<strong>互斥<\/strong>：同一件事不能既算在第 1 类又算在第 2 类，否则会重复计数。<\/p>\n<h3>1.2 乘法原理<\/h3>\n<p>完成一件事要分 k 步，第 i 步有 nᵢ 种，则总数为 n₁n₂…n_k。<\/p>\n<p>关键词是<strong>相依<\/strong>：前一步选了什么，会限制后一步的选择数。<\/p>\n<h3>1.3 排列<\/h3>\n<p>从 n 个不同元素中取 m 个按顺序排成一列，数目为<\/p>\n<p>A(n,m)=n(n−1)…(n−m+1)=n!/(n−m)!<\/p>\n<p>推导就是乘法原理：第 1 个位置 n 种、第 2 个 n−1 种……第 m 个 n−m+1 种。<\/p>\n<p>m=n 时叫全排列，A(n,n)=n!。<\/p>\n<h3>1.4 有限制条件<\/h3>\n<p>“甲不站排头”这类条件，常用两种办法：<strong>特殊位置优先<\/strong>（先排受限制的位置），或<strong>排除法<\/strong>（总数减去不合要求的）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：分类像走不同的门进同一个房间，走哪扇门都行；分步像先开门再上楼，少一步就到不了。<\/p>\n<p><strong>失效边界<\/strong>：分类必须互斥，分步必须覆盖全部过程；有交叉或遗漏就会算错。<\/p>\n<p><strong>实例<\/strong>：5 人排成一排，甲不站两端。 先排甲：中间 3 个位置任选，3 种；其余 4 人全排列 4!=24 种。共 3×24=72 种。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 分类和分步可以混用 —— 实际上 两者对应不同的结构：互斥的选择相加，先后依赖的步骤相乘。混用会重复或遗漏。\n<\/li><li>\n别以为 A(n,m) 就是 n 的阶乘 —— 实际上 只有 m=n 时才是 n!；一般要除掉 (n−m)!。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n从 5 人中选 3 人排成一排，共有多少种排法：\n<\/li><li>\n从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：\n<p>A. 10 ｜ B. 60 ｜ C. 125 ｜ D. 15 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：A(5,3)=5×4×3=60。 A. 7 ｜ B. 12 ｜ C. 34 ｜ D. 4 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：分两步，用乘法原理：3×4=12。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n分类相加（互斥），分步相乘（相依）\n<\/li><li>\nA(n,m)=n!/(n−m)!\n<\/li><li>\n有限制条件：特殊位置优先或排除法\n<\/ul>", "kind": "chapter", "title": "第 1 章：两条原理与排列"}, "ch02": {"html": "<h1>第 2 章：组合与组合数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n判断问题是否与顺序有关\n<\/li><li>\n用 C(n,m) 计算并化简\n<\/li><li>\n使用组合数性质 C(n,m)=C(n,n−m)\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>组合只问“选哪些”，不问“怎么排”；所以 C(n,m)=A(n,m)/m!。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 从排列到组合<\/h3>\n<p>从 n 个里取 m 个，若只关心“取到哪 m 个”，组成的不同集合数为<\/p>\n<p>C(n,m)=A(n,m)/m!=n!/[m!(n−m)!]<\/p>\n<p>除以 m! 的理由：同一组 m 个元素，内部可以排出 m! 种不同顺序，这些在组合里算同一种。<\/p>\n<h3>2.2 判断有序无序<\/h3>\n<ul><li>\n有序：排队、编号、分配不同岗位、组成不同数；\n<\/li><li>\n无序：选代表、选队员、取若干件物品、分组（组本身不分次序）。\n<\/ul>\n<p>拿不准时问一句：把选出的元素互换位置，算不算新的结果？算就是排列。<\/p>\n<h3>2.3 性质<\/h3>\n<ul><li>\nC(n,m)=C(n,n−m)（选出 m 个等价于留下 n−m 个）；\n<\/li><li>\nC(n,0)=C(n,n)=1；\n<\/li><li>\nC(n,m)+C(n,m+1)=C(n+1,m+1)（杨辉恒等式）。\n<\/ul>\n<h3>2.4 常见陷阱<\/h3>\n<p>“至少”“至多”类问题要按类分开加，不能直接乘；混合了排列与组合的题，先分组再排列。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：排列像给选出的球队排首发位置，组合像只报名单不排位置。<\/p>\n<p><strong>失效边界<\/strong>：元素有重复或部分相同（如字母 AAB）时，C(n,m) 不能直接套用。<\/p>\n<p><strong>实例<\/strong>：从 8 人中选 3 人参加比赛（不分角色）：C(8,3)=56。 若 3 人分别担任不同角色：A(8,3)=336=56×6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 组合与排列只差一个符号 —— 实际上 差的是“顺序算不算不同结果”，这决定了是否除以 m!。\n<\/li><li>\n别以为 C(n,m) 一定小于 A(n,m) —— 实际上 m=0 或 1 时两者相等；m≥2 时组合数才更小。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n从 6 名同学中选 2 名当代表，共有多少种选法：\n<\/li><li>\nC(10,3) 的值是：\n<p>A. 30 ｜ B. 15 ｜ C. 12 ｜ D. 36 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：不分顺序，C(6,2)=15。 A. 120 ｜ B. 720 ｜ C. 240 ｜ D. 90 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：C(10,3)=10×9×8/6=120。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n组合＝排列除以 m!（同组内部顺序不计）\n<\/li><li>\n有序无序看“互换是否算新结果”\n<\/li><li>\nC(n,m)=C(n,n−m)\n<\/ul>", "kind": "chapter", "title": "第 2 章：组合与组合数"}, "ch03": {"html": "<h1>第 3 章：可重复排列与分组分配<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n计算允许重复的排列与不尽相异元素的排列\n<\/li><li>\n区分均匀分组与非均匀分组\n<\/li><li>\n按“先分组后分配”处理分派问题\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>允许重复时每一步都有 n 种；分组时若各组人数相同，要除以组数的阶乘。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 允许重复的排列<\/h3>\n<p>从 n 类元素中取 m 个，每类可取任意多次，排成一列，数目为 nᵐ。理由：每一位都有 n 种选择，且互不影响。<\/p>\n<p>例：用 0、1、2 组成三位数（数字可重复），首位不能为 0：2×3×3=18 个。<\/p>\n<h3>3.2 不尽相异元素的全排列<\/h3>\n<p>n 个元素中有 n₁ 个相同、n₂ 个相同……则不同排列数为<\/p>\n<p>n!/(n₁!n₂!…)<\/p>\n<p>因为相同的元素互换位置不算新排列。<\/p>\n<h3>3.3 分组问题<\/h3>\n<p>把 n 个不同元素分成若干组：<\/p>\n<ul><li>\n<strong>非均匀分组<\/strong>（各组人数不同）：直接按组合数依次取，再相乘；\n<\/li><li>\n<strong>均匀分组<\/strong>（各组人数相同）：乘完之后要除以组数的阶乘，因为组与组之间没有标号，互换整组不算新分法。\n<\/ul>\n<p>例：6 人平均分成 3 组，每组 2 人：C(6,2)C(4,2)C(2,2)/3!=15。若不除以 3!，得到 90，是把组的标号也算进去了。<\/p>\n<h3>3.4 分配问题<\/h3>\n<p>若组有明确归属（如分到 3 个不同班级），则先分组、再对组做全排列（分配）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：均匀分组像把 6 个苹果装进 3 个一模一样的袋子，袋子互换不算新装法。<\/p>\n<p><strong>失效边界<\/strong>：一旦袋子贴上标签（甲乙丙），互换就算新分法，不能再除。<\/p>\n<p><strong>实例<\/strong>：4 人分成两组，每组 2 人：C(4,2)C(2,2)/2!=3。 若分成“甲组 2 人、乙组 2 人”：C(4,2)=6（另一组自动确定）。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 均匀分组不用除组数阶乘 —— 实际上 不除就把“哪一组先取”当成了区别，重复计算了 组数! 倍。\n<\/li><li>\n别以为 分组与分配是一回事 —— 实际上 分组只看集合划分；分配还要决定每组去哪个位置，多一步全排列。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n用 1、2、3 组成允许重复的三位数，共有多少个：\n<\/li><li>\n6 人平均分成 3 组，每组 2 人，共有多少种分法：\n<p>A. 6 ｜ B. 9 ｜ C. 27 ｜ D. 81 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：每一位都有 3 种选择：3³=27。 A. 90 ｜ B. 15 ｜ C. 60 ｜ D. 20 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：C(6,2)C(4,2)C(2,2)/3!=15×6×1/6=15。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n允许重复：nᵐ；相同元素：n!/(n₁!n₂!…)\n<\/li><li>\n均匀分组要除以组数阶乘\n<\/li><li>\n先分组后分配\n<\/ul>", "kind": "chapter", "title": "第 3 章：可重复排列与分组分配"}, "c01": {"html": "<h1>有序与无序<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>互换两个元素算不算新结果，决定用排列还是组合。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是计数题的第一个判断，选错公式后面全错。<\/p>\n<h2>详解<\/h2>\n<p>排队、编号、不同岗位、组数（如 123 与 321 不同）都是有序；选代表、选物品、分组（组内不分次序）都是无序。拿不准就用小数字试：2 个元素互换，结果变了就是排列。<\/p>\n<h2>常见误解<\/h2>\n<p>看到“选”就用组合，看到“排”就用排列，不看具体语境。<\/p>\n<h2>相关概念<\/h2>\n<p>排列（ch01）、组合（ch02）<\/p>", "kind": "concept", "title": "有序与无序"}, "c02": {"html": "<h1>先分组后分配<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>先把元素分成若干组（无标号），再把组派到具体位置（有标号）。<\/p>\n<h2>为什么重要<\/h2>\n<p>分组分配类问题几乎都靠这个结构，混着做必然重复或遗漏。<\/p>\n<h2>详解<\/h2>\n<p>分组阶段用组合数，均匀分组要除以组数阶乘；分配阶段对组做全排列。两步相乘。若题目直接给了组的名号（甲乙丙），说明已经带标号，只剩分配一步。<\/p>\n<h2>常见误解<\/h2>\n<p>把分组和分配合并成一次排列，导致同一种分法被反复计数。<\/p>\n<h2>相关概念<\/h2>\n<p>均匀分组（ch03）、组合数（ch02）<\/p>", "kind": "concept", "title": "先分组后分配"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：两条原理与排列<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：两条原理与排列<\/a><br>检查点：能判断一道题该加还是该乘<\/li><li class='path-step' id='path-02'><strong>步骤 02：组合与组合数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：组合与组合数<\/a><br>检查点：能判断有序无序并选出正确公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：可重复排列与分组分配<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：可重复排列与分组分配<\/a><br>检查点：能把分组问题按“均匀/非均匀”分开处理<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 从 7 人中选 3 人排成一排照相，共有多少种排法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 35<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 210<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 343<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 21<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 把 4 本不同的书平均分成两堆，每堆 2 本，共有多少种分法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 12<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：两条原理与排列<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 从 5 人中选 3 人排成一排，共有多少种排法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 10<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 60<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 125<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 15<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 7<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 12<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 34<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：组合与组合数<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 从 6 名同学中选 2 名当代表，共有多少种选法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 30<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 12<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 36<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> C(10,3) 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 120<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 720<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 240<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 90<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：可重复排列与分组分配<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 用 1、2、3 组成允许重复的三位数，共有多少个：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 9<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 27<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 81<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 6 人平均分成 3 组，每组 2 人，共有多少种分法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 90<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 60<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 20<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='加法原理'>加法原理 — 分类计数，各类互斥则相加。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='乘法原理'>乘法原理 — 分步计数，各步相依则相乘。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='排列'>排列 — 取出的元素要计顺序的排法。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='全排列'>全排列 — n 个元素全部参与排列，共 n! 种。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='组合'>组合 — 只计取出哪些元素、不计顺序。 <span class=glossary-ref>（第 2 章：组合与组合数）<\/span><\/li><li data-term='组合数'>组合数 — C(n,m)=n!/[m!(n−m)!]。 <span class=glossary-ref>（第 2 章：组合与组合数）<\/span><\/li><li data-term='可重复排列'>可重复排列 — 元素可重复取用，数目为 nᵐ。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><li data-term='均匀分组'>均匀分组 — 各组元素个数相同，需除以组数阶乘。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><li data-term='分配'>分配 — 把分好的组派到有标号的位置。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：计数四问<\/h2>\n<p>① 完成这件事是分类还是分步？② 元素能否重复？③ 顺序算不算不同？④ 组有没有标号？四问答完，公式自然定。<\/p>\n<h2>框架：复杂题拆解<\/h2>\n<p>先按“至少/至多/限制条件”分类，类内再分步，最后把各类相加。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>加法原理<\/td><td>分类互斥，N=n₁+…+n_k<\/td><\/tr><tr><td>乘法原理<\/td><td>分步相依，N=n₁…n_k<\/td><\/tr><tr><td>排列数<\/td><td>A(n,m)=n!/(n−m)!<\/td><\/tr><tr><td>组合数<\/td><td>C(n,m)=n!/[m!(n−m)!]<\/td><\/tr><tr><td>组合性质<\/td><td>C(n,m)=C(n,n−m)；C(n,0)=1<\/td><\/tr><tr><td>可重复<\/td><td>nᵐ<\/td><\/tr><tr><td>均匀分组<\/td><td>除以组数阶乘<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/08-排列与组合", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：两条原理与排列", "href": "#/chapter/ch01"}, {"label": "第 2 章：组合与组合数", "href": "#/chapter/ch02"}, {"label": "第 3 章：可重复排列与分组分配", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "有序与无序", "href": "#/concept/c01"}, {"label": "先分组后分配", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：两条原理与排列", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：组合与组合数", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：可重复排列与分组分配", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：两条原理与排列<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：乘法、阶乘\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n区分分类与分步并选用加法或乘法原理\n<\/li><li>\n推导排列数公式\n<\/li><li>\n处理有限制条件的排列\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>分类用加法、分步用乘法；有序用排列。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 加法原理<\/h3>\n<p>完成一件事有 k 类互斥的办法，第 i 类有 nᵢ 种，则总数为 n₁+n₂+…+n_k。<\/p>\n<p>关键词是<strong>互斥<\/strong>：同一件事不能既算在第 1 类又算在第 2 类，否则会重复计数。<\/p>\n<h3>1.2 乘法原理<\/h3>\n<p>完成一件事要分 k 步，第 i 步有 nᵢ 种，则总数为 n₁n₂…n_k。<\/p>\n<p>关键词是<strong>相依<\/strong>：前一步选了什么，会限制后一步的选择数。<\/p>\n<h3>1.3 排列<\/h3>\n<p>从 n 个不同元素中取 m 个按顺序排成一列，数目为<\/p>\n<p>A(n,m)=n(n−1)…(n−m+1)=n!/(n−m)!<\/p>\n<p>推导就是乘法原理：第 1 个位置 n 种、第 2 个 n−1 种……第 m 个 n−m+1 种。<\/p>\n<p>m=n 时叫全排列，A(n,n)=n!。<\/p>\n<h3>1.4 有限制条件<\/h3>\n<p>“甲不站排头”这类条件，常用两种办法：<strong>特殊位置优先<\/strong>（先排受限制的位置），或<strong>排除法<\/strong>（总数减去不合要求的）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：分类像走不同的门进同一个房间，走哪扇门都行；分步像先开门再上楼，少一步就到不了。<\/p>\n<p><strong>失效边界<\/strong>：分类必须互斥，分步必须覆盖全部过程；有交叉或遗漏就会算错。<\/p>\n<p><strong>实例<\/strong>：5 人排成一排，甲不站两端。 先排甲：中间 3 个位置任选，3 种；其余 4 人全排列 4!=24 种。共 3×24=72 种。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 分类和分步可以混用 —— 实际上 两者对应不同的结构：互斥的选择相加，先后依赖的步骤相乘。混用会重复或遗漏。\n<\/li><li>\n别以为 A(n,m) 就是 n 的阶乘 —— 实际上 只有 m=n 时才是 n!；一般要除掉 (n−m)!。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n从 5 人中选 3 人排成一排，共有多少种排法：\n<\/li><li>\n从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：\n<p>A. 10 ｜ B. 60 ｜ C. 125 ｜ D. 15 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：A(5,3)=5×4×3=60。 A. 7 ｜ B. 12 ｜ C. 34 ｜ D. 4 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：分两步，用乘法原理：3×4=12。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n分类相加（互斥），分步相乘（相依）\n<\/li><li>\nA(n,m)=n!/(n−m)!\n<\/li><li>\n有限制条件：特殊位置优先或排除法\n<\/ul>", "ch02": "<h1>第 2 章：组合与组合数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n判断问题是否与顺序有关\n<\/li><li>\n用 C(n,m) 计算并化简\n<\/li><li>\n使用组合数性质 C(n,m)=C(n,n−m)\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>组合只问“选哪些”，不问“怎么排”；所以 C(n,m)=A(n,m)/m!。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 从排列到组合<\/h3>\n<p>从 n 个里取 m 个，若只关心“取到哪 m 个”，组成的不同集合数为<\/p>\n<p>C(n,m)=A(n,m)/m!=n!/[m!(n−m)!]<\/p>\n<p>除以 m! 的理由：同一组 m 个元素，内部可以排出 m! 种不同顺序，这些在组合里算同一种。<\/p>\n<h3>2.2 判断有序无序<\/h3>\n<ul><li>\n有序：排队、编号、分配不同岗位、组成不同数；\n<\/li><li>\n无序：选代表、选队员、取若干件物品、分组（组本身不分次序）。\n<\/ul>\n<p>拿不准时问一句：把选出的元素互换位置，算不算新的结果？算就是排列。<\/p>\n<h3>2.3 性质<\/h3>\n<ul><li>\nC(n,m)=C(n,n−m)（选出 m 个等价于留下 n−m 个）；\n<\/li><li>\nC(n,0)=C(n,n)=1；\n<\/li><li>\nC(n,m)+C(n,m+1)=C(n+1,m+1)（杨辉恒等式）。\n<\/ul>\n<h3>2.4 常见陷阱<\/h3>\n<p>“至少”“至多”类问题要按类分开加，不能直接乘；混合了排列与组合的题，先分组再排列。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：排列像给选出的球队排首发位置，组合像只报名单不排位置。<\/p>\n<p><strong>失效边界<\/strong>：元素有重复或部分相同（如字母 AAB）时，C(n,m) 不能直接套用。<\/p>\n<p><strong>实例<\/strong>：从 8 人中选 3 人参加比赛（不分角色）：C(8,3)=56。 若 3 人分别担任不同角色：A(8,3)=336=56×6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 组合与排列只差一个符号 —— 实际上 差的是“顺序算不算不同结果”，这决定了是否除以 m!。\n<\/li><li>\n别以为 C(n,m) 一定小于 A(n,m) —— 实际上 m=0 或 1 时两者相等；m≥2 时组合数才更小。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n从 6 名同学中选 2 名当代表，共有多少种选法：\n<\/li><li>\nC(10,3) 的值是：\n<p>A. 30 ｜ B. 15 ｜ C. 12 ｜ D. 36 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：不分顺序，C(6,2)=15。 A. 120 ｜ B. 720 ｜ C. 240 ｜ D. 90 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：C(10,3)=10×9×8/6=120。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n组合＝排列除以 m!（同组内部顺序不计）\n<\/li><li>\n有序无序看“互换是否算新结果”\n<\/li><li>\nC(n,m)=C(n,n−m)\n<\/ul>", "ch03": "<h1>第 3 章：可重复排列与分组分配<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n计算允许重复的排列与不尽相异元素的排列\n<\/li><li>\n区分均匀分组与非均匀分组\n<\/li><li>\n按“先分组后分配”处理分派问题\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>允许重复时每一步都有 n 种；分组时若各组人数相同，要除以组数的阶乘。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 允许重复的排列<\/h3>\n<p>从 n 类元素中取 m 个，每类可取任意多次，排成一列，数目为 nᵐ。理由：每一位都有 n 种选择，且互不影响。<\/p>\n<p>例：用 0、1、2 组成三位数（数字可重复），首位不能为 0：2×3×3=18 个。<\/p>\n<h3>3.2 不尽相异元素的全排列<\/h3>\n<p>n 个元素中有 n₁ 个相同、n₂ 个相同……则不同排列数为<\/p>\n<p>n!/(n₁!n₂!…)<\/p>\n<p>因为相同的元素互换位置不算新排列。<\/p>\n<h3>3.3 分组问题<\/h3>\n<p>把 n 个不同元素分成若干组：<\/p>\n<ul><li>\n<strong>非均匀分组<\/strong>（各组人数不同）：直接按组合数依次取，再相乘；\n<\/li><li>\n<strong>均匀分组<\/strong>（各组人数相同）：乘完之后要除以组数的阶乘，因为组与组之间没有标号，互换整组不算新分法。\n<\/ul>\n<p>例：6 人平均分成 3 组，每组 2 人：C(6,2)C(4,2)C(2,2)/3!=15。若不除以 3!，得到 90，是把组的标号也算进去了。<\/p>\n<h3>3.4 分配问题<\/h3>\n<p>若组有明确归属（如分到 3 个不同班级），则先分组、再对组做全排列（分配）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：均匀分组像把 6 个苹果装进 3 个一模一样的袋子，袋子互换不算新装法。<\/p>\n<p><strong>失效边界<\/strong>：一旦袋子贴上标签（甲乙丙），互换就算新分法，不能再除。<\/p>\n<p><strong>实例<\/strong>：4 人分成两组，每组 2 人：C(4,2)C(2,2)/2!=3。 若分成“甲组 2 人、乙组 2 人”：C(4,2)=6（另一组自动确定）。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 均匀分组不用除组数阶乘 —— 实际上 不除就把“哪一组先取”当成了区别，重复计算了 组数! 倍。\n<\/li><li>\n别以为 分组与分配是一回事 —— 实际上 分组只看集合划分；分配还要决定每组去哪个位置，多一步全排列。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n用 1、2、3 组成允许重复的三位数，共有多少个：\n<\/li><li>\n6 人平均分成 3 组，每组 2 人，共有多少种分法：\n<p>A. 6 ｜ B. 9 ｜ C. 27 ｜ D. 81 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：每一位都有 3 种选择：3³=27。 A. 90 ｜ B. 15 ｜ C. 60 ｜ D. 20 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：C(6,2)C(4,2)C(2,2)/3!=15×6×1/6=15。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n允许重复：nᵐ；相同元素：n!/(n₁!n₂!…)\n<\/li><li>\n均匀分组要除以组数阶乘\n<\/li><li>\n先分组后分配\n<\/ul>", "c01": "<h1>有序与无序<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>互换两个元素算不算新结果，决定用排列还是组合。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是计数题的第一个判断，选错公式后面全错。<\/p>\n<h2>详解<\/h2>\n<p>排队、编号、不同岗位、组数（如 123 与 321 不同）都是有序；选代表、选物品、分组（组内不分次序）都是无序。拿不准就用小数字试：2 个元素互换，结果变了就是排列。<\/p>\n<h2>常见误解<\/h2>\n<p>看到“选”就用组合，看到“排”就用排列，不看具体语境。<\/p>\n<h2>相关概念<\/h2>\n<p>排列（ch01）、组合（ch02）<\/p>", "c02": "<h1>先分组后分配<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>先把元素分成若干组（无标号），再把组派到具体位置（有标号）。<\/p>\n<h2>为什么重要<\/h2>\n<p>分组分配类问题几乎都靠这个结构，混着做必然重复或遗漏。<\/p>\n<h2>详解<\/h2>\n<p>分组阶段用组合数，均匀分组要除以组数阶乘；分配阶段对组做全排列。两步相乘。若题目直接给了组的名号（甲乙丙），说明已经带标号，只剩分配一步。<\/p>\n<h2>常见误解<\/h2>\n<p>把分组和分配合并成一次排列，导致同一种分法被反复计数。<\/p>\n<h2>相关概念<\/h2>\n<p>均匀分组（ch03）、组合数（ch02）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：两条原理与排列<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：两条原理与排列<\/a><br>检查点：能判断一道题该加还是该乘<\/li><li class='path-step' id='path-02'><strong>步骤 02：组合与组合数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：组合与组合数<\/a><br>检查点：能判断有序无序并选出正确公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：可重复排列与分组分配<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：可重复排列与分组分配<\/a><br>检查点：能把分组问题按“均匀/非均匀”分开处理<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 从 7 人中选 3 人排成一排照相，共有多少种排法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 35<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 210<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 343<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 21<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 把 4 本不同的书平均分成两堆，每堆 2 本，共有多少种分法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 12<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：两条原理与排列<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 从 5 人中选 3 人排成一排，共有多少种排法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 10<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 60<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 125<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 15<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 7<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 12<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 34<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：组合与组合数<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 从 6 名同学中选 2 名当代表，共有多少种选法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 30<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 12<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 36<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> C(10,3) 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 120<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 720<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 240<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 90<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：可重复排列与分组分配<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 用 1、2、3 组成允许重复的三位数，共有多少个：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 9<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 27<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 81<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 6 人平均分成 3 组，每组 2 人，共有多少种分法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 90<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 60<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 20<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='加法原理'>加法原理 — 分类计数，各类互斥则相加。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='乘法原理'>乘法原理 — 分步计数，各步相依则相乘。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='排列'>排列 — 取出的元素要计顺序的排法。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='全排列'>全排列 — n 个元素全部参与排列，共 n! 种。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='组合'>组合 — 只计取出哪些元素、不计顺序。 <span class=glossary-ref>（第 2 章：组合与组合数）<\/span><\/li><li data-term='组合数'>组合数 — C(n,m)=n!/[m!(n−m)!]。 <span class=glossary-ref>（第 2 章：组合与组合数）<\/span><\/li><li data-term='可重复排列'>可重复排列 — 元素可重复取用，数目为 nᵐ。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><li data-term='均匀分组'>均匀分组 — 各组元素个数相同，需除以组数阶乘。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><li data-term='分配'>分配 — 把分好的组派到有标号的位置。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：计数四问<\/h2>\n<p>① 完成这件事是分类还是分步？② 元素能否重复？③ 顺序算不算不同？④ 组有没有标号？四问答完，公式自然定。<\/p>\n<h2>框架：复杂题拆解<\/h2>\n<p>先按“至少/至多/限制条件”分类，类内再分步，最后把各类相加。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>加法原理<\/td><td>分类互斥，N=n₁+…+n_k<\/td><\/tr><tr><td>乘法原理<\/td><td>分步相依，N=n₁…n_k<\/td><\/tr><tr><td>排列数<\/td><td>A(n,m)=n!/(n−m)!<\/td><\/tr><tr><td>组合数<\/td><td>C(n,m)=n!/[m!(n−m)!]<\/td><\/tr><tr><td>组合性质<\/td><td>C(n,m)=C(n,n−m)；C(n,0)=1<\/td><\/tr><tr><td>可重复<\/td><td>nᵐ<\/td><\/tr><tr><td>均匀分组<\/td><td>除以组数阶乘<\/td><\/tr><\/tbody><\/table>"}};
+const DATA = {"manifest": {"slug": "permutations-combinations", "title": "排列与组合", "subtitle": "数得清，才说得准：两条原理与三类模型", "book": {"title": "排列与组合", "author": "吴世煦", "source": ["数学基础知识丛书-08-排列与组合 吴世煦.pdf"]}, "audience": "零基础", "goal": "掌握加法原理与乘法原理，会用排列数、组合数公式计数，能处理可重复与分组分配问题。", "learningPath": [{"step": "01", "title": "两条原理与排列", "chapterIds": ["ch01"], "checkpoint": "能判断一道题该加还是该乘"}, {"step": "02", "title": "组合与组合数", "chapterIds": ["ch02"], "checkpoint": "能判断有序无序并选出正确公式"}, {"step": "03", "title": "可重复排列与分组分配", "chapterIds": ["ch03"], "checkpoint": "能把分组问题按“均匀/非均匀”分开处理"}], "chapters": [{"id": "ch01", "title": "第 1 章：两条原理与排列", "file": "chapters/ch01-principles-permutation.md", "difficulty": 2, "source": {"file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf", "kind": "原书 PDF"}, "prereqNote": "乘法、阶乘", "depthFragment": "chapters/ch01-depth.md", "prerequisites": []}, {"id": "ch02", "title": "第 2 章：组合与组合数", "file": "chapters/ch02-combination.md", "difficulty": 2, "source": {"file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch02-depth.md", "prerequisites": ["ch01"]}, {"id": "ch03", "title": "第 3 章：可重复排列与分组分配", "file": "chapters/ch03-repeat-grouping.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch03-depth.md", "prerequisites": ["ch02"]}], "concepts": [{"id": "c01", "title": "有序与无序", "file": "concepts/c01-ordered-unordered.md", "chapterIds": ["ch01", "ch02"], "source": {"file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch01", "ch02"]}, {"id": "c02", "title": "先分组后分配", "file": "concepts/c02-group-then-assign.md", "chapterIds": ["ch03"], "source": {"file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch03"]}], "glossary": [{"term": "加法原理", "def": "分类计数，各类互斥则相加。", "chapterId": "ch01"}, {"term": "乘法原理", "def": "分步计数，各步相依则相乘。", "chapterId": "ch01"}, {"term": "排列", "def": "取出的元素要计顺序的排法。", "chapterId": "ch01"}, {"term": "全排列", "def": "n 个元素全部参与排列，共 n! 种。", "chapterId": "ch01"}, {"term": "组合", "def": "只计取出哪些元素、不计顺序。", "chapterId": "ch02"}, {"term": "组合数", "def": "C(n,m)=n!/[m!(n−m)!]。", "chapterId": "ch02"}, {"term": "可重复排列", "def": "元素可重复取用，数目为 nᵐ。", "chapterId": "ch03"}, {"term": "均匀分组", "def": "各组元素个数相同，需除以组数阶乘。", "chapterId": "ch03"}, {"term": "分配", "def": "把分好的组派到有标号的位置。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "从 5 人中选 3 人排成一排，共有多少种排法：", "options": ["10", "60", "125", "15"], "answer": 1, "explain": "A(5,3)=5×4×3=60。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：", "options": ["7", "12", "34", "4"], "answer": 1, "explain": "分两步，用乘法原理：3×4=12。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "从 6 名同学中选 2 名当代表，共有多少种选法：", "options": ["30", "15", "12", "36"], "answer": 1, "explain": "不分顺序，C(6,2)=15。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "C(10,3) 的值是：", "options": ["120", "720", "240", "90"], "answer": 0, "explain": "C(10,3)=10×9×8/6=120。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "用 1、2、3 组成允许重复的三位数，共有多少个：", "options": ["6", "9", "27", "81"], "answer": 2, "explain": "每一位都有 3 种选择：3³=27。", "relatedConceptId": "c02", "prerequisites": ["ch03"]}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "6 人平均分成 3 组，每组 2 人，共有多少种分法：", "options": ["90", "15", "60", "20"], "answer": 1, "explain": "C(6,2)C(4,2)C(2,2)/3!=15×6×1/6=15。", "relatedConceptId": "c02", "prerequisites": ["ch03"]}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "从 7 人中选 3 人排成一排照相，共有多少种排法：", "options": ["35", "210", "343", "21"], "answer": 1, "explain": "有序，A(7,3)=7×6×5=210。", "relatedConceptId": "", "prerequisites": ["__all__"]}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "把 4 本不同的书平均分成两堆，每堆 2 本，共有多少种分法：", "options": ["6", "3", "12", "4"], "answer": 1, "explain": "C(4,2)C(2,2)/2!=3，两堆无标号要除以 2!。", "relatedConceptId": "", "prerequisites": ["__all__"]}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：两条原理与排列」的一句话核心是什么？", "back": "分类用加法、分步用乘法；有序用排列。", "tags": ["permutations-combinations", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：组合与组合数」的一句话核心是什么？", "back": "组合只问“选哪些”，不问“怎么排”；所以 C(n,m)=A(n,m)/m!。", "tags": ["permutations-combinations", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：可重复排列与分组分配」的一句话核心是什么？", "back": "允许重复时每一步都有 n 种；分组时若各组人数相同，要除以组数的阶乘。", "tags": ["permutations-combinations", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「加法原理」？", "back": "分类计数，各类互斥则相加。", "tags": ["permutations-combinations", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「乘法原理」？", "back": "分步计数，各步相依则相乘。", "tags": ["permutations-combinations", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「排列」？", "back": "取出的元素要计顺序的排法。", "tags": ["permutations-combinations", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「全排列」？", "back": "n 个元素全部参与排列，共 n! 种。", "tags": ["permutations-combinations", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「组合」？", "back": "只计取出哪些元素、不计顺序。", "tags": ["permutations-combinations", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「组合数」？", "back": "C(n,m)=n!/[m!(n−m)!]。", "tags": ["permutations-combinations", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「可重复排列」？", "back": "元素可重复取用，数目为 nᵐ。", "tags": ["permutations-combinations", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「均匀分组」？", "back": "各组元素个数相同，需除以组数阶乘。", "tags": ["permutations-combinations", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「分配」？", "back": "把分好的组派到有标号的位置。", "tags": ["permutations-combinations", "术语"]}], "companion": "permutations-combinations学习伴侣.html", "deriv": "permutations-combinations从零推导.html"}, "pages": {"ch01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">乘法、阶乘<\/span><\/div><h1>第 1 章：两条原理与排列<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：乘法、阶乘\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n区分分类与分步并选用加法或乘法原理\n<\/li><li>\n推导排列数公式\n<\/li><li>\n处理有限制条件的排列\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>分类用加法、分步用乘法；有序用排列。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 加法原理<\/h3>\n<p>完成一件事有 k 类互斥的办法，第 i 类有 nᵢ 种，则总数为 n₁+n₂+…+n_k。<\/p>\n<p>关键词是<strong>互斥<\/strong>：同一件事不能既算在第 1 类又算在第 2 类，否则会重复计数。<\/p>\n<h3>1.2 乘法原理<\/h3>\n<p>完成一件事要分 k 步，第 i 步有 nᵢ 种，则总数为 n₁n₂…n_k。<\/p>\n<p>关键词是<strong>相依<\/strong>：前一步选了什么，会限制后一步的选择数。<\/p>\n<h3>1.3 排列<\/h3>\n<p>从 n 个不同元素中取 m 个按顺序排成一列，数目为<\/p>\n<p>A(n,m)=n(n−1)…(n−m+1)=n!/(n−m)!<\/p>\n<p>推导就是乘法原理：第 1 个位置 n 种、第 2 个 n−1 种……第 m 个 n−m+1 种。<\/p>\n<p>m=n 时叫全排列，A(n,n)=n!。<\/p>\n<h3>1.4 有限制条件<\/h3>\n<p>“甲不站排头”这类条件，常用两种办法：<strong>特殊位置优先<\/strong>（先排受限制的位置），或<strong>排除法<\/strong>（总数减去不合要求的）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：分类像走不同的门进同一个房间，走哪扇门都行；分步像先开门再上楼，少一步就到不了。<\/p>\n<p><strong>失效边界<\/strong>：分类必须互斥，分步必须覆盖全部过程；有交叉或遗漏就会算错。<\/p>\n<p><strong>实例<\/strong>：5 人排成一排，甲不站两端。 先排甲：中间 3 个位置任选，3 种；其余 4 人全排列 4!=24 种。共 3×24=72 种。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 分类和分步可以混用 —— 实际上 两者对应不同的结构：互斥的选择相加，先后依赖的步骤相乘。混用会重复或遗漏。\n<\/li><li>\n别以为 A(n,m) 就是 n 的阶乘 —— 实际上 只有 m=n 时才是 n!；一般要除掉 (n−m)!。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n从 5 人中选 3 人排成一排，共有多少种排法：\n<\/li><li>\n从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：\n<p>A. 10 ｜ B. 60 ｜ C. 125 ｜ D. 15 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：A(5,3)=5×4×3=60。 A. 7 ｜ B. 12 ｜ C. 34 ｜ D. 4 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：分两步，用乘法原理：3×4=12。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n分类相加（互斥），分步相乘（相依）\n<\/li><li>\nA(n,m)=n!/(n−m)!\n<\/li><li>\n有限制条件：特殊位置优先或排除法\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：两条原理与排列）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：两条原理与排列<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>两条原理分别对应“或者”和“然后”：或者就加，然后就乘。排列公式就是乘法原理的连续使用。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>从 n 个不同元素中取 m 个按一定顺序排列，叫排列，其个数记 A(n,m)。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像排队买票：第一个位置谁站都行，第二个位置只剩 n−1 个人可选。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 加法原理<\/h3>\n<div class=\"katex-block\">N=n_{1}+n_{2}+\\cdots+n_{k}<\/div>\n<p>k 类办法互斥，每类各自能独立完成任务。<\/p>\n<h3>2. 乘法原理<\/h3>\n<div class=\"katex-block\">N=n_{1}\\cdot n_{2}\\cdots n_{k}<\/div>\n<p>k 步依次完成，缺一步任务就没完成。<\/p>\n<h3>3. 排列数<\/h3>\n<div class=\"katex-block\">A(n,m)=n(n-1)\\cdots(n-m+1)=\\frac{n!}{(n-m)!}<\/div>\n<p>逐个位置按乘法原理相乘。<\/p>\n<h3>4. 全排列<\/h3>\n<div class=\"katex-block\">A(n,n)=n!<\/div>\n<p>m=n 时，从 n 个位置一路排到底。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>元素必须互不相同；有重复元素时不能直接用 A(n,m)。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《排列与组合》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 1 章：两条原理与排列"}, "ch02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：两条原理与排列<\/a><\/span><\/div><h1>第 2 章：组合与组合数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n判断问题是否与顺序有关\n<\/li><li>\n用 C(n,m) 计算并化简\n<\/li><li>\n使用组合数性质 C(n,m)=C(n,n−m)\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>组合只问“选哪些”，不问“怎么排”；所以 C(n,m)=A(n,m)/m!。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 从排列到组合<\/h3>\n<p>从 n 个里取 m 个，若只关心“取到哪 m 个”，组成的不同集合数为<\/p>\n<p>C(n,m)=A(n,m)/m!=n!/[m!(n−m)!]<\/p>\n<p>除以 m! 的理由：同一组 m 个元素，内部可以排出 m! 种不同顺序，这些在组合里算同一种。<\/p>\n<h3>2.2 判断有序无序<\/h3>\n<ul><li>\n有序：排队、编号、分配不同岗位、组成不同数；\n<\/li><li>\n无序：选代表、选队员、取若干件物品、分组（组本身不分次序）。\n<\/ul>\n<p>拿不准时问一句：把选出的元素互换位置，算不算新的结果？算就是排列。<\/p>\n<h3>2.3 性质<\/h3>\n<ul><li>\nC(n,m)=C(n,n−m)（选出 m 个等价于留下 n−m 个）；\n<\/li><li>\nC(n,0)=C(n,n)=1；\n<\/li><li>\nC(n,m)+C(n,m+1)=C(n+1,m+1)（杨辉恒等式）。\n<\/ul>\n<h3>2.4 常见陷阱<\/h3>\n<p>“至少”“至多”类问题要按类分开加，不能直接乘；混合了排列与组合的题，先分组再排列。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：排列像给选出的球队排首发位置，组合像只报名单不排位置。<\/p>\n<p><strong>失效边界<\/strong>：元素有重复或部分相同（如字母 AAB）时，C(n,m) 不能直接套用。<\/p>\n<p><strong>实例<\/strong>：从 8 人中选 3 人参加比赛（不分角色）：C(8,3)=56。 若 3 人分别担任不同角色：A(8,3)=336=56×6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 组合与排列只差一个符号 —— 实际上 差的是“顺序算不算不同结果”，这决定了是否除以 m!。\n<\/li><li>\n别以为 C(n,m) 一定小于 A(n,m) —— 实际上 m=0 或 1 时两者相等；m≥2 时组合数才更小。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n从 6 名同学中选 2 名当代表，共有多少种选法：\n<\/li><li>\nC(10,3) 的值是：\n<p>A. 30 ｜ B. 15 ｜ C. 12 ｜ D. 36 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：不分顺序，C(6,2)=15。 A. 120 ｜ B. 720 ｜ C. 240 ｜ D. 90 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：C(10,3)=10×9×8/6=120。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n组合＝排列除以 m!（同组内部顺序不计）\n<\/li><li>\n有序无序看“互换是否算新结果”\n<\/li><li>\nC(n,m)=C(n,n−m)\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：组合与组合数）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：组合与组合数<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>组合不是新公式，而是“把排列里重复算的部分除掉”。除以 m! 的理由只有一个：同一组内部有 m! 种排法。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>从 n 个不同元素中取 m 个组成一组（不计顺序），叫组合，个数记 C(n,m)。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像点菜：先选哪几样是组合，再决定先上哪道是排列。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 关系<\/h3>\n<div class=\"katex-block\">A(n,m)=C(n,m)\\cdot m!<\/div>\n<p>先分组（组合），再在组内排序（m!），两步相乘得到排列数。<\/p>\n<h3>2. 组合数公式<\/h3>\n<div class=\"katex-block\">C(n,m)=\\frac{n!}{m!(n-m)!}<\/div>\n<p>由上式反解，除掉组内顺序造成的重复。<\/p>\n<h3>3. 对称性<\/h3>\n<div class=\"katex-block\">C(n,m)=C(n,n-m)<\/div>\n<p>选出的与留下的互补，数目相同。<\/p>\n<h3>4. 杨辉恒等式<\/h3>\n<div class=\"katex-block\">C(n,m)+C(n,m+1)=C(n+1,m+1)<\/div>\n<p>按“是否包含某个特定元素”分类相加，正好得到下一行。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>元素必须互异；含相同元素时要先处理重复，不能直接套 C(n,m)。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《排列与组合》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 2 章：组合与组合数"}, "ch03": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：组合与组合数<\/a><\/span><\/div><h1>第 3 章：可重复排列与分组分配<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n计算允许重复的排列与不尽相异元素的排列\n<\/li><li>\n区分均匀分组与非均匀分组\n<\/li><li>\n按“先分组后分配”处理分派问题\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>允许重复时每一步都有 n 种；分组时若各组人数相同，要除以组数的阶乘。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 允许重复的排列<\/h3>\n<p>从 n 类元素中取 m 个，每类可取任意多次，排成一列，数目为 nᵐ。理由：每一位都有 n 种选择，且互不影响。<\/p>\n<p>例：用 0、1、2 组成三位数（数字可重复），首位不能为 0：2×3×3=18 个。<\/p>\n<h3>3.2 不尽相异元素的全排列<\/h3>\n<p>n 个元素中有 n₁ 个相同、n₂ 个相同……则不同排列数为<\/p>\n<p>n!/(n₁!n₂!…)<\/p>\n<p>因为相同的元素互换位置不算新排列。<\/p>\n<h3>3.3 分组问题<\/h3>\n<p>把 n 个不同元素分成若干组：<\/p>\n<ul><li>\n<strong>非均匀分组<\/strong>（各组人数不同）：直接按组合数依次取，再相乘；\n<\/li><li>\n<strong>均匀分组<\/strong>（各组人数相同）：乘完之后要除以组数的阶乘，因为组与组之间没有标号，互换整组不算新分法。\n<\/ul>\n<p>例：6 人平均分成 3 组，每组 2 人：C(6,2)C(4,2)C(2,2)/3!=15。若不除以 3!，得到 90，是把组的标号也算进去了。<\/p>\n<h3>3.4 分配问题<\/h3>\n<p>若组有明确归属（如分到 3 个不同班级），则先分组、再对组做全排列（分配）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：均匀分组像把 6 个苹果装进 3 个一模一样的袋子，袋子互换不算新装法。<\/p>\n<p><strong>失效边界<\/strong>：一旦袋子贴上标签（甲乙丙），互换就算新分法，不能再除。<\/p>\n<p><strong>实例<\/strong>：4 人分成两组，每组 2 人：C(4,2)C(2,2)/2!=3。 若分成“甲组 2 人、乙组 2 人”：C(4,2)=6（另一组自动确定）。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 均匀分组不用除组数阶乘 —— 实际上 不除就把“哪一组先取”当成了区别，重复计算了 组数! 倍。\n<\/li><li>\n别以为 分组与分配是一回事 —— 实际上 分组只看集合划分；分配还要决定每组去哪个位置，多一步全排列。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n用 1、2、3 组成允许重复的三位数，共有多少个：\n<\/li><li>\n6 人平均分成 3 组，每组 2 人，共有多少种分法：\n<p>A. 6 ｜ B. 9 ｜ C. 27 ｜ D. 81 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：每一位都有 3 种选择：3³=27。 A. 90 ｜ B. 15 ｜ C. 60 ｜ D. 20 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：C(6,2)C(4,2)C(2,2)/3!=15×6×1/6=15。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n允许重复：nᵐ；相同元素：n!/(n₁!n₂!…)\n<\/li><li>\n均匀分组要除以组数阶乘\n<\/li><li>\n先分组后分配\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：可重复排列与分组分配）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：可重复排列与分组分配<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>可重复与分组是两条容易混的规则：前者“每步都满额”，后者“整组互换不算新”。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>允许重复的排列指同一元素可多次出现；分组指把元素划分成若干无标号的子集。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像发牌：每张牌发到谁手上是分配；把牌分成几堆不标号，是分组。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 可重复排列<\/h3>\n<div class=\"katex-block\">\\underbrace{n\\cdot n\\cdots n}_{m\\ \\text{位}}=n^{m}<\/div>\n<p>每一位都独立地有 n 种选择。<\/p>\n<h3>2. 不尽相异<\/h3>\n<div class=\"katex-block\">\\frac{n!}{n_{1}!n_{2}!\\cdots}<\/div>\n<p>相同元素互换不算新排列，所以要除掉。<\/p>\n<h3>3. 均匀分组<\/h3>\n<div class=\"katex-block\">\\frac{C(n,k)C(n-k,k)\\cdots}{m!}<\/div>\n<p>m 个同样大小的组互换不产生新分法。<\/p>\n<h3>4. 先分后配<\/h3>\n<div class=\"katex-block\">\\text{分组数}\\times m!<\/div>\n<p>组有标号时，再对 m 个组做全排列分配。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>分组结果是否要除以阶乘，取决于组有没有标号；有标号就不能除。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《排列与组合》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 3 章：可重复排列与分组分配"}, "c01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：两条原理与排列<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：组合与组合数<\/a><\/span><\/div><h1>有序与无序<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>互换两个元素算不算新结果，决定用排列还是组合。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是计数题的第一个判断，选错公式后面全错。<\/p>\n<h2>详解<\/h2>\n<p>排队、编号、不同岗位、组数（如 123 与 321 不同）都是有序；选代表、选物品、分组（组内不分次序）都是无序。拿不准就用小数字试：2 个元素互换，结果变了就是排列。<\/p>\n<h2>常见误解<\/h2>\n<p>看到“选”就用组合，看到“排”就用排列，不看具体语境。<\/p>\n<h2>相关概念<\/h2>\n<p>排列（ch01）、组合（ch02）<\/p>", "kind": "concept", "title": "有序与无序"}, "c02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：可重复排列与分组分配<\/a><\/span><\/div><h1>先分组后分配<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>先把元素分成若干组（无标号），再把组派到具体位置（有标号）。<\/p>\n<h2>为什么重要<\/h2>\n<p>分组分配类问题几乎都靠这个结构，混着做必然重复或遗漏。<\/p>\n<h2>详解<\/h2>\n<p>分组阶段用组合数，均匀分组要除以组数阶乘；分配阶段对组做全排列。两步相乘。若题目直接给了组的名号（甲乙丙），说明已经带标号，只剩分配一步。<\/p>\n<h2>常见误解<\/h2>\n<p>把分组和分配合并成一次排列，导致同一种分法被反复计数。<\/p>\n<h2>相关概念<\/h2>\n<p>均匀分组（ch03）、组合数（ch02）<\/p>", "kind": "concept", "title": "先分组后分配"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：两条原理与排列<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：两条原理与排列<\/a><br>检查点：能判断一道题该加还是该乘<\/li><li class='path-step' id='path-02'><strong>步骤 02：组合与组合数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：组合与组合数<\/a><br>检查点：能判断有序无序并选出正确公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：可重复排列与分组分配<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：可重复排列与分组分配<\/a><br>检查点：能把分组问题按“均匀/非均匀”分开处理<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__graph__": {"html": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "kind": "graph", "title": "知识图谱"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 从 7 人中选 3 人排成一排照相，共有多少种排法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 35<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 210<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 343<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 21<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 把 4 本不同的书平均分成两堆，每堆 2 本，共有多少种分法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 12<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：两条原理与排列<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 从 5 人中选 3 人排成一排，共有多少种排法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 10<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 60<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 125<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 15<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 7<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 12<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 34<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：组合与组合数<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 从 6 名同学中选 2 名当代表，共有多少种选法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 30<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 12<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 36<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> C(10,3) 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 120<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 720<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 240<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 90<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：可重复排列与分组分配<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c02' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 用 1、2、3 组成允许重复的三位数，共有多少个：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 9<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 27<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 81<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c02' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 6 人平均分成 3 组，每组 2 人，共有多少种分法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 90<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 60<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 20<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='加法原理'>加法原理 — 分类计数，各类互斥则相加。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='乘法原理'>乘法原理 — 分步计数，各步相依则相乘。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='排列'>排列 — 取出的元素要计顺序的排法。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='全排列'>全排列 — n 个元素全部参与排列，共 n! 种。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='组合'>组合 — 只计取出哪些元素、不计顺序。 <span class=glossary-ref>（第 2 章：组合与组合数）<\/span><\/li><li data-term='组合数'>组合数 — C(n,m)=n!/[m!(n−m)!]。 <span class=glossary-ref>（第 2 章：组合与组合数）<\/span><\/li><li data-term='可重复排列'>可重复排列 — 元素可重复取用，数目为 nᵐ。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><li data-term='均匀分组'>均匀分组 — 各组元素个数相同，需除以组数阶乘。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><li data-term='分配'>分配 — 把分好的组派到有标号的位置。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__diagnosis__": {"html": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "kind": "diagnosis", "title": "诊断测试"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：计数四问<\/h2>\n<p>① 完成这件事是分类还是分步？② 元素能否重复？③ 顺序算不算不同？④ 组有没有标号？四问答完，公式自然定。<\/p>\n<h2>框架：复杂题拆解<\/h2>\n<p>先按“至少/至多/限制条件”分类，类内再分步，最后把各类相加。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>加法原理<\/td><td>分类互斥，N=n₁+…+n_k<\/td><\/tr><tr><td>乘法原理<\/td><td>分步相依，N=n₁…n_k<\/td><\/tr><tr><td>排列数<\/td><td>A(n,m)=n!/(n−m)!<\/td><\/tr><tr><td>组合数<\/td><td>C(n,m)=n!/[m!(n−m)!]<\/td><\/tr><tr><td>组合性质<\/td><td>C(n,m)=C(n,n−m)；C(n,0)=1<\/td><\/tr><tr><td>可重复<\/td><td>nᵐ<\/td><\/tr><tr><td>均匀分组<\/td><td>除以组数阶乘<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/08-排列与组合", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "🕸 知识图谱", "href": "#/graph"}, {"label": "🩺 诊断测试", "href": "#/diagnosis"}, {"label": "章节", "children": [{"label": "第 1 章：两条原理与排列", "href": "#/chapter/ch01"}, {"label": "第 2 章：组合与组合数", "href": "#/chapter/ch02"}, {"label": "第 3 章：可重复排列与分组分配", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "有序与无序", "href": "#/concept/c01"}, {"label": "先分组后分配", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：两条原理与排列", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：组合与组合数", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：可重复排列与分组分配", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">乘法、阶乘<\/span><\/div><h1>第 1 章：两条原理与排列<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：乘法、阶乘\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n区分分类与分步并选用加法或乘法原理\n<\/li><li>\n推导排列数公式\n<\/li><li>\n处理有限制条件的排列\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>分类用加法、分步用乘法；有序用排列。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 加法原理<\/h3>\n<p>完成一件事有 k 类互斥的办法，第 i 类有 nᵢ 种，则总数为 n₁+n₂+…+n_k。<\/p>\n<p>关键词是<strong>互斥<\/strong>：同一件事不能既算在第 1 类又算在第 2 类，否则会重复计数。<\/p>\n<h3>1.2 乘法原理<\/h3>\n<p>完成一件事要分 k 步，第 i 步有 nᵢ 种，则总数为 n₁n₂…n_k。<\/p>\n<p>关键词是<strong>相依<\/strong>：前一步选了什么，会限制后一步的选择数。<\/p>\n<h3>1.3 排列<\/h3>\n<p>从 n 个不同元素中取 m 个按顺序排成一列，数目为<\/p>\n<p>A(n,m)=n(n−1)…(n−m+1)=n!/(n−m)!<\/p>\n<p>推导就是乘法原理：第 1 个位置 n 种、第 2 个 n−1 种……第 m 个 n−m+1 种。<\/p>\n<p>m=n 时叫全排列，A(n,n)=n!。<\/p>\n<h3>1.4 有限制条件<\/h3>\n<p>“甲不站排头”这类条件，常用两种办法：<strong>特殊位置优先<\/strong>（先排受限制的位置），或<strong>排除法<\/strong>（总数减去不合要求的）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：分类像走不同的门进同一个房间，走哪扇门都行；分步像先开门再上楼，少一步就到不了。<\/p>\n<p><strong>失效边界<\/strong>：分类必须互斥，分步必须覆盖全部过程；有交叉或遗漏就会算错。<\/p>\n<p><strong>实例<\/strong>：5 人排成一排，甲不站两端。 先排甲：中间 3 个位置任选，3 种；其余 4 人全排列 4!=24 种。共 3×24=72 种。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 分类和分步可以混用 —— 实际上 两者对应不同的结构：互斥的选择相加，先后依赖的步骤相乘。混用会重复或遗漏。\n<\/li><li>\n别以为 A(n,m) 就是 n 的阶乘 —— 实际上 只有 m=n 时才是 n!；一般要除掉 (n−m)!。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n从 5 人中选 3 人排成一排，共有多少种排法：\n<\/li><li>\n从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：\n<p>A. 10 ｜ B. 60 ｜ C. 125 ｜ D. 15 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：A(5,3)=5×4×3=60。 A. 7 ｜ B. 12 ｜ C. 34 ｜ D. 4 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：分两步，用乘法原理：3×4=12。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n分类相加（互斥），分步相乘（相依）\n<\/li><li>\nA(n,m)=n!/(n−m)!\n<\/li><li>\n有限制条件：特殊位置优先或排除法\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：两条原理与排列）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：两条原理与排列<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>两条原理分别对应“或者”和“然后”：或者就加，然后就乘。排列公式就是乘法原理的连续使用。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>从 n 个不同元素中取 m 个按一定顺序排列，叫排列，其个数记 A(n,m)。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像排队买票：第一个位置谁站都行，第二个位置只剩 n−1 个人可选。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 加法原理<\/h3>\n<div class=\"katex-block\">N=n_{1}+n_{2}+\\cdots+n_{k}<\/div>\n<p>k 类办法互斥，每类各自能独立完成任务。<\/p>\n<h3>2. 乘法原理<\/h3>\n<div class=\"katex-block\">N=n_{1}\\cdot n_{2}\\cdots n_{k}<\/div>\n<p>k 步依次完成，缺一步任务就没完成。<\/p>\n<h3>3. 排列数<\/h3>\n<div class=\"katex-block\">A(n,m)=n(n-1)\\cdots(n-m+1)=\\frac{n!}{(n-m)!}<\/div>\n<p>逐个位置按乘法原理相乘。<\/p>\n<h3>4. 全排列<\/h3>\n<div class=\"katex-block\">A(n,n)=n!<\/div>\n<p>m=n 时，从 n 个位置一路排到底。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>元素必须互不相同；有重复元素时不能直接用 A(n,m)。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《排列与组合》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：两条原理与排列<\/a><\/span><\/div><h1>第 2 章：组合与组合数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n判断问题是否与顺序有关\n<\/li><li>\n用 C(n,m) 计算并化简\n<\/li><li>\n使用组合数性质 C(n,m)=C(n,n−m)\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>组合只问“选哪些”，不问“怎么排”；所以 C(n,m)=A(n,m)/m!。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 从排列到组合<\/h3>\n<p>从 n 个里取 m 个，若只关心“取到哪 m 个”，组成的不同集合数为<\/p>\n<p>C(n,m)=A(n,m)/m!=n!/[m!(n−m)!]<\/p>\n<p>除以 m! 的理由：同一组 m 个元素，内部可以排出 m! 种不同顺序，这些在组合里算同一种。<\/p>\n<h3>2.2 判断有序无序<\/h3>\n<ul><li>\n有序：排队、编号、分配不同岗位、组成不同数；\n<\/li><li>\n无序：选代表、选队员、取若干件物品、分组（组本身不分次序）。\n<\/ul>\n<p>拿不准时问一句：把选出的元素互换位置，算不算新的结果？算就是排列。<\/p>\n<h3>2.3 性质<\/h3>\n<ul><li>\nC(n,m)=C(n,n−m)（选出 m 个等价于留下 n−m 个）；\n<\/li><li>\nC(n,0)=C(n,n)=1；\n<\/li><li>\nC(n,m)+C(n,m+1)=C(n+1,m+1)（杨辉恒等式）。\n<\/ul>\n<h3>2.4 常见陷阱<\/h3>\n<p>“至少”“至多”类问题要按类分开加，不能直接乘；混合了排列与组合的题，先分组再排列。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：排列像给选出的球队排首发位置，组合像只报名单不排位置。<\/p>\n<p><strong>失效边界<\/strong>：元素有重复或部分相同（如字母 AAB）时，C(n,m) 不能直接套用。<\/p>\n<p><strong>实例<\/strong>：从 8 人中选 3 人参加比赛（不分角色）：C(8,3)=56。 若 3 人分别担任不同角色：A(8,3)=336=56×6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 组合与排列只差一个符号 —— 实际上 差的是“顺序算不算不同结果”，这决定了是否除以 m!。\n<\/li><li>\n别以为 C(n,m) 一定小于 A(n,m) —— 实际上 m=0 或 1 时两者相等；m≥2 时组合数才更小。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n从 6 名同学中选 2 名当代表，共有多少种选法：\n<\/li><li>\nC(10,3) 的值是：\n<p>A. 30 ｜ B. 15 ｜ C. 12 ｜ D. 36 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：不分顺序，C(6,2)=15。 A. 120 ｜ B. 720 ｜ C. 240 ｜ D. 90 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：C(10,3)=10×9×8/6=120。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n组合＝排列除以 m!（同组内部顺序不计）\n<\/li><li>\n有序无序看“互换是否算新结果”\n<\/li><li>\nC(n,m)=C(n,n−m)\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：组合与组合数）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：组合与组合数<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>组合不是新公式，而是“把排列里重复算的部分除掉”。除以 m! 的理由只有一个：同一组内部有 m! 种排法。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>从 n 个不同元素中取 m 个组成一组（不计顺序），叫组合，个数记 C(n,m)。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像点菜：先选哪几样是组合，再决定先上哪道是排列。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 关系<\/h3>\n<div class=\"katex-block\">A(n,m)=C(n,m)\\cdot m!<\/div>\n<p>先分组（组合），再在组内排序（m!），两步相乘得到排列数。<\/p>\n<h3>2. 组合数公式<\/h3>\n<div class=\"katex-block\">C(n,m)=\\frac{n!}{m!(n-m)!}<\/div>\n<p>由上式反解，除掉组内顺序造成的重复。<\/p>\n<h3>3. 对称性<\/h3>\n<div class=\"katex-block\">C(n,m)=C(n,n-m)<\/div>\n<p>选出的与留下的互补，数目相同。<\/p>\n<h3>4. 杨辉恒等式<\/h3>\n<div class=\"katex-block\">C(n,m)+C(n,m+1)=C(n+1,m+1)<\/div>\n<p>按“是否包含某个特定元素”分类相加，正好得到下一行。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>元素必须互异；含相同元素时要先处理重复，不能直接套 C(n,m)。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《排列与组合》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch03": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：组合与组合数<\/a><\/span><\/div><h1>第 3 章：可重复排列与分组分配<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n计算允许重复的排列与不尽相异元素的排列\n<\/li><li>\n区分均匀分组与非均匀分组\n<\/li><li>\n按“先分组后分配”处理分派问题\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>允许重复时每一步都有 n 种；分组时若各组人数相同，要除以组数的阶乘。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 允许重复的排列<\/h3>\n<p>从 n 类元素中取 m 个，每类可取任意多次，排成一列，数目为 nᵐ。理由：每一位都有 n 种选择，且互不影响。<\/p>\n<p>例：用 0、1、2 组成三位数（数字可重复），首位不能为 0：2×3×3=18 个。<\/p>\n<h3>3.2 不尽相异元素的全排列<\/h3>\n<p>n 个元素中有 n₁ 个相同、n₂ 个相同……则不同排列数为<\/p>\n<p>n!/(n₁!n₂!…)<\/p>\n<p>因为相同的元素互换位置不算新排列。<\/p>\n<h3>3.3 分组问题<\/h3>\n<p>把 n 个不同元素分成若干组：<\/p>\n<ul><li>\n<strong>非均匀分组<\/strong>（各组人数不同）：直接按组合数依次取，再相乘；\n<\/li><li>\n<strong>均匀分组<\/strong>（各组人数相同）：乘完之后要除以组数的阶乘，因为组与组之间没有标号，互换整组不算新分法。\n<\/ul>\n<p>例：6 人平均分成 3 组，每组 2 人：C(6,2)C(4,2)C(2,2)/3!=15。若不除以 3!，得到 90，是把组的标号也算进去了。<\/p>\n<h3>3.4 分配问题<\/h3>\n<p>若组有明确归属（如分到 3 个不同班级），则先分组、再对组做全排列（分配）。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：均匀分组像把 6 个苹果装进 3 个一模一样的袋子，袋子互换不算新装法。<\/p>\n<p><strong>失效边界<\/strong>：一旦袋子贴上标签（甲乙丙），互换就算新分法，不能再除。<\/p>\n<p><strong>实例<\/strong>：4 人分成两组，每组 2 人：C(4,2)C(2,2)/2!=3。 若分成“甲组 2 人、乙组 2 人”：C(4,2)=6（另一组自动确定）。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 均匀分组不用除组数阶乘 —— 实际上 不除就把“哪一组先取”当成了区别，重复计算了 组数! 倍。\n<\/li><li>\n别以为 分组与分配是一回事 —— 实际上 分组只看集合划分；分配还要决定每组去哪个位置，多一步全排列。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n用 1、2、3 组成允许重复的三位数，共有多少个：\n<\/li><li>\n6 人平均分成 3 组，每组 2 人，共有多少种分法：\n<p>A. 6 ｜ B. 9 ｜ C. 27 ｜ D. 81 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：每一位都有 3 种选择：3³=27。 A. 90 ｜ B. 15 ｜ C. 60 ｜ D. 20 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：C(6,2)C(4,2)C(2,2)/3!=15×6×1/6=15。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n允许重复：nᵐ；相同元素：n!/(n₁!n₂!…)\n<\/li><li>\n均匀分组要除以组数阶乘\n<\/li><li>\n先分组后分配\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：可重复排列与分组分配）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：可重复排列与分组分配<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>可重复与分组是两条容易混的规则：前者“每步都满额”，后者“整组互换不算新”。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>允许重复的排列指同一元素可多次出现；分组指把元素划分成若干无标号的子集。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像发牌：每张牌发到谁手上是分配；把牌分成几堆不标号，是分组。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 可重复排列<\/h3>\n<div class=\"katex-block\">\\underbrace{n\\cdot n\\cdots n}_{m\\ \\text{位}}=n^{m}<\/div>\n<p>每一位都独立地有 n 种选择。<\/p>\n<h3>2. 不尽相异<\/h3>\n<div class=\"katex-block\">\\frac{n!}{n_{1}!n_{2}!\\cdots}<\/div>\n<p>相同元素互换不算新排列，所以要除掉。<\/p>\n<h3>3. 均匀分组<\/h3>\n<div class=\"katex-block\">\\frac{C(n,k)C(n-k,k)\\cdots}{m!}<\/div>\n<p>m 个同样大小的组互换不产生新分法。<\/p>\n<h3>4. 先分后配<\/h3>\n<div class=\"katex-block\">\\text{分组数}\\times m!<\/div>\n<p>组有标号时，再对 m 个组做全排列分配。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>分组结果是否要除以阶乘，取决于组有没有标号；有标号就不能除。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《排列与组合》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "c01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：两条原理与排列<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：组合与组合数<\/a><\/span><\/div><h1>有序与无序<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>互换两个元素算不算新结果，决定用排列还是组合。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是计数题的第一个判断，选错公式后面全错。<\/p>\n<h2>详解<\/h2>\n<p>排队、编号、不同岗位、组数（如 123 与 321 不同）都是有序；选代表、选物品、分组（组内不分次序）都是无序。拿不准就用小数字试：2 个元素互换，结果变了就是排列。<\/p>\n<h2>常见误解<\/h2>\n<p>看到“选”就用组合，看到“排”就用排列，不看具体语境。<\/p>\n<h2>相关概念<\/h2>\n<p>排列（ch01）、组合（ch02）<\/p>", "c02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-08-排列与组合 吴世煦.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：可重复排列与分组分配<\/a><\/span><\/div><h1>先分组后分配<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>先把元素分成若干组（无标号），再把组派到具体位置（有标号）。<\/p>\n<h2>为什么重要<\/h2>\n<p>分组分配类问题几乎都靠这个结构，混着做必然重复或遗漏。<\/p>\n<h2>详解<\/h2>\n<p>分组阶段用组合数，均匀分组要除以组数阶乘；分配阶段对组做全排列。两步相乘。若题目直接给了组的名号（甲乙丙），说明已经带标号，只剩分配一步。<\/p>\n<h2>常见误解<\/h2>\n<p>把分组和分配合并成一次排列，导致同一种分法被反复计数。<\/p>\n<h2>相关概念<\/h2>\n<p>均匀分组（ch03）、组合数（ch02）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：两条原理与排列<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：两条原理与排列<\/a><br>检查点：能判断一道题该加还是该乘<\/li><li class='path-step' id='path-02'><strong>步骤 02：组合与组合数<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：组合与组合数<\/a><br>检查点：能判断有序无序并选出正确公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：可重复排列与分组分配<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：可重复排列与分组分配<\/a><br>检查点：能把分组问题按“均匀/非均匀”分开处理<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__graph__": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 从 7 人中选 3 人排成一排照相，共有多少种排法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 35<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 210<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 343<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 21<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 把 4 本不同的书平均分成两堆，每堆 2 本，共有多少种分法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 12<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：两条原理与排列<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 从 5 人中选 3 人排成一排，共有多少种排法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 10<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 60<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 125<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 15<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 从甲地到乙地有 3 条路，从乙地到丙地有 4 条路，从甲到丙必须经乙，共有多少种走法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 7<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 12<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 34<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：组合与组合数<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 从 6 名同学中选 2 名当代表，共有多少种选法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 30<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 12<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 36<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> C(10,3) 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 120<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 720<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 240<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 90<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：可重复排列与分组分配<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c02' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 用 1、2、3 组成允许重复的三位数，共有多少个：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 9<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 27<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 81<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c02' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 6 人平均分成 3 组，每组 2 人，共有多少种分法：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 90<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 15<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 60<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 20<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='加法原理'>加法原理 — 分类计数，各类互斥则相加。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='乘法原理'>乘法原理 — 分步计数，各步相依则相乘。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='排列'>排列 — 取出的元素要计顺序的排法。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='全排列'>全排列 — n 个元素全部参与排列，共 n! 种。 <span class=glossary-ref>（第 1 章：两条原理与排列）<\/span><\/li><li data-term='组合'>组合 — 只计取出哪些元素、不计顺序。 <span class=glossary-ref>（第 2 章：组合与组合数）<\/span><\/li><li data-term='组合数'>组合数 — C(n,m)=n!/[m!(n−m)!]。 <span class=glossary-ref>（第 2 章：组合与组合数）<\/span><\/li><li data-term='可重复排列'>可重复排列 — 元素可重复取用，数目为 nᵐ。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><li data-term='均匀分组'>均匀分组 — 各组元素个数相同，需除以组数阶乘。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><li data-term='分配'>分配 — 把分好的组派到有标号的位置。 <span class=glossary-ref>（第 3 章：可重复排列与分组分配）<\/span><\/li><\/ul>", "__diagnosis__": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：计数四问<\/h2>\n<p>① 完成这件事是分类还是分步？② 元素能否重复？③ 顺序算不算不同？④ 组有没有标号？四问答完，公式自然定。<\/p>\n<h2>框架：复杂题拆解<\/h2>\n<p>先按“至少/至多/限制条件”分类，类内再分步，最后把各类相加。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>加法原理<\/td><td>分类互斥，N=n₁+…+n_k<\/td><\/tr><tr><td>乘法原理<\/td><td>分步相依，N=n₁…n_k<\/td><\/tr><tr><td>排列数<\/td><td>A(n,m)=n!/(n−m)!<\/td><\/tr><tr><td>组合数<\/td><td>C(n,m)=n!/[m!(n−m)!]<\/td><\/tr><tr><td>组合性质<\/td><td>C(n,m)=C(n,n−m)；C(n,0)=1<\/td><\/tr><tr><td>可重复<\/td><td>nᵐ<\/td><\/tr><tr><td>均匀分组<\/td><td>除以组数阶乘<\/td><\/tr><\/tbody><\/table>"}};
 const pages = DATA.rendered;
 const manifest = DATA.manifest;
 const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SLUG = manifest.slug || 'book';
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
   set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
 };
-let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{}, mastery: store.get('mastery')||{} };
 
 /* ---------- 导航 ---------- */
 function renderNav(){
@@ -144,15 +199,27 @@ function routeIdFromHash(){
   let h = location.hash.replace(/^#\//,'');
   if(!h) return 'path';
   if(h==='path') return 'path';
+  if(h==='diagnosis') return 'diagnosis';
   const m = h.match(/^(chapter|concept)\/(.+)$/);
   if(m) return m[1]+'/'+m[2];
-  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+  return h;
 }
 function showPage(rid){
-  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  let id;
+  if(rid==='path') id='__path__';
+  else if(rid==='diagnosis') id='__diagnosis__';
+  else if(rid==='graph') id='__graph__';
+  else if(rid.startsWith('quiz/')) id='__quiz_'+rid.split('/')[1]+'__';
+  else if(rid==='cards') id='__cards__';
+  else if(rid==='glossary') id='__glossary__';
+  else if(rid==='patterns') id='__patterns__';
+  else if(rid==='cheatsheet') id='__cheatsheet__';
+  else if(rid.startsWith('chapter/')) id=rid.split('/')[1];
+  else if(rid.startsWith('concept/')) id=rid.split('/')[1];
+  else id=rid;
   const html = pages[id] || '<div class="empty">页面不存在</div>';
   $('#view').innerHTML = html;
-  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  $$('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
   if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
     state.visited.push(rid); store.set('visited', state.visited); renderNav();
   }
@@ -160,8 +227,66 @@ function showPage(rid){
   if(rid==='cards') initCards();
   if(rid==='glossary') initGlossary();
   if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(rid==='diagnosis') initDiagnosis();
+  if(rid==='graph') initGraph();
   if(id==='__path__') updatePath();
+  renderMath();
   renderMermaid();
+}
+
+/* ---------- KaTeX 渲染（多源回退） ---------- */
+let katexLoading = false, katexReady = false;
+function renderMath(){
+  const hasMath = document.querySelector('.katex-inline, .katex-block');
+  if(!hasMath) return;
+  if(katexReady){ doRenderMath(); return; }
+  if(katexLoading) return;
+  katexLoading = true;
+  const cssUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.css'
+  ];
+  const jsUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.js',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.js'
+  ];
+  let ci = 0, ji = 0;
+  const tryCss = () => {
+    if(ci >= cssUrls.length) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'; link.href = cssUrls[ci++];
+    link.onload = tryJs; link.onerror = () => { link.remove(); tryCss(); };
+    document.head.appendChild(link);
+  };
+  const tryJs = () => {
+    if(ji >= jsUrls.length){ katexLoading = false; return; }
+    const s = document.createElement('script');
+    s.src = jsUrls[ji++];
+    s.onload = () => { katexReady = true; katexLoading = false; doRenderMath(); };
+    s.onerror = () => { s.remove(); tryJs(); };
+    document.head.appendChild(s);
+  };
+  tryCss();
+}
+function doRenderMath(){
+  if(typeof katex === 'undefined') return;
+  // 行内公式：.katex-inline 里的内容
+  $$('.katex-inline').forEach(el=>{
+    try{ katex.render(el.textContent, el, {throwOnError:false}); }catch(e){}
+  });
+  // 块级公式：.katex-block 里的内容
+  $$('.katex-block').forEach(el=>{
+    try{ katex.render(el.textContent, el, {displayMode:true, throwOnError:false}); }catch(e){}
+  });
+}
+// 公式内容预处理：把 < 后跟字母的位置转成 &lt;，避免被 HTML 解析器当标签吃掉
+// （这是 first-principles-derivation 踩过的坑：$m<n$ 会变成残留 $m）
+function sanitizeMathHTML(){
+  $$('.katex-inline, .katex-block').forEach(el=>{
+    el.innerHTML = el.innerHTML.replace(/<([a-zA-Z])/g, '&lt;$1');
+  });
 }
 
 /* ---------- 进度 ---------- */
@@ -173,7 +298,7 @@ function updateProgress(){
   $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
 }
 function updatePath(){
-  document.querySelectorAll('.path-step').forEach(el=>{
+  $$('.path-step').forEach(el=>{
     const step = el.id.replace('path-','');
     const s = (manifest.learningPath||[]).find(x=>x.step===step);
     if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
@@ -183,9 +308,39 @@ function updatePath(){
   });
 }
 
-/* ---------- 测验 ---------- */
+/* ---------- 概念/章节依赖查找（用于诊断倒推） ---------- */
+function findConcept(id){ return (manifest.concepts||[]).find(c=>c.id===id); }
+function findChapter(id){ return (manifest.chapters||[]).find(c=>c.id===id); }
+function getPrereqs(node){
+  if(!node) return [];
+  return node.prerequisites || node.prereqs || [];
+}
+/**
+ * 答错倒推：从错题关联的概念/章节出发，沿 prerequisites 回溯，
+ * 返回一串"你可能需要先补的"节点，带跳转链接。
+ */
+function traceBack(startConceptId, startChapterId){
+  const visited = new Set();
+  const chain = [];
+  const queue = [];
+  if(startConceptId){ const c = findConcept(startConceptId); if(c) queue.push({node:c, kind:'concept'}); }
+  if(startChapterId){ const c = findChapter(startChapterId); if(c) queue.push({node:c, kind:'chapter'}); }
+  while(queue.length && chain.length < 6){
+    const {node, kind} = queue.shift();
+    if(visited.has(node.id)) continue;
+    visited.add(node.id);
+    chain.push({node, kind});
+    (getPrereqs(node)||[]).forEach(pid=>{
+      const cn = findConcept(pid); if(cn){ queue.push({node:cn, kind:'concept'}); return; }
+      const ch = findChapter(pid); if(ch) queue.push({node:ch, kind:'chapter'});
+    });
+  }
+  return chain;
+}
+
+/* ---------- 测验（带倒推） ---------- */
 function initQuizzes(rid){
-  document.querySelectorAll('.quiz-item').forEach(item=>{
+  $$('.quiz-item').forEach(item=>{
     const btn = item.querySelector('.quiz-check');
     if(!btn || item.dataset.inited){ return }
     item.dataset.inited='1';
@@ -211,8 +366,7 @@ function initQuizzes(rid){
       }
       item.querySelectorAll('input:checked').forEach(i=>{
         const val=parseInt(i.value);
-        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
-        else i.parentElement.style.color='var(--bad)';
+        i.parentElement.style.color = (Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) ? 'var(--ok)' : 'var(--bad)';
       });
       const feed = item.querySelector('.quiz-feedback');
       feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
@@ -220,7 +374,34 @@ function initQuizzes(rid){
       let ex = item.querySelector('.quiz-explain');
       if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
       ex.innerHTML = '解析：' + esc(q.explain||'');
-      // 记录成绩（按章聚合）
+      // 答错时：倒推前置 + 误解卡片 + 掌握度更新
+      if(!correct){
+        let remedy = item.querySelector('.quiz-remedy');
+        if(!remedy){ remedy = document.createElement('div'); remedy.className='quiz-remedy'; item.appendChild(remedy); }
+        const chain = traceBack(item.dataset.concept, item.dataset.chapter);
+        if(chain.length > 1){
+          const links = chain.slice(1).map(({node,kind})=>{
+            const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+            return `<a href="${href}">${esc(node.title||node.id)}</a>`;
+          }).join(' → ');
+          remedy.innerHTML = '🔍 可能的根因（沿依赖链回溯）：' + links;
+        }
+        // 误解卡片：如果选错的选项标注了 misconceptionId
+        const checked = item.querySelector('input:checked');
+        const misId = checked ? checked.dataset.misconception : '';
+        if(misId){
+          const mis = (manifest.misconceptions||[]).find(m=>m.id===misId);
+          if(mis){
+            let misCard = item.querySelector('.misconception-card');
+            if(!misCard){ misCard = document.createElement('div'); misCard.className='misconception-card'; item.appendChild(misCard); }
+            misCard.innerHTML = `<b>⚠ 常见误解</b><br>你选了「${esc(mis.wrong)}」——${esc(mis.correction)}`;
+          }
+        }
+        // 掌握度下降
+        updateMastery(item.dataset.concept, -0.15);
+      } else {
+        updateMastery(item.dataset.concept, +0.15);
+      }
       const ch = q.chapterId||'__all__';
       if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
       state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
@@ -230,7 +411,222 @@ function initQuizzes(rid){
   });
 }
 
+/* ---------- 知识图谱（vis-network） ---------- */
+let networkLoaded = false;
+function loadVisNetwork(cb){
+  if(networkLoaded){ cb(); return; }
+  const urls = [
+    'https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.js',
+    'https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js',
+    'https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js'
+  ];
+  let i = 0;
+  const tryNext = () => {
+    if(i >= urls.length) return;
+    const s = document.createElement('script');
+    s.src = urls[i++];
+    s.onload = () => { networkLoaded = true; cb(); };
+    s.onerror = () => { s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
+}
+function initGraph(){
+  const container = document.getElementById('graph-container');
+  if(!container) return;
+  loadVisNetwork(() => {
+    if(typeof vis === 'undefined'){ container.innerHTML = '<p class="empty">图谱库加载失败，请联网后刷新</p>'; return; }
+    const concepts = manifest.concepts || [];
+    const chapters = manifest.chapters || [];
+    const nodes = [];
+    const edges = [];
+    concepts.forEach(c => {
+      const mastery = Math.round(getMastery(c.id)*100);
+      nodes.push({
+        id: 'c_' + c.id,
+        label: c.title || c.id,
+        title: (c.title||c.id) + '（掌握度 ' + mastery + '%）',
+        color: mastery > 70 ? '#86efac' : mastery > 40 ? '#fde68a' : '#fca5a5',
+        shape: 'dot',
+        size: mastery > 70 ? 20 : 14,
+        font: { size: 13 }
+      });
+    });
+    chapters.forEach(ch => {
+      nodes.push({
+        id: 'ch_' + ch.id,
+        label: ch.title || ch.id,
+        shape: 'box',
+        color: '#93c5fd',
+        font: { size: 12 }
+      });
+    });
+    // 前置边
+    concepts.forEach(c => {
+      (c.prerequisites || []).forEach(p => {
+        const pid = typeof p === 'string' ? p : p.id;
+        const ptype = typeof p === 'string' ? 'hard' : (p.type || 'hard');
+        const from = (pid.startsWith('ch') ? 'ch_' : 'c_') + pid;
+        const to = 'c_' + c.id;
+        if(nodes.find(n => n.id === from)){
+          edges.push({
+            from: from, to: to,
+            color: { color: ptype === 'hard' ? '#dc2626' : ptype === 'soft' ? '#9ca3af' : '#3b82f6' },
+            arrows: 'to',
+            width: ptype === 'hard' ? 2 : 1,
+            dashes: ptype !== 'hard'
+          });
+        }
+      });
+    });
+    const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+    const options = {
+      physics: { stabilization: true, barnesHut: { gravitationalConstant: -3000 } },
+      interaction: { hover: true, tooltipDelay: 200 }
+    };
+    const net = new vis.Network(container, data, options);
+    net.on('click', params => {
+      if(params.nodes.length > 0){
+        const nid = params.nodes[0];
+        if(nid.startsWith('c_')) location.hash = '#/concept/' + nid.slice(2);
+        else if(nid.startsWith('ch_')) location.hash = '#/chapter/' + nid.slice(3);
+      }
+    });
+  });
+}
+
+/* ---------- 诊断模式 ---------- */
+let diagQueue = [], diagIdx = 0, diagWrong = [];
+function initDiagnosis(){
+  const startBtn = $('#diag-start');
+  if(!startBtn || startBtn.dataset.inited) return;
+  startBtn.dataset.inited='1';
+  startBtn.addEventListener('click', ()=>{
+    const all = (manifest.quizzes||[]).slice();
+    // 随机抽 5 题（不够就全抽）
+    for(let i = all.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+    diagQueue = all.slice(0, Math.min(5, all.length));
+    diagIdx = 0; diagWrong = [];
+    showDiagQuestion();
+  });
+}
+function showDiagQuestion(){
+  const stage = $('#diag-stage');
+  const result = $('#diag-result');
+  result.innerHTML = '';
+  if(diagIdx >= diagQueue.length){ finishDiagnosis(); return; }
+  const q = diagQueue[diagIdx];
+  $('#diag-progress').textContent = `第 ${diagIdx+1} / ${diagQueue.length} 题`;
+  const fakeItem = document.createElement('div');
+  fakeItem.innerHTML = _renderQuizHTML(q, diagIdx+1);
+  stage.innerHTML = fakeItem.innerHTML;
+  // 绑定检查按钮
+  const item = stage.querySelector('.quiz-item');
+  const btn = item.querySelector('.quiz-check');
+  btn.addEventListener('click', ()=>{
+    const type = item.dataset.type;
+    let user, correct=false;
+    if(type==='single'){
+      const sel = item.querySelector('input:checked');
+      user = sel? parseInt(sel.value) : null;
+      correct = user===q.answer;
+    } else if(type==='multi'){
+      user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+      const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+      correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+    } else if(type==='blank'){
+      const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+      correct = v===String(q.answer).trim().toLowerCase();
+    }
+    if(!correct){
+      diagWrong.push(q);
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      if(chain.length > 1){
+        const links = chain.slice(1).map(({node,kind})=>{
+          const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+          return `<div class="diag-remedy-item">建议先学：<a href="${href}">${esc(node.title||node.id)}</a></div>`;
+        }).join('');
+        $('#diag-result').innerHTML = '<h3>这道题答错了，可能的根因：</h3>' + links +
+          '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      } else {
+        $('#diag-result').innerHTML = '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      }
+    } else {
+      $('#diag-result').innerHTML = '<p>✓ 正确。<button id="diag-next" class="quiz-check">下一题 →</button></p>';
+    }
+    $('#diag-next').addEventListener('click', ()=>{ diagIdx++; showDiagQuestion(); });
+  });
+}
+function _renderQuizHTML(q, idx){
+  // 复用服务端渲染的 quiz HTML 结构
+  const qtype = q.type||'single';
+  const qid = q.id||('diag'+idx);
+  let html = `<div class='quiz-item' data-qid='${qid}' data-type='${qtype}' data-concept='${esc(q.relatedConceptId||"")}' data-chapter='${esc(q.chapterId||"")}'>`;
+  html += `<p class='quiz-q'><b>Q${idx}.</b> ${esc(q.question||"")}</p>`;
+  if(qtype==='single'||qtype==='multi'){
+    const it = qtype==='single'?'radio':'checkbox';
+    html += "<div class='quiz-opts'>";
+    (q.options||[]).forEach((o,i)=>{ html += `<label class='quiz-opt'><input type='${it}' name='${qid}' value='${i}'> ${esc(String(o))}</label>`; });
+    html += '</div>';
+  } else {
+    html += `<input class='quiz-blank' type='text' placeholder='填写答案'>`;
+  }
+  html += `<div class='quiz-actions'><button class='quiz-check'>检查答案</button><span class='quiz-feedback'></span></div></div>`;
+  return html;
+}
+function finishDiagnosis(){
+  const total = diagQueue.length;
+  const wrong = diagWrong.length;
+  const right = total - wrong;
+  let html = `<h2>诊断完成：${right}/${total} 正确</h2>`;
+  if(wrong === 0){
+    html += '<p>🎉 这组题全对，可以继续往下学。</p>';
+  } else {
+    html += `<p>有 ${wrong} 道题答错。下面是按依赖链回溯的补强建议：</p>`;
+    const seen = new Set();
+    diagWrong.forEach(q=>{
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      chain.slice(1).forEach(({node,kind})=>{
+        if(seen.has(node.id)) return;
+        seen.add(node.id);
+        const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+        html += `<div class="diag-remedy-item">📚 <a href="${href}">${esc(node.title||node.id)}</a></div>`;
+      });
+    });
+  }
+  html += '<p><button id="diag-restart" class="quiz-check">重新诊断</button></p>';
+  $('#diag-stage').innerHTML = '';
+  $('#diag-progress').textContent = '';
+  $('#diag-result').innerHTML = html;
+  $('#diag-restart').addEventListener('click', ()=>{
+    $('#diag-start').click();
+  });
+}
+
+/* ---------- 掌握度（简化 BKT） ---------- */
+function getMastery(cid){
+  if(!cid) return 0.5;
+  const m = (state.mastery||{})[cid];
+  return m !== undefined ? m : 0.3;
+}
+function updateMastery(cid, delta){
+  if(!cid) return;
+  if(!state.mastery) state.mastery = {};
+  const cur = state.mastery[cid] !== undefined ? state.mastery[cid] : 0.3;
+  state.mastery[cid] = Math.max(0, Math.min(1, cur + delta));
+  store.set('mastery', state.mastery);
+}
+function masteryBar(cid){
+  const v = Math.round(getMastery(cid)*100);
+  return `<div class="mastery-bar"><div style="width:${v}%"></div></div><span class="mastery-label">掌握度 ${v}%</span>`;
+}
+
 /* ---------- 抽认卡 ---------- */
+function sup(t){
+  return String(t==null?'':t).replace(/[&<>]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))
+    .replace(/\^(?:\{([^{}]+)\}|\(([^()]*)\)|([-+]?[A-Za-z0-9.]+))/g,
+      (m,a,b,c)=>'<sup>'+(a||b||c||'')+'</sup>');
+}
 let cardIdx = 0, cardList = [];
 function initCards(){
   const cards = manifest.flashcards||[];
@@ -251,8 +647,8 @@ function showCard(){
   updateCardCounts();
   if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
   const c = cardList[cardIdx];
-  document.querySelector('.fc-front').textContent = c.front;
-  document.querySelector('.fc-back').textContent = c.back;
+  document.querySelector('.fc-front').innerHTML = sup(c.front);
+  document.querySelector('.fc-back').innerHTML = sup(c.back);
   $('#flashcard').classList.remove('flip');
 }
 function markCard(known){
@@ -279,7 +675,7 @@ function initGlossary(){
   input.dataset.inited='1';
   input.oninput = ()=>{
     const v = input.value.trim().toLowerCase();
-    document.querySelectorAll('#glossary-list li').forEach(li=>{
+    $$('#glossary-list li').forEach(li=>{
       li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
     });
   };
@@ -308,12 +704,10 @@ $('#q').addEventListener('input', e=>{
                  : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
 });
 
-/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+/* ---------- Mermaid 懒加载 ---------- */
 function renderMermaid(){
   if(!document.querySelector('.mermaid')) return;
-  const s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-  s.onload=()=>{ try{
+  const boot=()=>{ try{
     mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
     document.querySelectorAll('.mermaid').forEach(el=>{
       const code=el.textContent;
@@ -322,7 +716,19 @@ function renderMermaid(){
         .catch(()=>{ el.textContent=code; });
     });
   }catch(e){} };
-  document.head.appendChild(s);
+  const urls=['https://registry.npmmirror.com/mermaid/10/files/dist/mermaid.min.js',
+              'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js',
+              'https://unpkg.com/mermaid@10/dist/mermaid.min.js'];
+  let ui=0;
+  const tryNext=()=>{
+    if(ui>=urls.length) return;
+    const s=document.createElement('script');
+    s.src=urls[ui++];
+    s.onload=boot;
+    s.onerror=()=>{ s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
 }
 
 /* ---------- 深色模式 ---------- */

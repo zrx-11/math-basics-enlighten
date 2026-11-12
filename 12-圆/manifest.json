@@ -42,19 +42,44 @@
    "id": "ch01",
    "title": "第 1 章：圆的基本性质",
    "file": "chapters/ch01-basic-properties.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-12-圆 赵遂之.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "垂径、圆周角",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：直线与圆的位置关系",
    "file": "chapters/ch02-line-circle.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-12-圆 赵遂之.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：比例线段与圆内接四边形",
    "file": "chapters/ch03-proportion.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-12-圆 赵遂之.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "相似三角形",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -65,6 +90,14 @@
    "chapterIds": [
     "ch01",
     "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-12-圆 赵遂之.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch03"
    ]
   },
   {
@@ -72,6 +105,13 @@
    "title": "圆幂",
    "file": "concepts/c02-power-of-point.md",
    "chapterIds": [
+    "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-12-圆 赵遂之.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch03"
    ]
   }
@@ -147,7 +187,11 @@
     "20°"
    ],
    "answer": 1,
-   "explain": "同弧圆周角是圆心角的一半。"
+   "explain": "同弧圆周角是圆心角的一半。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -161,7 +205,11 @@
     "20"
    ],
    "answer": 2,
-   "explain": "半弦 =√(100−36)=8，弦长 16。"
+   "explain": "半弦 =√(100−36)=8，弦长 16。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -175,7 +223,11 @@
     "无法判断"
    ],
    "answer": 2,
-   "explain": "d=5>r=3，相离。"
+   "explain": "d=5>r=3，相离。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -189,7 +241,11 @@
     "与直径重合"
    ],
    "answer": 1,
-   "explain": "切线垂直于过切点的半径，这是切线的核心性质。"
+   "explain": "切线垂直于过切点的半径，这是切线的核心性质。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -203,7 +259,11 @@
     "9"
    ],
    "answer": 0,
-   "explain": "3×8=4×x，得 x=6。"
+   "explain": "3×8=4×x，得 x=6。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -217,7 +277,11 @@
     "20°"
    ],
    "answer": 1,
-   "explain": "对角互补：∠C=180°−70°=110°。"
+   "explain": "对角互补：∠C=180°−70°=110°。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -231,7 +295,11 @@
     "5"
    ],
    "answer": 0,
-   "explain": "2×9=3×x，得 x=6。"
+   "explain": "2×9=3×x，得 x=6。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -245,7 +313,11 @@
     "切线长都相等"
    ],
    "answer": 1,
-   "explain": "切线垂直于过切点的半径；切线只有一个公共点，切线长只在同一外点的两条切线间相等。"
+   "explain": "切线垂直于过切点的半径；切线只有一个公共点，切线长只在同一外点的两条切线间相等。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

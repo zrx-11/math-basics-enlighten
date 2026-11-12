@@ -3,17 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
 <title>圆锥曲线</title>
+<link rel="stylesheet" href="https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/picocss/2.0.6/dist/css/pico.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.css">
 <style>
 :root{
   --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
   --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
   --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+  --depth-bg:#fef9c3; --depth-border:#ca8a04;
 }
 [data-theme="dark"]{
   --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
   --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
   --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+  --depth-bg:#2a2410; --depth-border:#a16207;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -33,7 +39,7 @@ a:hover{text-decoration:underline}
 .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .nav-item .done{float:right;color:var(--ok);font-size:12px}
 #nav-toggle{display:none}
-.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px;margin:0 auto}
 .page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
 .page h2{font-size:20px;margin-top:26px}
 .page h3{font-size:17px;margin-top:22px}
@@ -49,6 +55,37 @@ a:hover{text-decoration:underline}
 .mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
 .mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
 svg{max-width:100%;height:auto}
+/* 出处脚注 */
+.source-badge{font-size:12px;color:var(--muted);background:var(--code-bg);padding:4px 10px;border-radius:6px;margin:0 0 12px;display:inline-block}
+/* 前置知识条 */
+.prereq-bar{font-size:13px;color:var(--muted);border-left:3px solid var(--accent);padding:4px 10px;margin:0 0 12px;background:var(--accent-soft)}
+.prereq-hard a{color:var(--bad);font-weight:600}
+.prereq-soft a{color:var(--muted)}
+.prereq-rec a{color:var(--accent)}
+.prereq-tag{display:inline-block;font-size:10px;padding:0 4px;border-radius:3px;margin-right:2px;vertical-align:middle}
+.prereq-hard .prereq-tag{background:var(--bad);color:#fff}
+.prereq-soft .prereq-tag{background:var(--muted);color:#fff}
+.prereq-rec .prereq-tag{background:var(--accent);color:#fff}
+/* 误解卡片 */
+.misconception-card{margin-top:10px;padding:10px 14px;border-left:4px solid var(--bad);background:#fef2f2;border-radius:0 8px 8px 0;font-size:13px}
+.misconception-card b{color:var(--bad)}
+[data-theme="dark"] .misconception-card{background:#2a1215}
+/* 掌握度条 */
+.mastery-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:4px 0}
+.mastery-bar>div{height:100%;background:var(--ok);transition:width .3s}
+.mastery-label{font-size:11px;color:var(--muted)}
+/* 深度推导片段 */
+.depth-fragment{margin:18px 0;border:1px solid var(--depth-border);border-radius:10px;background:var(--depth-bg);overflow:hidden}
+.depth-fragment>summary{padding:10px 14px;cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+.depth-fragment>summary:hover{filter:brightness(.95)}
+.depth-body{padding:14px 18px;border-top:1px dashed var(--depth-border);background:var(--panel)}
+.depth-missing{color:var(--bad);font-size:13px;padding:8px;background:var(--code-bg);border-radius:6px}
+/* KaTeX */
+sup{font-size:.72em;line-height:0;vertical-align:super}
+.katex-inline{font-size:1.05em}
+.katex-block{overflow-x:auto;padding:8px 0;text-align:center}
+.katex-block .katex{font-size:1.1em}
+/* 测验 */
 .quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
 .quiz-q{margin:0 0 8px;font-weight:500}
 .quiz-opts label{display:block;padding:4px 0;cursor:pointer}
@@ -57,6 +94,8 @@ svg{max-width:100%;height:auto}
 .quiz-feedback{margin-left:12px;font-size:13px}
 .fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
 .quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.quiz-remedy{margin-top:8px;padding:8px 12px;background:var(--accent-soft);border-radius:6px;font-size:13px}
+/* 抽认卡 */
 .flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
 .fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
 .flashcard.flip .fc-inner{transform:rotateY(180deg)}
@@ -80,11 +119,26 @@ svg{max-width:100%;height:auto}
 #progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
 #progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
 .empty{color:var(--muted);padding:20px 0}
-@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+/* 诊断 */
+.diag-controls{margin:14px 0;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+#diag-start{padding:8px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer;font-size:14px}
+#diag-progress{margin-left:12px;color:var(--muted);font-size:13px}
+#diag-stage .quiz-item{margin:10px 0}
+#diag-result{margin-top:16px;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+.diag-remedy-item{padding:10px;margin:8px 0;background:var(--accent-soft);border-radius:8px;font-size:14px}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls,.diag-controls{display:none!important}.main{max-width:none;padding:0}}
 @media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
-  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav{display:none;max-height:46vh;overflow-y:auto;overscroll-behavior:contain}.sidebar.open #nav{display:block}
+  .nav-item{padding:9px 10px}
+  #q,#glossary-filter{font-size:16px}
+  .quiz-opts label{padding:8px 0;min-height:30px}
+  .quiz-check{padding:10px 18px;min-height:40px}
+  #diag-start{min-height:40px}
+  .card-actions button{min-height:40px}
   #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
-  .layout{flex-direction:column}.main{padding:16px}}
+  .layout{flex-direction:column}.main{padding:20px 18px 64px;max-width:none;width:100%}
+  .page{overflow-wrap:anywhere}.page table{display:block;overflow-x:auto;max-width:100%}
+  .page h1,.page h2,.page h3{line-height:1.35}}
 </style>
 </head>
 <body>
@@ -103,17 +157,18 @@ svg{max-width:100%;height:auto}
   </main>
 </div>
 <script>
-const DATA = {"manifest": {"slug": "conic-sections", "title": "圆锥曲线", "subtitle": "一个圆锥切出的三条曲线：椭圆、双曲线、抛物线", "book": {"title": "圆锥曲线", "author": "许仲苌 左铨如", "source": ["数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf"]}, "audience": "零基础", "goal": "掌握椭圆、双曲线、抛物线的定义、标准方程与几何性质，理解离心率的统一含义与圆锥曲线的光学性质。", "learningPath": [{"step": "01", "title": "椭圆", "chapterIds": ["ch01"], "checkpoint": "能由方程读出 a、b、c、e"}, {"step": "02", "title": "双曲线与抛物线", "chapterIds": ["ch02"], "checkpoint": "能写出渐近线与准线"}, {"step": "03", "title": "统一定义、光学性质与坐标变换", "chapterIds": ["ch03"], "checkpoint": "能用 e 判断曲线类型"}], "chapters": [{"id": "ch01", "title": "第 1 章：椭圆", "file": "chapters/ch01-ellipse.md", "difficulty": 3}, {"id": "ch02", "title": "第 2 章：双曲线与抛物线", "file": "chapters/ch02-hyperbola-parabola.md", "difficulty": 3}, {"id": "ch03", "title": "第 3 章：统一定义、光学性质与坐标变换", "file": "chapters/ch03-unified-optics.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "离心率", "file": "concepts/c01-eccentricity.md", "chapterIds": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "a、b、c 的关系", "file": "concepts/c02-abc-relation.md", "chapterIds": ["ch01", "ch02"]}], "glossary": [{"term": "椭圆", "def": "到两定点距离之和为常数的点的轨迹。", "chapterId": "ch01"}, {"term": "焦点", "def": "定义中的定点。", "chapterId": "ch01"}, {"term": "半长轴", "def": "椭圆中的 a，长轴长为 2a。", "chapterId": "ch01"}, {"term": "离心率", "def": "e=c/a，描述曲线的形状参数。", "chapterId": "ch01"}, {"term": "双曲线", "def": "到两定点距离之差为常数的点的轨迹。", "chapterId": "ch02"}, {"term": "渐近线", "def": "双曲线无限接近但不相交的直线。", "chapterId": "ch02"}, {"term": "抛物线", "def": "到定点与定直线等距的点的轨迹。", "chapterId": "ch02"}, {"term": "准线", "def": "统一定义中的定直线。", "chapterId": "ch03"}, {"term": "通径", "def": "过焦点垂直于对称轴的弦。", "chapterId": "ch01"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "椭圆 x²/16+y²/7=1 的焦距是：", "options": ["6", "3", "9", "18"], "answer": 0, "explain": "c²=16−7=9，c=3，焦距 2c=6。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "椭圆的离心率 e 的取值范围是：", "options": ["(0,1)", "(1,+∞)", "[0,1]", "(0,+∞)"], "answer": 0, "explain": "e=c/a，且 0<c<a，故 0<e<1。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "双曲线 x²/16−y²/9=1 的渐近线是：", "options": ["y=±(3/4)x", "y=±(4/3)x", "y=±(9/16)x", "y=±x"], "answer": 0, "explain": "a=4，b=3，渐近线 y=±(b/a)x=±(3/4)x。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "抛物线 y²=12x 的焦点坐标是：", "options": ["(3,0)", "(6,0)", "(0,3)", "(12,0)"], "answer": 0, "explain": "2p=12，p=6，焦点 (p/2,0)=(3,0)。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "离心率 e=1 对应的圆锥曲线是：", "options": ["椭圆", "双曲线", "抛物线", "圆"], "answer": 2, "explain": "e=1 即到焦点与到准线距离相等，是抛物线。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "平行于抛物线对称轴的光线经反射后：", "options": ["原路返回", "过焦点", "平行射出", "发散"], "answer": 1, "explain": "抛物线的光学性质：平行于轴的光线反射后过焦点。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "椭圆 x²/36+y²/20=1 的离心率是：", "options": ["2/3", "√2/3", "4/9", "1/3"], "answer": 0, "explain": "a=6，b²=20，c²=36−20=16，c=4，e=c/a=2/3。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "抛物线 x²=−8y 的焦点坐标是：", "options": ["(0,−2)", "(0,2)", "(−2,0)", "(2,0)"], "answer": 0, "explain": "x²=−2py 开口向下，2p=8，p=4，焦点 (0,−p/2)=(0,−2)。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：椭圆」的一句话核心是什么？", "back": "椭圆是“到两定点距离之和为常数”的点集；a 是半长轴，c 是半焦距，b²=a²−c²。", "tags": ["conic-sections", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：双曲线与抛物线」的一句话核心是什么？", "back": "双曲线是“距离之差为常数”，抛物线是“到定点与定直线等距”；前者有渐近线，后者只有一条对称轴。", "tags": ["conic-sections", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：统一定义、光学性质与坐标变换」的一句话核心是什么？", "back": "三条曲线可以合成一句话：到焦点距离与到准线距离之比等于 e。", "tags": ["conic-sections", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「椭圆」？", "back": "到两定点距离之和为常数的点的轨迹。", "tags": ["conic-sections", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「焦点」？", "back": "定义中的定点。", "tags": ["conic-sections", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「半长轴」？", "back": "椭圆中的 a，长轴长为 2a。", "tags": ["conic-sections", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「离心率」？", "back": "e=c/a，描述曲线的形状参数。", "tags": ["conic-sections", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「双曲线」？", "back": "到两定点距离之差为常数的点的轨迹。", "tags": ["conic-sections", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「渐近线」？", "back": "双曲线无限接近但不相交的直线。", "tags": ["conic-sections", "术语"]}, {"id": "f10", "chapterId": "ch02", "front": "什么是「抛物线」？", "back": "到定点与定直线等距的点的轨迹。", "tags": ["conic-sections", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「准线」？", "back": "统一定义中的定直线。", "tags": ["conic-sections", "术语"]}, {"id": "f12", "chapterId": "ch01", "front": "什么是「通径」？", "back": "过焦点垂直于对称轴的弦。", "tags": ["conic-sections", "术语"]}], "companion": "conic-sections学习伴侣.html", "deriv": "conic-sections从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：椭圆<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：两点距离、配方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由定义写出椭圆方程\n<\/li><li>\n读出长轴、短轴、焦距、离心率\n<\/li><li>\n判断椭圆的扁平程度\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>椭圆是“到两定点距离之和为常数”的点集；a 是半长轴，c 是半焦距，b²=a²−c²。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 定义<\/h3>\n<p>平面内到两定点 F₁、F₂ 的距离之和等于常数 2a（2a&gt;|F₁F₂|）的点的轨迹叫椭圆。两定点叫焦点，|F₁F₂|=2c。<\/p>\n<p>若 2a=2c，轨迹退化为线段 F₁F₂；若 2a&lt;2c，无轨迹。<\/p>\n<h3>1.2 标准方程<\/h3>\n<p>以焦点在 x 轴上、中心在原点为例：<\/p>\n<p>x²/a²+y²/b²=1，其中 b²=a²−c²<\/p>\n<p>焦点为 (±c,0)，顶点为 (±a,0)、(0,±b)。若焦点在 y 轴上，方程写成 y²/a²+x²/b²=1，焦点 (0,±c)。<\/p>\n<h3>1.3 离心率<\/h3>\n<p>e=c/a，范围 (0,1)。e 越大（越接近 1），c 越接近 a，b 越小，椭圆越扁；e 越小（越接近 0），越接近圆。<\/p>\n<p>e 是描述“扁不扁”的唯一参数，比看方程更直观。<\/p>\n<h3>1.4 常用关系<\/h3>\n<p>椭圆上任意一点到两焦点距离之和恒为 2a；焦点到顶点的距离分别为 a−c 与 a+c；通径（过焦点垂直于长轴的弦）长为 2b²/a。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：椭圆像用两根钉子与一根绳画出的图形：绳长固定，笔尖到两钉距离之和就不变。<\/p>\n<p><strong>失效边界<\/strong>：绳长必须大于两钉距离，否则画不出椭圆（退化为线段或无轨迹）。<\/p>\n<p><strong>实例<\/strong>：x²/25+y²/9=1：a=5，b=3，c=√(25−9)=4，e=4/5=0.8。 焦点 (±4,0)，长轴长 10，短轴长 6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 a 是长轴长 —— 实际上 a 是半长轴，长轴长是 2a。\n<\/li><li>\n别以为 离心率越大椭圆越圆 —— 实际上 e 越大越扁；e 越小越接近圆。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n椭圆 x²/16+y²/7=1 的焦距是：\n<\/li><li>\n椭圆的离心率 e 的取值范围是：\n<p>A. 6 ｜ B. 3 ｜ C. 9 ｜ D. 18 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：c²=16−7=9，c=3，焦距 2c=6。 A. (0,1) ｜ B. (1,+∞) ｜ C. [0,1] ｜ D. (0,+∞) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：e=c/a，且 0&lt;c&lt;a，故 0&lt;e&lt;1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n|PF₁|+|PF₂|=2a\n<\/li><li>\nb²=a²−c²；e=c/a∈(0,1)\n<\/li><li>\ne 越大越扁\n<\/ul>", "kind": "chapter", "title": "第 1 章：椭圆"}, "ch02": {"html": "<h1>第 2 章：双曲线与抛物线<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n写出双曲线标准方程与渐近线\n<\/li><li>\n写出抛物线标准方程与准线\n<\/li><li>\n由方程判断曲线类型\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>双曲线是“距离之差为常数”，抛物线是“到定点与定直线等距”；前者有渐近线，后者只有一条对称轴。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 双曲线<\/h3>\n<p>定义：到两定点距离之差的绝对值为常数 2a（2a&lt;2c）的点的轨迹。<\/p>\n<p>标准方程（焦点在 x 轴）：x²/a²−y²/b²=1，其中 b²=c²−a²。<\/p>\n<ul><li>\n焦点 (±c,0)，顶点 (±a,0)；\n<\/li><li>\n渐近线 y=±(b/a)x；\n<\/li><li>\n离心率 e=c/a&gt;1，e 越大开口越“张”。\n<\/ul>\n<h3>2.2 抛物线<\/h3>\n<p>定义：到定点 F 与定直线 l 距离相等的点的轨迹。F 叫焦点，l 叫准线。<\/p>\n<p>标准方程（开口向右）：y²=2px（p&gt;0），焦点 (p/2,0)，准线 x=−p/2。<\/p>\n<p>开口方向由一次项决定：y²=2px 向右，y²=−2px 向左，x²=2py 向上，x²=−2py 向下。<\/p>\n<h3>2.3 三者的区别<\/h3>\n<table><thead><tr><th><\/th><th>定义<\/th><th>方程<\/th><th>离心率<\/th><th>特征线<\/th><\/tr><\/thead><tbody><tr><td>椭圆<\/td><td>距离之和<\/td><td>x²/a²+y²/b²=1<\/td><td>e&lt;1<\/td><td>无渐近线<\/td><\/tr><tr><td>双曲线<\/td><td>距离之差<\/td><td>x²/a²−y²/b²=1<\/td><td>e&gt;1<\/td><td>两条渐近线<\/td><\/tr><tr><td>抛物线<\/td><td>到点＝到线<\/td><td>y²=2px<\/td><td>e=1<\/td><td>一条准线<\/td><\/tr><\/tbody><\/table>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：双曲线像两束手电光的光锥边缘，越远越分开；抛物线像抛出的球走过的路线。<\/p>\n<p><strong>失效边界<\/strong>：双曲线的“差”要取绝对值，否则只得到一支。<\/p>\n<p><strong>实例<\/strong>：x²/9−y²/16=1：a=3，b=4，c=5，e=5/3，渐近线 y=±(4/3)x。 y²=8x：2p=8，p=4，焦点 (2,0)，准线 x=−2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 双曲线只有一支 —— 实际上 取绝对值时为两支；只写“差为 2a”而不取绝对值，只得到靠近某焦点的一支。\n<\/li><li>\n别以为 抛物线的 p 是焦点到准线的距离 —— 实际上 焦点到准线的距离是 p，焦点坐标是 (p/2,0)，准线是 x=−p/2。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n双曲线 x²/16−y²/9=1 的渐近线是：\n<\/li><li>\n抛物线 y²=12x 的焦点坐标是：\n<p>A. y=±(3/4)x ｜ B. y=±(4/3)x ｜ C. y=±(9/16)x ｜ D. y=±x <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a=4，b=3，渐近线 y=±(b/a)x=±(3/4)x。 A. (3,0) ｜ B. (6,0) ｜ C. (0,3) ｜ D. (12,0) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：2p=12，p=6，焦点 (p/2,0)=(3,0)。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n双曲线：||PF₁|−|PF₂||=2a，b²=c²−a²\n<\/li><li>\n渐近线 y=±(b/a)x\n<\/li><li>\n抛物线 y²=2px：焦点 (p/2,0)，准线 x=−p/2\n<\/ul>", "kind": "chapter", "title": "第 2 章：双曲线与抛物线"}, "ch03": {"html": "<h1>第 3 章：统一定义、光学性质与坐标变换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用离心率统一三条曲线\n<\/li><li>\n说出三条曲线的光学性质\n<\/li><li>\n理解坐标变换不改变曲线类型\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>三条曲线可以合成一句话：到焦点距离与到准线距离之比等于 e。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 统一定义<\/h3>\n<p>到定点 F（焦点）的距离与到定直线 l（准线）的距离之比为常数 e 的点的轨迹：<\/p>\n<ul><li>\n0&lt;e&lt;1：椭圆；\n<\/li><li>\ne=1：抛物线；\n<\/li><li>\ne&gt;1：双曲线。\n<\/ul>\n<p>一条定义，三种曲线，e 是分类开关。这也是“圆锥曲线”这个名字的代数解释。<\/p>\n<h3>3.2 光学性质<\/h3>\n<ul><li>\n椭圆：从一个焦点发出的光线经椭圆反射后必过另一焦点；\n<\/li><li>\n抛物线：平行于对称轴的光线经抛物线反射后聚焦于焦点；\n<\/li><li>\n双曲线：射向一个焦点的光线经反射后，反射光线的反向延长线过另一焦点。\n<\/ul>\n<p>这些性质是卫星天线、车灯、光学仪器的设计依据。<\/p>\n<h3>3.3 坐标变换与不变量<\/h3>\n<p>平移坐标轴只改变方程中的常数项，不改变曲线类型；旋转坐标轴可以把含 xy 项的方程化为标准形。<\/p>\n<p>曲线在变换下保持不变的量（如离心率、曲线类型）叫不变量。判断“这是什么曲线”时，先算不变量，比硬配方更快。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：离心率像“调焦旋钮”：拧到小于 1 是椭圆，正好 1 是抛物线，大于 1 是双曲线。<\/p>\n<p><strong>失效边界<\/strong>：统一定义要求准线与焦点对应；不同曲线的准线位置不同，不能混用。<\/p>\n<p><strong>实例<\/strong>：某曲线到焦点 (2,0) 与准线 x=−2 的距离之比为 1，则它是抛物线 y²=8x。 若比值改为 0.5，则是椭圆（需重新计算 a、c）。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 光学性质只对抛物线与圆有关 —— 实际上 三条曲线都有反射性质，椭圆与双曲线同样用于光学设计。\n<\/li><li>\n别以为 坐标变换会改变曲线类型 —— 实际上 平移与旋转只改变方程形式，曲线类型与离心率不变。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n离心率 e=1 对应的圆锥曲线是：\n<\/li><li>\n平行于抛物线对称轴的光线经反射后：\n<p>A. 椭圆 ｜ B. 双曲线 ｜ C. 抛物线 ｜ D. 圆 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：e=1 即到焦点与到准线距离相等，是抛物线。 A. 原路返回 ｜ B. 过焦点 ｜ C. 平行射出 ｜ D. 发散 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：抛物线的光学性质：平行于轴的光线反射后过焦点。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n统一：到焦点距离/到准线距离=e\n<\/li><li>\ne&lt;1 椭圆，e=1 抛物线，e&gt;1 双曲线\n<\/li><li>\n平移旋转不改变曲线类型\n<\/ul>", "kind": "chapter", "title": "第 3 章：统一定义、光学性质与坐标变换"}, "c01": {"html": "<h1>离心率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>e=c/a，一个数决定曲线是圆、椭圆、抛物线还是双曲线。<\/p>\n<h2>为什么重要<\/h2>\n<p>它是三条曲线的统一开关，也是判断“扁不扁、张不张”的唯一指标。<\/p>\n<h2>详解<\/h2>\n<p>椭圆 0&lt;e&lt;1，e 越大越扁；抛物线 e=1；双曲线 e&gt;1，e 越大开口越张。用统一定义看，e 就是“到焦点距离与到准线距离之比”。<\/p>\n<h2>常见误解<\/h2>\n<p>把 e 当成斜率或焦距，混淆 c/a 与 c 的含义。<\/p>\n<h2>相关概念<\/h2>\n<p>椭圆（ch01）、统一定义（ch03）<\/p>", "kind": "concept", "title": "离心率"}, "c02": {"html": "<h1>a、b、c 的关系<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>椭圆是 b²=a²−c²，双曲线是 b²=c²−a²，符号相反。<\/p>\n<h2>为什么重要<\/h2>\n<p>这三者的关系决定焦点位置、顶点坐标与渐近线，写错一处整题皆错。<\/p>\n<h2>详解<\/h2>\n<p>椭圆中 a 最大（a²=b²+c²）；双曲线中 c 最大（c²=a²+b²）。记住“谁最大”就不会写反：椭圆 a 最大，双曲线 c 最大。<\/p>\n<h2>常见误解<\/h2>\n<p>把两个关系式互换，导致焦点坐标或渐近线全错。<\/p>\n<h2>相关概念<\/h2>\n<p>椭圆（ch01）、双曲线（ch02）<\/p>", "kind": "concept", "title": "a、b、c 的关系"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：椭圆<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><br>检查点：能由方程读出 a、b、c、e<\/li><li class='path-step' id='path-02'><strong>步骤 02：双曲线与抛物线<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><br>检查点：能写出渐近线与准线<\/li><li class='path-step' id='path-03'><strong>步骤 03：统一定义、光学性质与坐标变换<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：统一定义、光学性质与坐标变换<\/a><br>检查点：能用 e 判断曲线类型<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 椭圆 x²/36+y²/20=1 的离心率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 2/3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> √2/3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4/9<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 1/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 抛物线 x²=−8y 的焦点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> (0,−2)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> (0,2)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> (−2,0)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> (2,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：椭圆<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 椭圆 x²/16+y²/7=1 的焦距是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 9<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 18<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 椭圆的离心率 e 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> (0,1)<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> (1,+∞)<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> [0,1]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> (0,+∞)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：双曲线与抛物线<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 双曲线 x²/16−y²/9=1 的渐近线是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> y=±(3/4)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> y=±(4/3)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> y=±(9/16)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> y=±x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 抛物线 y²=12x 的焦点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> (3,0)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> (6,0)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> (0,3)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> (12,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：统一定义、光学性质与坐标变换<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 离心率 e=1 对应的圆锥曲线是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 椭圆<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 双曲线<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 抛物线<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 圆<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 平行于抛物线对称轴的光线经反射后：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 原路返回<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 过焦点<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 平行射出<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 发散<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='椭圆'>椭圆 — 到两定点距离之和为常数的点的轨迹。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='焦点'>焦点 — 定义中的定点。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='半长轴'>半长轴 — 椭圆中的 a，长轴长为 2a。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='离心率'>离心率 — e=c/a，描述曲线的形状参数。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='双曲线'>双曲线 — 到两定点距离之差为常数的点的轨迹。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='渐近线'>渐近线 — 双曲线无限接近但不相交的直线。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='抛物线'>抛物线 — 到定点与定直线等距的点的轨迹。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='准线'>准线 — 统一定义中的定直线。 <span class=glossary-ref>（第 3 章：统一定义、光学性质与坐标变换）<\/span><\/li><li data-term='通径'>通径 — 过焦点垂直于对称轴的弦。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：识曲线三步<\/h2>\n<p>① 看方程次数与符号（两平方项同号为椭圆、异号为双曲线、一次项为抛物线）；② 看谁最大定焦点；③ 算 e 定形状。<\/p>\n<h2>框架：求方程四步<\/h2>\n<p>① 定型（焦点在哪轴）；② 设标准式；③ 用 a、b、c 关系与已知点列方程；④ 解出并写回标准形。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>椭圆<\/td><td>x²/a²+y²/b²=1，b²=a²−c²，e=c/a&lt;1<\/td><\/tr><tr><td>双曲线<\/td><td>x²/a²−y²/b²=1，b²=c²−a²，e=c/a&gt;1<\/td><\/tr><tr><td>渐近线<\/td><td>y=±(b/a)x<\/td><\/tr><tr><td>抛物线<\/td><td>y²=2px，焦点 (p/2,0)，准线 x=−p/2<\/td><\/tr><tr><td>统一定义<\/td><td><\/td><td>PF<\/td><td>/d(P,l)=e<\/td><\/tr><tr><td>通径<\/td><td>2b²/a<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/19-圆锥曲线", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：椭圆", "href": "#/chapter/ch01"}, {"label": "第 2 章：双曲线与抛物线", "href": "#/chapter/ch02"}, {"label": "第 3 章：统一定义、光学性质与坐标变换", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "离心率", "href": "#/concept/c01"}, {"label": "a、b、c 的关系", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：椭圆", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：双曲线与抛物线", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：统一定义、光学性质与坐标变换", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：椭圆<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：两点距离、配方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由定义写出椭圆方程\n<\/li><li>\n读出长轴、短轴、焦距、离心率\n<\/li><li>\n判断椭圆的扁平程度\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>椭圆是“到两定点距离之和为常数”的点集；a 是半长轴，c 是半焦距，b²=a²−c²。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 定义<\/h3>\n<p>平面内到两定点 F₁、F₂ 的距离之和等于常数 2a（2a&gt;|F₁F₂|）的点的轨迹叫椭圆。两定点叫焦点，|F₁F₂|=2c。<\/p>\n<p>若 2a=2c，轨迹退化为线段 F₁F₂；若 2a&lt;2c，无轨迹。<\/p>\n<h3>1.2 标准方程<\/h3>\n<p>以焦点在 x 轴上、中心在原点为例：<\/p>\n<p>x²/a²+y²/b²=1，其中 b²=a²−c²<\/p>\n<p>焦点为 (±c,0)，顶点为 (±a,0)、(0,±b)。若焦点在 y 轴上，方程写成 y²/a²+x²/b²=1，焦点 (0,±c)。<\/p>\n<h3>1.3 离心率<\/h3>\n<p>e=c/a，范围 (0,1)。e 越大（越接近 1），c 越接近 a，b 越小，椭圆越扁；e 越小（越接近 0），越接近圆。<\/p>\n<p>e 是描述“扁不扁”的唯一参数，比看方程更直观。<\/p>\n<h3>1.4 常用关系<\/h3>\n<p>椭圆上任意一点到两焦点距离之和恒为 2a；焦点到顶点的距离分别为 a−c 与 a+c；通径（过焦点垂直于长轴的弦）长为 2b²/a。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：椭圆像用两根钉子与一根绳画出的图形：绳长固定，笔尖到两钉距离之和就不变。<\/p>\n<p><strong>失效边界<\/strong>：绳长必须大于两钉距离，否则画不出椭圆（退化为线段或无轨迹）。<\/p>\n<p><strong>实例<\/strong>：x²/25+y²/9=1：a=5，b=3，c=√(25−9)=4，e=4/5=0.8。 焦点 (±4,0)，长轴长 10，短轴长 6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 a 是长轴长 —— 实际上 a 是半长轴，长轴长是 2a。\n<\/li><li>\n别以为 离心率越大椭圆越圆 —— 实际上 e 越大越扁；e 越小越接近圆。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n椭圆 x²/16+y²/7=1 的焦距是：\n<\/li><li>\n椭圆的离心率 e 的取值范围是：\n<p>A. 6 ｜ B. 3 ｜ C. 9 ｜ D. 18 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：c²=16−7=9，c=3，焦距 2c=6。 A. (0,1) ｜ B. (1,+∞) ｜ C. [0,1] ｜ D. (0,+∞) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：e=c/a，且 0&lt;c&lt;a，故 0&lt;e&lt;1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n|PF₁|+|PF₂|=2a\n<\/li><li>\nb²=a²−c²；e=c/a∈(0,1)\n<\/li><li>\ne 越大越扁\n<\/ul>", "ch02": "<h1>第 2 章：双曲线与抛物线<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n写出双曲线标准方程与渐近线\n<\/li><li>\n写出抛物线标准方程与准线\n<\/li><li>\n由方程判断曲线类型\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>双曲线是“距离之差为常数”，抛物线是“到定点与定直线等距”；前者有渐近线，后者只有一条对称轴。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 双曲线<\/h3>\n<p>定义：到两定点距离之差的绝对值为常数 2a（2a&lt;2c）的点的轨迹。<\/p>\n<p>标准方程（焦点在 x 轴）：x²/a²−y²/b²=1，其中 b²=c²−a²。<\/p>\n<ul><li>\n焦点 (±c,0)，顶点 (±a,0)；\n<\/li><li>\n渐近线 y=±(b/a)x；\n<\/li><li>\n离心率 e=c/a&gt;1，e 越大开口越“张”。\n<\/ul>\n<h3>2.2 抛物线<\/h3>\n<p>定义：到定点 F 与定直线 l 距离相等的点的轨迹。F 叫焦点，l 叫准线。<\/p>\n<p>标准方程（开口向右）：y²=2px（p&gt;0），焦点 (p/2,0)，准线 x=−p/2。<\/p>\n<p>开口方向由一次项决定：y²=2px 向右，y²=−2px 向左，x²=2py 向上，x²=−2py 向下。<\/p>\n<h3>2.3 三者的区别<\/h3>\n<table><thead><tr><th><\/th><th>定义<\/th><th>方程<\/th><th>离心率<\/th><th>特征线<\/th><\/tr><\/thead><tbody><tr><td>椭圆<\/td><td>距离之和<\/td><td>x²/a²+y²/b²=1<\/td><td>e&lt;1<\/td><td>无渐近线<\/td><\/tr><tr><td>双曲线<\/td><td>距离之差<\/td><td>x²/a²−y²/b²=1<\/td><td>e&gt;1<\/td><td>两条渐近线<\/td><\/tr><tr><td>抛物线<\/td><td>到点＝到线<\/td><td>y²=2px<\/td><td>e=1<\/td><td>一条准线<\/td><\/tr><\/tbody><\/table>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：双曲线像两束手电光的光锥边缘，越远越分开；抛物线像抛出的球走过的路线。<\/p>\n<p><strong>失效边界<\/strong>：双曲线的“差”要取绝对值，否则只得到一支。<\/p>\n<p><strong>实例<\/strong>：x²/9−y²/16=1：a=3，b=4，c=5，e=5/3，渐近线 y=±(4/3)x。 y²=8x：2p=8，p=4，焦点 (2,0)，准线 x=−2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 双曲线只有一支 —— 实际上 取绝对值时为两支；只写“差为 2a”而不取绝对值，只得到靠近某焦点的一支。\n<\/li><li>\n别以为 抛物线的 p 是焦点到准线的距离 —— 实际上 焦点到准线的距离是 p，焦点坐标是 (p/2,0)，准线是 x=−p/2。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n双曲线 x²/16−y²/9=1 的渐近线是：\n<\/li><li>\n抛物线 y²=12x 的焦点坐标是：\n<p>A. y=±(3/4)x ｜ B. y=±(4/3)x ｜ C. y=±(9/16)x ｜ D. y=±x <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a=4，b=3，渐近线 y=±(b/a)x=±(3/4)x。 A. (3,0) ｜ B. (6,0) ｜ C. (0,3) ｜ D. (12,0) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：2p=12，p=6，焦点 (p/2,0)=(3,0)。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n双曲线：||PF₁|−|PF₂||=2a，b²=c²−a²\n<\/li><li>\n渐近线 y=±(b/a)x\n<\/li><li>\n抛物线 y²=2px：焦点 (p/2,0)，准线 x=−p/2\n<\/ul>", "ch03": "<h1>第 3 章：统一定义、光学性质与坐标变换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用离心率统一三条曲线\n<\/li><li>\n说出三条曲线的光学性质\n<\/li><li>\n理解坐标变换不改变曲线类型\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>三条曲线可以合成一句话：到焦点距离与到准线距离之比等于 e。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 统一定义<\/h3>\n<p>到定点 F（焦点）的距离与到定直线 l（准线）的距离之比为常数 e 的点的轨迹：<\/p>\n<ul><li>\n0&lt;e&lt;1：椭圆；\n<\/li><li>\ne=1：抛物线；\n<\/li><li>\ne&gt;1：双曲线。\n<\/ul>\n<p>一条定义，三种曲线，e 是分类开关。这也是“圆锥曲线”这个名字的代数解释。<\/p>\n<h3>3.2 光学性质<\/h3>\n<ul><li>\n椭圆：从一个焦点发出的光线经椭圆反射后必过另一焦点；\n<\/li><li>\n抛物线：平行于对称轴的光线经抛物线反射后聚焦于焦点；\n<\/li><li>\n双曲线：射向一个焦点的光线经反射后，反射光线的反向延长线过另一焦点。\n<\/ul>\n<p>这些性质是卫星天线、车灯、光学仪器的设计依据。<\/p>\n<h3>3.3 坐标变换与不变量<\/h3>\n<p>平移坐标轴只改变方程中的常数项，不改变曲线类型；旋转坐标轴可以把含 xy 项的方程化为标准形。<\/p>\n<p>曲线在变换下保持不变的量（如离心率、曲线类型）叫不变量。判断“这是什么曲线”时，先算不变量，比硬配方更快。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：离心率像“调焦旋钮”：拧到小于 1 是椭圆，正好 1 是抛物线，大于 1 是双曲线。<\/p>\n<p><strong>失效边界<\/strong>：统一定义要求准线与焦点对应；不同曲线的准线位置不同，不能混用。<\/p>\n<p><strong>实例<\/strong>：某曲线到焦点 (2,0) 与准线 x=−2 的距离之比为 1，则它是抛物线 y²=8x。 若比值改为 0.5，则是椭圆（需重新计算 a、c）。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 光学性质只对抛物线与圆有关 —— 实际上 三条曲线都有反射性质，椭圆与双曲线同样用于光学设计。\n<\/li><li>\n别以为 坐标变换会改变曲线类型 —— 实际上 平移与旋转只改变方程形式，曲线类型与离心率不变。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n离心率 e=1 对应的圆锥曲线是：\n<\/li><li>\n平行于抛物线对称轴的光线经反射后：\n<p>A. 椭圆 ｜ B. 双曲线 ｜ C. 抛物线 ｜ D. 圆 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：e=1 即到焦点与到准线距离相等，是抛物线。 A. 原路返回 ｜ B. 过焦点 ｜ C. 平行射出 ｜ D. 发散 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：抛物线的光学性质：平行于轴的光线反射后过焦点。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n统一：到焦点距离/到准线距离=e\n<\/li><li>\ne&lt;1 椭圆，e=1 抛物线，e&gt;1 双曲线\n<\/li><li>\n平移旋转不改变曲线类型\n<\/ul>", "c01": "<h1>离心率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>e=c/a，一个数决定曲线是圆、椭圆、抛物线还是双曲线。<\/p>\n<h2>为什么重要<\/h2>\n<p>它是三条曲线的统一开关，也是判断“扁不扁、张不张”的唯一指标。<\/p>\n<h2>详解<\/h2>\n<p>椭圆 0&lt;e&lt;1，e 越大越扁；抛物线 e=1；双曲线 e&gt;1，e 越大开口越张。用统一定义看，e 就是“到焦点距离与到准线距离之比”。<\/p>\n<h2>常见误解<\/h2>\n<p>把 e 当成斜率或焦距，混淆 c/a 与 c 的含义。<\/p>\n<h2>相关概念<\/h2>\n<p>椭圆（ch01）、统一定义（ch03）<\/p>", "c02": "<h1>a、b、c 的关系<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>椭圆是 b²=a²−c²，双曲线是 b²=c²−a²，符号相反。<\/p>\n<h2>为什么重要<\/h2>\n<p>这三者的关系决定焦点位置、顶点坐标与渐近线，写错一处整题皆错。<\/p>\n<h2>详解<\/h2>\n<p>椭圆中 a 最大（a²=b²+c²）；双曲线中 c 最大（c²=a²+b²）。记住“谁最大”就不会写反：椭圆 a 最大，双曲线 c 最大。<\/p>\n<h2>常见误解<\/h2>\n<p>把两个关系式互换，导致焦点坐标或渐近线全错。<\/p>\n<h2>相关概念<\/h2>\n<p>椭圆（ch01）、双曲线（ch02）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：椭圆<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><br>检查点：能由方程读出 a、b、c、e<\/li><li class='path-step' id='path-02'><strong>步骤 02：双曲线与抛物线<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><br>检查点：能写出渐近线与准线<\/li><li class='path-step' id='path-03'><strong>步骤 03：统一定义、光学性质与坐标变换<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：统一定义、光学性质与坐标变换<\/a><br>检查点：能用 e 判断曲线类型<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 椭圆 x²/36+y²/20=1 的离心率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 2/3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> √2/3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4/9<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 1/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 抛物线 x²=−8y 的焦点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> (0,−2)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> (0,2)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> (−2,0)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> (2,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：椭圆<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 椭圆 x²/16+y²/7=1 的焦距是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 9<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 18<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 椭圆的离心率 e 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> (0,1)<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> (1,+∞)<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> [0,1]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> (0,+∞)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：双曲线与抛物线<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 双曲线 x²/16−y²/9=1 的渐近线是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> y=±(3/4)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> y=±(4/3)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> y=±(9/16)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> y=±x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 抛物线 y²=12x 的焦点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> (3,0)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> (6,0)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> (0,3)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> (12,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：统一定义、光学性质与坐标变换<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 离心率 e=1 对应的圆锥曲线是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 椭圆<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 双曲线<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 抛物线<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 圆<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 平行于抛物线对称轴的光线经反射后：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 原路返回<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 过焦点<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 平行射出<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 发散<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='椭圆'>椭圆 — 到两定点距离之和为常数的点的轨迹。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='焦点'>焦点 — 定义中的定点。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='半长轴'>半长轴 — 椭圆中的 a，长轴长为 2a。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='离心率'>离心率 — e=c/a，描述曲线的形状参数。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='双曲线'>双曲线 — 到两定点距离之差为常数的点的轨迹。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='渐近线'>渐近线 — 双曲线无限接近但不相交的直线。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='抛物线'>抛物线 — 到定点与定直线等距的点的轨迹。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='准线'>准线 — 统一定义中的定直线。 <span class=glossary-ref>（第 3 章：统一定义、光学性质与坐标变换）<\/span><\/li><li data-term='通径'>通径 — 过焦点垂直于对称轴的弦。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：识曲线三步<\/h2>\n<p>① 看方程次数与符号（两平方项同号为椭圆、异号为双曲线、一次项为抛物线）；② 看谁最大定焦点；③ 算 e 定形状。<\/p>\n<h2>框架：求方程四步<\/h2>\n<p>① 定型（焦点在哪轴）；② 设标准式；③ 用 a、b、c 关系与已知点列方程；④ 解出并写回标准形。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>椭圆<\/td><td>x²/a²+y²/b²=1，b²=a²−c²，e=c/a&lt;1<\/td><\/tr><tr><td>双曲线<\/td><td>x²/a²−y²/b²=1，b²=c²−a²，e=c/a&gt;1<\/td><\/tr><tr><td>渐近线<\/td><td>y=±(b/a)x<\/td><\/tr><tr><td>抛物线<\/td><td>y²=2px，焦点 (p/2,0)，准线 x=−p/2<\/td><\/tr><tr><td>统一定义<\/td><td><\/td><td>PF<\/td><td>/d(P,l)=e<\/td><\/tr><tr><td>通径<\/td><td>2b²/a<\/td><\/tr><\/tbody><\/table>"}};
+const DATA = {"manifest": {"slug": "conic-sections", "title": "圆锥曲线", "subtitle": "一个圆锥切出的三条曲线：椭圆、双曲线、抛物线", "book": {"title": "圆锥曲线", "author": "许仲苌 左铨如", "source": ["数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf"]}, "audience": "零基础", "goal": "掌握椭圆、双曲线、抛物线的定义、标准方程与几何性质，理解离心率的统一含义与圆锥曲线的光学性质。", "learningPath": [{"step": "01", "title": "椭圆", "chapterIds": ["ch01"], "checkpoint": "能由方程读出 a、b、c、e"}, {"step": "02", "title": "双曲线与抛物线", "chapterIds": ["ch02"], "checkpoint": "能写出渐近线与准线"}, {"step": "03", "title": "统一定义、光学性质与坐标变换", "chapterIds": ["ch03"], "checkpoint": "能用 e 判断曲线类型"}], "chapters": [{"id": "ch01", "title": "第 1 章：椭圆", "file": "chapters/ch01-ellipse.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf", "kind": "原书 PDF"}, "prereqNote": "两点距离、配方", "depthFragment": "chapters/ch01-depth.md", "prerequisites": []}, {"id": "ch02", "title": "第 2 章：双曲线与抛物线", "file": "chapters/ch02-hyperbola-parabola.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch02-depth.md", "prerequisites": ["ch01"]}, {"id": "ch03", "title": "第 3 章：统一定义、光学性质与坐标变换", "file": "chapters/ch03-unified-optics.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch03-depth.md", "prerequisites": ["ch02"]}], "concepts": [{"id": "c01", "title": "离心率", "file": "concepts/c01-eccentricity.md", "chapterIds": ["ch01", "ch02", "ch03"], "source": {"file": "数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "a、b、c 的关系", "file": "concepts/c02-abc-relation.md", "chapterIds": ["ch01", "ch02"], "source": {"file": "数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch01", "ch02"]}], "glossary": [{"term": "椭圆", "def": "到两定点距离之和为常数的点的轨迹。", "chapterId": "ch01"}, {"term": "焦点", "def": "定义中的定点。", "chapterId": "ch01"}, {"term": "半长轴", "def": "椭圆中的 a，长轴长为 2a。", "chapterId": "ch01"}, {"term": "离心率", "def": "e=c/a，描述曲线的形状参数。", "chapterId": "ch01"}, {"term": "双曲线", "def": "到两定点距离之差为常数的点的轨迹。", "chapterId": "ch02"}, {"term": "渐近线", "def": "双曲线无限接近但不相交的直线。", "chapterId": "ch02"}, {"term": "抛物线", "def": "到定点与定直线等距的点的轨迹。", "chapterId": "ch02"}, {"term": "准线", "def": "统一定义中的定直线。", "chapterId": "ch03"}, {"term": "通径", "def": "过焦点垂直于对称轴的弦。", "chapterId": "ch01"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "椭圆 x²/16+y²/7=1 的焦距是：", "options": ["6", "3", "9", "18"], "answer": 0, "explain": "c²=16−7=9，c=3，焦距 2c=6。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "椭圆的离心率 e 的取值范围是：", "options": ["(0,1)", "(1,+∞)", "[0,1]", "(0,+∞)"], "answer": 0, "explain": "e=c/a，且 0<c<a，故 0<e<1。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "双曲线 x²/16−y²/9=1 的渐近线是：", "options": ["y=±(3/4)x", "y=±(4/3)x", "y=±(9/16)x", "y=±x"], "answer": 0, "explain": "a=4，b=3，渐近线 y=±(b/a)x=±(3/4)x。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "抛物线 y²=12x 的焦点坐标是：", "options": ["(3,0)", "(6,0)", "(0,3)", "(12,0)"], "answer": 0, "explain": "2p=12，p=6，焦点 (p/2,0)=(3,0)。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "离心率 e=1 对应的圆锥曲线是：", "options": ["椭圆", "双曲线", "抛物线", "圆"], "answer": 2, "explain": "e=1 即到焦点与到准线距离相等，是抛物线。", "relatedConceptId": "c01", "prerequisites": ["ch03"]}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "平行于抛物线对称轴的光线经反射后：", "options": ["原路返回", "过焦点", "平行射出", "发散"], "answer": 1, "explain": "抛物线的光学性质：平行于轴的光线反射后过焦点。", "relatedConceptId": "c01", "prerequisites": ["ch03"]}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "椭圆 x²/36+y²/20=1 的离心率是：", "options": ["2/3", "√2/3", "4/9", "1/3"], "answer": 0, "explain": "a=6，b²=20，c²=36−20=16，c=4，e=c/a=2/3。", "relatedConceptId": "", "prerequisites": ["__all__"]}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "抛物线 x²=−8y 的焦点坐标是：", "options": ["(0,−2)", "(0,2)", "(−2,0)", "(2,0)"], "answer": 0, "explain": "x²=−2py 开口向下，2p=8，p=4，焦点 (0,−p/2)=(0,−2)。", "relatedConceptId": "", "prerequisites": ["__all__"]}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：椭圆」的一句话核心是什么？", "back": "椭圆是“到两定点距离之和为常数”的点集；a 是半长轴，c 是半焦距，b²=a²−c²。", "tags": ["conic-sections", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：双曲线与抛物线」的一句话核心是什么？", "back": "双曲线是“距离之差为常数”，抛物线是“到定点与定直线等距”；前者有渐近线，后者只有一条对称轴。", "tags": ["conic-sections", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：统一定义、光学性质与坐标变换」的一句话核心是什么？", "back": "三条曲线可以合成一句话：到焦点距离与到准线距离之比等于 e。", "tags": ["conic-sections", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「椭圆」？", "back": "到两定点距离之和为常数的点的轨迹。", "tags": ["conic-sections", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「焦点」？", "back": "定义中的定点。", "tags": ["conic-sections", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「半长轴」？", "back": "椭圆中的 a，长轴长为 2a。", "tags": ["conic-sections", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「离心率」？", "back": "e=c/a，描述曲线的形状参数。", "tags": ["conic-sections", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「双曲线」？", "back": "到两定点距离之差为常数的点的轨迹。", "tags": ["conic-sections", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「渐近线」？", "back": "双曲线无限接近但不相交的直线。", "tags": ["conic-sections", "术语"]}, {"id": "f10", "chapterId": "ch02", "front": "什么是「抛物线」？", "back": "到定点与定直线等距的点的轨迹。", "tags": ["conic-sections", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「准线」？", "back": "统一定义中的定直线。", "tags": ["conic-sections", "术语"]}, {"id": "f12", "chapterId": "ch01", "front": "什么是「通径」？", "back": "过焦点垂直于对称轴的弦。", "tags": ["conic-sections", "术语"]}], "companion": "conic-sections学习伴侣.html", "deriv": "conic-sections从零推导.html"}, "pages": {"ch01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">两点距离、配方<\/span><\/div><h1>第 1 章：椭圆<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：两点距离、配方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由定义写出椭圆方程\n<\/li><li>\n读出长轴、短轴、焦距、离心率\n<\/li><li>\n判断椭圆的扁平程度\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>椭圆是“到两定点距离之和为常数”的点集；a 是半长轴，c 是半焦距，b²=a²−c²。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 定义<\/h3>\n<p>平面内到两定点 F₁、F₂ 的距离之和等于常数 2a（2a&gt;|F₁F₂|）的点的轨迹叫椭圆。两定点叫焦点，|F₁F₂|=2c。<\/p>\n<p>若 2a=2c，轨迹退化为线段 F₁F₂；若 2a&lt;2c，无轨迹。<\/p>\n<h3>1.2 标准方程<\/h3>\n<p>以焦点在 x 轴上、中心在原点为例：<\/p>\n<p>x²/a²+y²/b²=1，其中 b²=a²−c²<\/p>\n<p>焦点为 (±c,0)，顶点为 (±a,0)、(0,±b)。若焦点在 y 轴上，方程写成 y²/a²+x²/b²=1，焦点 (0,±c)。<\/p>\n<h3>1.3 离心率<\/h3>\n<p>e=c/a，范围 (0,1)。e 越大（越接近 1），c 越接近 a，b 越小，椭圆越扁；e 越小（越接近 0），越接近圆。<\/p>\n<p>e 是描述“扁不扁”的唯一参数，比看方程更直观。<\/p>\n<h3>1.4 常用关系<\/h3>\n<p>椭圆上任意一点到两焦点距离之和恒为 2a；焦点到顶点的距离分别为 a−c 与 a+c；通径（过焦点垂直于长轴的弦）长为 2b²/a。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：椭圆像用两根钉子与一根绳画出的图形：绳长固定，笔尖到两钉距离之和就不变。<\/p>\n<p><strong>失效边界<\/strong>：绳长必须大于两钉距离，否则画不出椭圆（退化为线段或无轨迹）。<\/p>\n<p><strong>实例<\/strong>：x²/25+y²/9=1：a=5，b=3，c=√(25−9)=4，e=4/5=0.8。 焦点 (±4,0)，长轴长 10，短轴长 6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 a 是长轴长 —— 实际上 a 是半长轴，长轴长是 2a。\n<\/li><li>\n别以为 离心率越大椭圆越圆 —— 实际上 e 越大越扁；e 越小越接近圆。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n椭圆 x²/16+y²/7=1 的焦距是：\n<\/li><li>\n椭圆的离心率 e 的取值范围是：\n<p>A. 6 ｜ B. 3 ｜ C. 9 ｜ D. 18 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：c²=16−7=9，c=3，焦距 2c=6。 A. (0,1) ｜ B. (1,+∞) ｜ C. [0,1] ｜ D. (0,+∞) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：e=c/a，且 0&lt;c&lt;a，故 0&lt;e&lt;1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n|PF₁|+|PF₂|=2a\n<\/li><li>\nb²=a²−c²；e=c/a∈(0,1)\n<\/li><li>\ne 越大越扁\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：椭圆）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：椭圆<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>椭圆方程不是硬凑的：把“到两点距离之和为常数”写成方程，两次平方消根号，就得到标准形。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>到两定点距离之和为常数（大于两点距离）的点的轨迹叫椭圆。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像用一根绳和两个钉子画图：绳子绷紧，笔尖走的路线就是椭圆。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 定义式<\/h3>\n<div class=\"katex-block\">\\sqrt{(x+c)^{2}+y^{2}}+\\sqrt{(x-c)^{2}+y^{2}}=2a<\/div>\n<p>两次平方消根号，整理即得标准方程。<\/p>\n<h3>2. 标准方程<\/h3>\n<div class=\"katex-block\">\\frac{x^{2}}{a^{2}}+\\frac{y^{2}}{b^{2}}=1<\/div>\n<p>中心在原点、焦点在 x 轴上的椭圆。<\/p>\n<h3>3. 三者关系<\/h3>\n<div class=\"katex-block\">b^{2}=a^{2}-c^{2}<\/div>\n<p>由定义式化简时自然出现，不是额外规定。<\/p>\n<h3>4. 离心率<\/h3>\n<div class=\"katex-block\">e=\\frac{c}{a}\\in(0,1)<\/div>\n<p>描述扁圆程度：e 越大越扁。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>常数必须大于两焦点距离；等于时为线段，小于时不存在。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《圆锥曲线》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 1 章：椭圆"}, "ch02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><\/span><\/div><h1>第 2 章：双曲线与抛物线<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n写出双曲线标准方程与渐近线\n<\/li><li>\n写出抛物线标准方程与准线\n<\/li><li>\n由方程判断曲线类型\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>双曲线是“距离之差为常数”，抛物线是“到定点与定直线等距”；前者有渐近线，后者只有一条对称轴。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 双曲线<\/h3>\n<p>定义：到两定点距离之差的绝对值为常数 2a（2a&lt;2c）的点的轨迹。<\/p>\n<p>标准方程（焦点在 x 轴）：x²/a²−y²/b²=1，其中 b²=c²−a²。<\/p>\n<ul><li>\n焦点 (±c,0)，顶点 (±a,0)；\n<\/li><li>\n渐近线 y=±(b/a)x；\n<\/li><li>\n离心率 e=c/a&gt;1，e 越大开口越“张”。\n<\/ul>\n<h3>2.2 抛物线<\/h3>\n<p>定义：到定点 F 与定直线 l 距离相等的点的轨迹。F 叫焦点，l 叫准线。<\/p>\n<p>标准方程（开口向右）：y²=2px（p&gt;0），焦点 (p/2,0)，准线 x=−p/2。<\/p>\n<p>开口方向由一次项决定：y²=2px 向右，y²=−2px 向左，x²=2py 向上，x²=−2py 向下。<\/p>\n<h3>2.3 三者的区别<\/h3>\n<table><thead><tr><th><\/th><th>定义<\/th><th>方程<\/th><th>离心率<\/th><th>特征线<\/th><\/tr><\/thead><tbody><tr><td>椭圆<\/td><td>距离之和<\/td><td>x²/a²+y²/b²=1<\/td><td>e&lt;1<\/td><td>无渐近线<\/td><\/tr><tr><td>双曲线<\/td><td>距离之差<\/td><td>x²/a²−y²/b²=1<\/td><td>e&gt;1<\/td><td>两条渐近线<\/td><\/tr><tr><td>抛物线<\/td><td>到点＝到线<\/td><td>y²=2px<\/td><td>e=1<\/td><td>一条准线<\/td><\/tr><\/tbody><\/table>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：双曲线像两束手电光的光锥边缘，越远越分开；抛物线像抛出的球走过的路线。<\/p>\n<p><strong>失效边界<\/strong>：双曲线的“差”要取绝对值，否则只得到一支。<\/p>\n<p><strong>实例<\/strong>：x²/9−y²/16=1：a=3，b=4，c=5，e=5/3，渐近线 y=±(4/3)x。 y²=8x：2p=8，p=4，焦点 (2,0)，准线 x=−2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 双曲线只有一支 —— 实际上 取绝对值时为两支；只写“差为 2a”而不取绝对值，只得到靠近某焦点的一支。\n<\/li><li>\n别以为 抛物线的 p 是焦点到准线的距离 —— 实际上 焦点到准线的距离是 p，焦点坐标是 (p/2,0)，准线是 x=−p/2。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n双曲线 x²/16−y²/9=1 的渐近线是：\n<\/li><li>\n抛物线 y²=12x 的焦点坐标是：\n<p>A. y=±(3/4)x ｜ B. y=±(4/3)x ｜ C. y=±(9/16)x ｜ D. y=±x <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a=4，b=3，渐近线 y=±(b/a)x=±(3/4)x。 A. (3,0) ｜ B. (6,0) ｜ C. (0,3) ｜ D. (12,0) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：2p=12，p=6，焦点 (p/2,0)=(3,0)。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n双曲线：||PF₁|−|PF₂||=2a，b²=c²−a²\n<\/li><li>\n渐近线 y=±(b/a)x\n<\/li><li>\n抛物线 y²=2px：焦点 (p/2,0)，准线 x=−p/2\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：双曲线与抛物线）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：双曲线与抛物线<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>双曲线与抛物线的方程都能由定义直接推出，方法与椭圆相同：写距离式、平方、整理。差别只在“和”变成“差”或“等于到直线的距离”。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>到两定点距离之差为常数（小于两点距离）的轨迹叫双曲线；到定点与定直线等距的轨迹叫抛物线。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>双曲线像两只喇叭背靠背；抛物线像喷泉的水柱轮廓。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 双曲线定义<\/h3>\n<div class=\"katex-block\">\\big||PF_{1}|-|PF_{2}|\\big|=2a<\/div>\n<p>取绝对值才得到两支，否则只有一支。<\/p>\n<h3>2. 标准方程<\/h3>\n<div class=\"katex-block\">\\frac{x^{2}}{a^{2}}-\\frac{y^{2}}{b^{2}}=1<\/div>\n<p>由定义平方化简得到，b²=c²−a²。<\/p>\n<h3>3. 渐近线<\/h3>\n<div class=\"katex-block\">y=\\pm\\frac{b}{a}x<\/div>\n<p>x 很大时曲线无限接近这两条直线。<\/p>\n<h3>4. 抛物线<\/h3>\n<div class=\"katex-block\">y^{2}=2px<\/div>\n<p>到焦点与准线等距，p 是焦点到准线的距离。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>双曲线的常数必须小于两焦点距离；等于时退化为两条射线。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《圆锥曲线》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 2 章：双曲线与抛物线"}, "ch03": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><\/span><\/div><h1>第 3 章：统一定义、光学性质与坐标变换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用离心率统一三条曲线\n<\/li><li>\n说出三条曲线的光学性质\n<\/li><li>\n理解坐标变换不改变曲线类型\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>三条曲线可以合成一句话：到焦点距离与到准线距离之比等于 e。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 统一定义<\/h3>\n<p>到定点 F（焦点）的距离与到定直线 l（准线）的距离之比为常数 e 的点的轨迹：<\/p>\n<ul><li>\n0&lt;e&lt;1：椭圆；\n<\/li><li>\ne=1：抛物线；\n<\/li><li>\ne&gt;1：双曲线。\n<\/ul>\n<p>一条定义，三种曲线，e 是分类开关。这也是“圆锥曲线”这个名字的代数解释。<\/p>\n<h3>3.2 光学性质<\/h3>\n<ul><li>\n椭圆：从一个焦点发出的光线经椭圆反射后必过另一焦点；\n<\/li><li>\n抛物线：平行于对称轴的光线经抛物线反射后聚焦于焦点；\n<\/li><li>\n双曲线：射向一个焦点的光线经反射后，反射光线的反向延长线过另一焦点。\n<\/ul>\n<p>这些性质是卫星天线、车灯、光学仪器的设计依据。<\/p>\n<h3>3.3 坐标变换与不变量<\/h3>\n<p>平移坐标轴只改变方程中的常数项，不改变曲线类型；旋转坐标轴可以把含 xy 项的方程化为标准形。<\/p>\n<p>曲线在变换下保持不变的量（如离心率、曲线类型）叫不变量。判断“这是什么曲线”时，先算不变量，比硬配方更快。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：离心率像“调焦旋钮”：拧到小于 1 是椭圆，正好 1 是抛物线，大于 1 是双曲线。<\/p>\n<p><strong>失效边界<\/strong>：统一定义要求准线与焦点对应；不同曲线的准线位置不同，不能混用。<\/p>\n<p><strong>实例<\/strong>：某曲线到焦点 (2,0) 与准线 x=−2 的距离之比为 1，则它是抛物线 y²=8x。 若比值改为 0.5，则是椭圆（需重新计算 a、c）。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 光学性质只对抛物线与圆有关 —— 实际上 三条曲线都有反射性质，椭圆与双曲线同样用于光学设计。\n<\/li><li>\n别以为 坐标变换会改变曲线类型 —— 实际上 平移与旋转只改变方程形式，曲线类型与离心率不变。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n离心率 e=1 对应的圆锥曲线是：\n<\/li><li>\n平行于抛物线对称轴的光线经反射后：\n<p>A. 椭圆 ｜ B. 双曲线 ｜ C. 抛物线 ｜ D. 圆 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：e=1 即到焦点与到准线距离相等，是抛物线。 A. 原路返回 ｜ B. 过焦点 ｜ C. 平行射出 ｜ D. 发散 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：抛物线的光学性质：平行于轴的光线反射后过焦点。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n统一：到焦点距离/到准线距离=e\n<\/li><li>\ne&lt;1 椭圆，e=1 抛物线，e&gt;1 双曲线\n<\/li><li>\n平移旋转不改变曲线类型\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：统一定义、光学性质与坐标变换）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：统一定义、光学性质与坐标变换<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>把“到焦点距离”与“到准线距离”作比，三条曲线就被同一个数分开了。这是全书最经济的一步统一。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>离心率 e 是动点到焦点距离与到对应准线距离的比值。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像同一台相机换不同镜头：参数一变，成像的弯曲程度就变。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 统一定义<\/h3>\n<div class=\"katex-block\">\\frac{|PF|}{d(P,l)}=e<\/div>\n<p>一个比值把三种曲线分成三类。<\/p>\n<h3>2. 分类<\/h3>\n<div class=\"katex-block\">0&lt;e<1\\ \\text{椭圆};\\quad e=1\\ \\text{抛物线};\\quad e>1\\ \\text{双曲线}<\/div>\n<p>e 是唯一分类参数。<\/p>\n<h3>3. 抛物线光学<\/h3>\n<div class=\"katex-block\">\\text{平行于轴入射}\\ \\Rightarrow\\ \\text{反射过焦点}<\/div>\n<p>卫星天线与车灯聚光的原理。<\/p>\n<h3>4. 平移不变<\/h3>\n<div class=\"katex-block\">(x-h)^{2}+(y-k)^{2}\\ \\text{型方程只是中心移动}<\/div>\n<p>平移只改位置，不改形状与类型。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>准线必须与焦点配对；写错准线会让比值算错，曲线类型判断随之出错。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《圆锥曲线》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 3 章：统一定义、光学性质与坐标变换"}, "c01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：统一定义、光学性质与坐标变换<\/a><\/span><\/div><h1>离心率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>e=c/a，一个数决定曲线是圆、椭圆、抛物线还是双曲线。<\/p>\n<h2>为什么重要<\/h2>\n<p>它是三条曲线的统一开关，也是判断“扁不扁、张不张”的唯一指标。<\/p>\n<h2>详解<\/h2>\n<p>椭圆 0&lt;e&lt;1，e 越大越扁；抛物线 e=1；双曲线 e&gt;1，e 越大开口越张。用统一定义看，e 就是“到焦点距离与到准线距离之比”。<\/p>\n<h2>常见误解<\/h2>\n<p>把 e 当成斜率或焦距，混淆 c/a 与 c 的含义。<\/p>\n<h2>相关概念<\/h2>\n<p>椭圆（ch01）、统一定义（ch03）<\/p>", "kind": "concept", "title": "离心率"}, "c02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><\/span><\/div><h1>a、b、c 的关系<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>椭圆是 b²=a²−c²，双曲线是 b²=c²−a²，符号相反。<\/p>\n<h2>为什么重要<\/h2>\n<p>这三者的关系决定焦点位置、顶点坐标与渐近线，写错一处整题皆错。<\/p>\n<h2>详解<\/h2>\n<p>椭圆中 a 最大（a²=b²+c²）；双曲线中 c 最大（c²=a²+b²）。记住“谁最大”就不会写反：椭圆 a 最大，双曲线 c 最大。<\/p>\n<h2>常见误解<\/h2>\n<p>把两个关系式互换，导致焦点坐标或渐近线全错。<\/p>\n<h2>相关概念<\/h2>\n<p>椭圆（ch01）、双曲线（ch02）<\/p>", "kind": "concept", "title": "a、b、c 的关系"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：椭圆<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><br>检查点：能由方程读出 a、b、c、e<\/li><li class='path-step' id='path-02'><strong>步骤 02：双曲线与抛物线<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><br>检查点：能写出渐近线与准线<\/li><li class='path-step' id='path-03'><strong>步骤 03：统一定义、光学性质与坐标变换<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：统一定义、光学性质与坐标变换<\/a><br>检查点：能用 e 判断曲线类型<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__graph__": {"html": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "kind": "graph", "title": "知识图谱"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 椭圆 x²/36+y²/20=1 的离心率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 2/3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> √2/3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4/9<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 1/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 抛物线 x²=−8y 的焦点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> (0,−2)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> (0,2)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> (−2,0)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> (2,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：椭圆<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 椭圆 x²/16+y²/7=1 的焦距是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 9<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 18<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 椭圆的离心率 e 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> (0,1)<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> (1,+∞)<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> [0,1]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> (0,+∞)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：双曲线与抛物线<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 双曲线 x²/16−y²/9=1 的渐近线是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> y=±(3/4)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> y=±(4/3)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> y=±(9/16)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> y=±x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 抛物线 y²=12x 的焦点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> (3,0)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> (6,0)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> (0,3)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> (12,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：统一定义、光学性质与坐标变换<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 离心率 e=1 对应的圆锥曲线是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 椭圆<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 双曲线<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 抛物线<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 圆<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 平行于抛物线对称轴的光线经反射后：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 原路返回<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 过焦点<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 平行射出<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 发散<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='椭圆'>椭圆 — 到两定点距离之和为常数的点的轨迹。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='焦点'>焦点 — 定义中的定点。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='半长轴'>半长轴 — 椭圆中的 a，长轴长为 2a。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='离心率'>离心率 — e=c/a，描述曲线的形状参数。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='双曲线'>双曲线 — 到两定点距离之差为常数的点的轨迹。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='渐近线'>渐近线 — 双曲线无限接近但不相交的直线。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='抛物线'>抛物线 — 到定点与定直线等距的点的轨迹。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='准线'>准线 — 统一定义中的定直线。 <span class=glossary-ref>（第 3 章：统一定义、光学性质与坐标变换）<\/span><\/li><li data-term='通径'>通径 — 过焦点垂直于对称轴的弦。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__diagnosis__": {"html": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "kind": "diagnosis", "title": "诊断测试"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：识曲线三步<\/h2>\n<p>① 看方程次数与符号（两平方项同号为椭圆、异号为双曲线、一次项为抛物线）；② 看谁最大定焦点；③ 算 e 定形状。<\/p>\n<h2>框架：求方程四步<\/h2>\n<p>① 定型（焦点在哪轴）；② 设标准式；③ 用 a、b、c 关系与已知点列方程；④ 解出并写回标准形。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>椭圆<\/td><td>x²/a²+y²/b²=1，b²=a²−c²，e=c/a&lt;1<\/td><\/tr><tr><td>双曲线<\/td><td>x²/a²−y²/b²=1，b²=c²−a²，e=c/a&gt;1<\/td><\/tr><tr><td>渐近线<\/td><td>y=±(b/a)x<\/td><\/tr><tr><td>抛物线<\/td><td>y²=2px，焦点 (p/2,0)，准线 x=−p/2<\/td><\/tr><tr><td>统一定义<\/td><td><\/td><td>PF<\/td><td>/d(P,l)=e<\/td><\/tr><tr><td>通径<\/td><td>2b²/a<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/19-圆锥曲线", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "🕸 知识图谱", "href": "#/graph"}, {"label": "🩺 诊断测试", "href": "#/diagnosis"}, {"label": "章节", "children": [{"label": "第 1 章：椭圆", "href": "#/chapter/ch01"}, {"label": "第 2 章：双曲线与抛物线", "href": "#/chapter/ch02"}, {"label": "第 3 章：统一定义、光学性质与坐标变换", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "离心率", "href": "#/concept/c01"}, {"label": "a、b、c 的关系", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：椭圆", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：双曲线与抛物线", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：统一定义、光学性质与坐标变换", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">两点距离、配方<\/span><\/div><h1>第 1 章：椭圆<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：两点距离、配方\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由定义写出椭圆方程\n<\/li><li>\n读出长轴、短轴、焦距、离心率\n<\/li><li>\n判断椭圆的扁平程度\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>椭圆是“到两定点距离之和为常数”的点集；a 是半长轴，c 是半焦距，b²=a²−c²。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 定义<\/h3>\n<p>平面内到两定点 F₁、F₂ 的距离之和等于常数 2a（2a&gt;|F₁F₂|）的点的轨迹叫椭圆。两定点叫焦点，|F₁F₂|=2c。<\/p>\n<p>若 2a=2c，轨迹退化为线段 F₁F₂；若 2a&lt;2c，无轨迹。<\/p>\n<h3>1.2 标准方程<\/h3>\n<p>以焦点在 x 轴上、中心在原点为例：<\/p>\n<p>x²/a²+y²/b²=1，其中 b²=a²−c²<\/p>\n<p>焦点为 (±c,0)，顶点为 (±a,0)、(0,±b)。若焦点在 y 轴上，方程写成 y²/a²+x²/b²=1，焦点 (0,±c)。<\/p>\n<h3>1.3 离心率<\/h3>\n<p>e=c/a，范围 (0,1)。e 越大（越接近 1），c 越接近 a，b 越小，椭圆越扁；e 越小（越接近 0），越接近圆。<\/p>\n<p>e 是描述“扁不扁”的唯一参数，比看方程更直观。<\/p>\n<h3>1.4 常用关系<\/h3>\n<p>椭圆上任意一点到两焦点距离之和恒为 2a；焦点到顶点的距离分别为 a−c 与 a+c；通径（过焦点垂直于长轴的弦）长为 2b²/a。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：椭圆像用两根钉子与一根绳画出的图形：绳长固定，笔尖到两钉距离之和就不变。<\/p>\n<p><strong>失效边界<\/strong>：绳长必须大于两钉距离，否则画不出椭圆（退化为线段或无轨迹）。<\/p>\n<p><strong>实例<\/strong>：x²/25+y²/9=1：a=5，b=3，c=√(25−9)=4，e=4/5=0.8。 焦点 (±4,0)，长轴长 10，短轴长 6。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 a 是长轴长 —— 实际上 a 是半长轴，长轴长是 2a。\n<\/li><li>\n别以为 离心率越大椭圆越圆 —— 实际上 e 越大越扁；e 越小越接近圆。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n椭圆 x²/16+y²/7=1 的焦距是：\n<\/li><li>\n椭圆的离心率 e 的取值范围是：\n<p>A. 6 ｜ B. 3 ｜ C. 9 ｜ D. 18 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：c²=16−7=9，c=3，焦距 2c=6。 A. (0,1) ｜ B. (1,+∞) ｜ C. [0,1] ｜ D. (0,+∞) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：e=c/a，且 0&lt;c&lt;a，故 0&lt;e&lt;1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n|PF₁|+|PF₂|=2a\n<\/li><li>\nb²=a²−c²；e=c/a∈(0,1)\n<\/li><li>\ne 越大越扁\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：椭圆）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：椭圆<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>椭圆方程不是硬凑的：把“到两点距离之和为常数”写成方程，两次平方消根号，就得到标准形。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>到两定点距离之和为常数（大于两点距离）的点的轨迹叫椭圆。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像用一根绳和两个钉子画图：绳子绷紧，笔尖走的路线就是椭圆。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 定义式<\/h3>\n<div class=\"katex-block\">\\sqrt{(x+c)^{2}+y^{2}}+\\sqrt{(x-c)^{2}+y^{2}}=2a<\/div>\n<p>两次平方消根号，整理即得标准方程。<\/p>\n<h3>2. 标准方程<\/h3>\n<div class=\"katex-block\">\\frac{x^{2}}{a^{2}}+\\frac{y^{2}}{b^{2}}=1<\/div>\n<p>中心在原点、焦点在 x 轴上的椭圆。<\/p>\n<h3>3. 三者关系<\/h3>\n<div class=\"katex-block\">b^{2}=a^{2}-c^{2}<\/div>\n<p>由定义式化简时自然出现，不是额外规定。<\/p>\n<h3>4. 离心率<\/h3>\n<div class=\"katex-block\">e=\\frac{c}{a}\\in(0,1)<\/div>\n<p>描述扁圆程度：e 越大越扁。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>常数必须大于两焦点距离；等于时为线段，小于时不存在。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《圆锥曲线》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><\/span><\/div><h1>第 2 章：双曲线与抛物线<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n写出双曲线标准方程与渐近线\n<\/li><li>\n写出抛物线标准方程与准线\n<\/li><li>\n由方程判断曲线类型\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>双曲线是“距离之差为常数”，抛物线是“到定点与定直线等距”；前者有渐近线，后者只有一条对称轴。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 双曲线<\/h3>\n<p>定义：到两定点距离之差的绝对值为常数 2a（2a&lt;2c）的点的轨迹。<\/p>\n<p>标准方程（焦点在 x 轴）：x²/a²−y²/b²=1，其中 b²=c²−a²。<\/p>\n<ul><li>\n焦点 (±c,0)，顶点 (±a,0)；\n<\/li><li>\n渐近线 y=±(b/a)x；\n<\/li><li>\n离心率 e=c/a&gt;1，e 越大开口越“张”。\n<\/ul>\n<h3>2.2 抛物线<\/h3>\n<p>定义：到定点 F 与定直线 l 距离相等的点的轨迹。F 叫焦点，l 叫准线。<\/p>\n<p>标准方程（开口向右）：y²=2px（p&gt;0），焦点 (p/2,0)，准线 x=−p/2。<\/p>\n<p>开口方向由一次项决定：y²=2px 向右，y²=−2px 向左，x²=2py 向上，x²=−2py 向下。<\/p>\n<h3>2.3 三者的区别<\/h3>\n<table><thead><tr><th><\/th><th>定义<\/th><th>方程<\/th><th>离心率<\/th><th>特征线<\/th><\/tr><\/thead><tbody><tr><td>椭圆<\/td><td>距离之和<\/td><td>x²/a²+y²/b²=1<\/td><td>e&lt;1<\/td><td>无渐近线<\/td><\/tr><tr><td>双曲线<\/td><td>距离之差<\/td><td>x²/a²−y²/b²=1<\/td><td>e&gt;1<\/td><td>两条渐近线<\/td><\/tr><tr><td>抛物线<\/td><td>到点＝到线<\/td><td>y²=2px<\/td><td>e=1<\/td><td>一条准线<\/td><\/tr><\/tbody><\/table>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：双曲线像两束手电光的光锥边缘，越远越分开；抛物线像抛出的球走过的路线。<\/p>\n<p><strong>失效边界<\/strong>：双曲线的“差”要取绝对值，否则只得到一支。<\/p>\n<p><strong>实例<\/strong>：x²/9−y²/16=1：a=3，b=4，c=5，e=5/3，渐近线 y=±(4/3)x。 y²=8x：2p=8，p=4，焦点 (2,0)，准线 x=−2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 双曲线只有一支 —— 实际上 取绝对值时为两支；只写“差为 2a”而不取绝对值，只得到靠近某焦点的一支。\n<\/li><li>\n别以为 抛物线的 p 是焦点到准线的距离 —— 实际上 焦点到准线的距离是 p，焦点坐标是 (p/2,0)，准线是 x=−p/2。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n双曲线 x²/16−y²/9=1 的渐近线是：\n<\/li><li>\n抛物线 y²=12x 的焦点坐标是：\n<p>A. y=±(3/4)x ｜ B. y=±(4/3)x ｜ C. y=±(9/16)x ｜ D. y=±x <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：a=4，b=3，渐近线 y=±(b/a)x=±(3/4)x。 A. (3,0) ｜ B. (6,0) ｜ C. (0,3) ｜ D. (12,0) <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：2p=12，p=6，焦点 (p/2,0)=(3,0)。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n双曲线：||PF₁|−|PF₂||=2a，b²=c²−a²\n<\/li><li>\n渐近线 y=±(b/a)x\n<\/li><li>\n抛物线 y²=2px：焦点 (p/2,0)，准线 x=−p/2\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：双曲线与抛物线）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：双曲线与抛物线<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>双曲线与抛物线的方程都能由定义直接推出，方法与椭圆相同：写距离式、平方、整理。差别只在“和”变成“差”或“等于到直线的距离”。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>到两定点距离之差为常数（小于两点距离）的轨迹叫双曲线；到定点与定直线等距的轨迹叫抛物线。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>双曲线像两只喇叭背靠背；抛物线像喷泉的水柱轮廓。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 双曲线定义<\/h3>\n<div class=\"katex-block\">\\big||PF_{1}|-|PF_{2}|\\big|=2a<\/div>\n<p>取绝对值才得到两支，否则只有一支。<\/p>\n<h3>2. 标准方程<\/h3>\n<div class=\"katex-block\">\\frac{x^{2}}{a^{2}}-\\frac{y^{2}}{b^{2}}=1<\/div>\n<p>由定义平方化简得到，b²=c²−a²。<\/p>\n<h3>3. 渐近线<\/h3>\n<div class=\"katex-block\">y=\\pm\\frac{b}{a}x<\/div>\n<p>x 很大时曲线无限接近这两条直线。<\/p>\n<h3>4. 抛物线<\/h3>\n<div class=\"katex-block\">y^{2}=2px<\/div>\n<p>到焦点与准线等距，p 是焦点到准线的距离。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>双曲线的常数必须小于两焦点距离；等于时退化为两条射线。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《圆锥曲线》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch03": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><\/span><\/div><h1>第 3 章：统一定义、光学性质与坐标变换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用离心率统一三条曲线\n<\/li><li>\n说出三条曲线的光学性质\n<\/li><li>\n理解坐标变换不改变曲线类型\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>三条曲线可以合成一句话：到焦点距离与到准线距离之比等于 e。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 统一定义<\/h3>\n<p>到定点 F（焦点）的距离与到定直线 l（准线）的距离之比为常数 e 的点的轨迹：<\/p>\n<ul><li>\n0&lt;e&lt;1：椭圆；\n<\/li><li>\ne=1：抛物线；\n<\/li><li>\ne&gt;1：双曲线。\n<\/ul>\n<p>一条定义，三种曲线，e 是分类开关。这也是“圆锥曲线”这个名字的代数解释。<\/p>\n<h3>3.2 光学性质<\/h3>\n<ul><li>\n椭圆：从一个焦点发出的光线经椭圆反射后必过另一焦点；\n<\/li><li>\n抛物线：平行于对称轴的光线经抛物线反射后聚焦于焦点；\n<\/li><li>\n双曲线：射向一个焦点的光线经反射后，反射光线的反向延长线过另一焦点。\n<\/ul>\n<p>这些性质是卫星天线、车灯、光学仪器的设计依据。<\/p>\n<h3>3.3 坐标变换与不变量<\/h3>\n<p>平移坐标轴只改变方程中的常数项，不改变曲线类型；旋转坐标轴可以把含 xy 项的方程化为标准形。<\/p>\n<p>曲线在变换下保持不变的量（如离心率、曲线类型）叫不变量。判断“这是什么曲线”时，先算不变量，比硬配方更快。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：离心率像“调焦旋钮”：拧到小于 1 是椭圆，正好 1 是抛物线，大于 1 是双曲线。<\/p>\n<p><strong>失效边界<\/strong>：统一定义要求准线与焦点对应；不同曲线的准线位置不同，不能混用。<\/p>\n<p><strong>实例<\/strong>：某曲线到焦点 (2,0) 与准线 x=−2 的距离之比为 1，则它是抛物线 y²=8x。 若比值改为 0.5，则是椭圆（需重新计算 a、c）。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 光学性质只对抛物线与圆有关 —— 实际上 三条曲线都有反射性质，椭圆与双曲线同样用于光学设计。\n<\/li><li>\n别以为 坐标变换会改变曲线类型 —— 实际上 平移与旋转只改变方程形式，曲线类型与离心率不变。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n离心率 e=1 对应的圆锥曲线是：\n<\/li><li>\n平行于抛物线对称轴的光线经反射后：\n<p>A. 椭圆 ｜ B. 双曲线 ｜ C. 抛物线 ｜ D. 圆 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：e=1 即到焦点与到准线距离相等，是抛物线。 A. 原路返回 ｜ B. 过焦点 ｜ C. 平行射出 ｜ D. 发散 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：抛物线的光学性质：平行于轴的光线反射后过焦点。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n统一：到焦点距离/到准线距离=e\n<\/li><li>\ne&lt;1 椭圆，e=1 抛物线，e&gt;1 双曲线\n<\/li><li>\n平移旋转不改变曲线类型\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：统一定义、光学性质与坐标变换）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：统一定义、光学性质与坐标变换<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>把“到焦点距离”与“到准线距离”作比，三条曲线就被同一个数分开了。这是全书最经济的一步统一。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>离心率 e 是动点到焦点距离与到对应准线距离的比值。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像同一台相机换不同镜头：参数一变，成像的弯曲程度就变。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 统一定义<\/h3>\n<div class=\"katex-block\">\\frac{|PF|}{d(P,l)}=e<\/div>\n<p>一个比值把三种曲线分成三类。<\/p>\n<h3>2. 分类<\/h3>\n<div class=\"katex-block\">0&lt;e<1\\ \\text{椭圆};\\quad e=1\\ \\text{抛物线};\\quad e>1\\ \\text{双曲线}<\/div>\n<p>e 是唯一分类参数。<\/p>\n<h3>3. 抛物线光学<\/h3>\n<div class=\"katex-block\">\\text{平行于轴入射}\\ \\Rightarrow\\ \\text{反射过焦点}<\/div>\n<p>卫星天线与车灯聚光的原理。<\/p>\n<h3>4. 平移不变<\/h3>\n<div class=\"katex-block\">(x-h)^{2}+(y-k)^{2}\\ \\text{型方程只是中心移动}<\/div>\n<p>平移只改位置，不改形状与类型。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>准线必须与焦点配对；写错准线会让比值算错，曲线类型判断随之出错。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《圆锥曲线》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "c01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：统一定义、光学性质与坐标变换<\/a><\/span><\/div><h1>离心率<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>e=c/a，一个数决定曲线是圆、椭圆、抛物线还是双曲线。<\/p>\n<h2>为什么重要<\/h2>\n<p>它是三条曲线的统一开关，也是判断“扁不扁、张不张”的唯一指标。<\/p>\n<h2>详解<\/h2>\n<p>椭圆 0&lt;e&lt;1，e 越大越扁；抛物线 e=1；双曲线 e&gt;1，e 越大开口越张。用统一定义看，e 就是“到焦点距离与到准线距离之比”。<\/p>\n<h2>常见误解<\/h2>\n<p>把 e 当成斜率或焦距，混淆 c/a 与 c 的含义。<\/p>\n<h2>相关概念<\/h2>\n<p>椭圆（ch01）、统一定义（ch03）<\/p>", "c02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-19-圆锥曲线 许仲苌 左铨如.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><\/span><\/div><h1>a、b、c 的关系<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>椭圆是 b²=a²−c²，双曲线是 b²=c²−a²，符号相反。<\/p>\n<h2>为什么重要<\/h2>\n<p>这三者的关系决定焦点位置、顶点坐标与渐近线，写错一处整题皆错。<\/p>\n<h2>详解<\/h2>\n<p>椭圆中 a 最大（a²=b²+c²）；双曲线中 c 最大（c²=a²+b²）。记住“谁最大”就不会写反：椭圆 a 最大，双曲线 c 最大。<\/p>\n<h2>常见误解<\/h2>\n<p>把两个关系式互换，导致焦点坐标或渐近线全错。<\/p>\n<h2>相关概念<\/h2>\n<p>椭圆（ch01）、双曲线（ch02）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：椭圆<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：椭圆<\/a><br>检查点：能由方程读出 a、b、c、e<\/li><li class='path-step' id='path-02'><strong>步骤 02：双曲线与抛物线<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：双曲线与抛物线<\/a><br>检查点：能写出渐近线与准线<\/li><li class='path-step' id='path-03'><strong>步骤 03：统一定义、光学性质与坐标变换<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：统一定义、光学性质与坐标变换<\/a><br>检查点：能用 e 判断曲线类型<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__graph__": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 椭圆 x²/36+y²/20=1 的离心率是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 2/3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> √2/3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4/9<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 1/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 抛物线 x²=−8y 的焦点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> (0,−2)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> (0,2)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> (−2,0)<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> (2,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：椭圆<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 椭圆 x²/16+y²/7=1 的焦距是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 6<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 9<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 18<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 椭圆的离心率 e 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> (0,1)<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> (1,+∞)<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> [0,1]<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> (0,+∞)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：双曲线与抛物线<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 双曲线 x²/16−y²/9=1 的渐近线是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> y=±(3/4)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> y=±(4/3)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> y=±(9/16)x<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> y=±x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 抛物线 y²=12x 的焦点坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> (3,0)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> (6,0)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> (0,3)<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> (12,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：统一定义、光学性质与坐标变换<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 离心率 e=1 对应的圆锥曲线是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 椭圆<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 双曲线<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 抛物线<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 圆<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 平行于抛物线对称轴的光线经反射后：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 原路返回<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 过焦点<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 平行射出<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 发散<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='椭圆'>椭圆 — 到两定点距离之和为常数的点的轨迹。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='焦点'>焦点 — 定义中的定点。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='半长轴'>半长轴 — 椭圆中的 a，长轴长为 2a。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='离心率'>离心率 — e=c/a，描述曲线的形状参数。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><li data-term='双曲线'>双曲线 — 到两定点距离之差为常数的点的轨迹。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='渐近线'>渐近线 — 双曲线无限接近但不相交的直线。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='抛物线'>抛物线 — 到定点与定直线等距的点的轨迹。 <span class=glossary-ref>（第 2 章：双曲线与抛物线）<\/span><\/li><li data-term='准线'>准线 — 统一定义中的定直线。 <span class=glossary-ref>（第 3 章：统一定义、光学性质与坐标变换）<\/span><\/li><li data-term='通径'>通径 — 过焦点垂直于对称轴的弦。 <span class=glossary-ref>（第 1 章：椭圆）<\/span><\/li><\/ul>", "__diagnosis__": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：识曲线三步<\/h2>\n<p>① 看方程次数与符号（两平方项同号为椭圆、异号为双曲线、一次项为抛物线）；② 看谁最大定焦点；③ 算 e 定形状。<\/p>\n<h2>框架：求方程四步<\/h2>\n<p>① 定型（焦点在哪轴）；② 设标准式；③ 用 a、b、c 关系与已知点列方程；④ 解出并写回标准形。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>椭圆<\/td><td>x²/a²+y²/b²=1，b²=a²−c²，e=c/a&lt;1<\/td><\/tr><tr><td>双曲线<\/td><td>x²/a²−y²/b²=1，b²=c²−a²，e=c/a&gt;1<\/td><\/tr><tr><td>渐近线<\/td><td>y=±(b/a)x<\/td><\/tr><tr><td>抛物线<\/td><td>y²=2px，焦点 (p/2,0)，准线 x=−p/2<\/td><\/tr><tr><td>统一定义<\/td><td><\/td><td>PF<\/td><td>/d(P,l)=e<\/td><\/tr><tr><td>通径<\/td><td>2b²/a<\/td><\/tr><\/tbody><\/table>"}};
 const pages = DATA.rendered;
 const manifest = DATA.manifest;
 const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SLUG = manifest.slug || 'book';
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
   set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
 };
-let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{}, mastery: store.get('mastery')||{} };
 
 /* ---------- 导航 ---------- */
 function renderNav(){
@@ -144,15 +199,27 @@ function routeIdFromHash(){
   let h = location.hash.replace(/^#\//,'');
   if(!h) return 'path';
   if(h==='path') return 'path';
+  if(h==='diagnosis') return 'diagnosis';
   const m = h.match(/^(chapter|concept)\/(.+)$/);
   if(m) return m[1]+'/'+m[2];
-  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+  return h;
 }
 function showPage(rid){
-  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  let id;
+  if(rid==='path') id='__path__';
+  else if(rid==='diagnosis') id='__diagnosis__';
+  else if(rid==='graph') id='__graph__';
+  else if(rid.startsWith('quiz/')) id='__quiz_'+rid.split('/')[1]+'__';
+  else if(rid==='cards') id='__cards__';
+  else if(rid==='glossary') id='__glossary__';
+  else if(rid==='patterns') id='__patterns__';
+  else if(rid==='cheatsheet') id='__cheatsheet__';
+  else if(rid.startsWith('chapter/')) id=rid.split('/')[1];
+  else if(rid.startsWith('concept/')) id=rid.split('/')[1];
+  else id=rid;
   const html = pages[id] || '<div class="empty">页面不存在</div>';
   $('#view').innerHTML = html;
-  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  $$('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
   if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
     state.visited.push(rid); store.set('visited', state.visited); renderNav();
   }
@@ -160,8 +227,66 @@ function showPage(rid){
   if(rid==='cards') initCards();
   if(rid==='glossary') initGlossary();
   if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(rid==='diagnosis') initDiagnosis();
+  if(rid==='graph') initGraph();
   if(id==='__path__') updatePath();
+  renderMath();
   renderMermaid();
+}
+
+/* ---------- KaTeX 渲染（多源回退） ---------- */
+let katexLoading = false, katexReady = false;
+function renderMath(){
+  const hasMath = document.querySelector('.katex-inline, .katex-block');
+  if(!hasMath) return;
+  if(katexReady){ doRenderMath(); return; }
+  if(katexLoading) return;
+  katexLoading = true;
+  const cssUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.css'
+  ];
+  const jsUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.js',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.js'
+  ];
+  let ci = 0, ji = 0;
+  const tryCss = () => {
+    if(ci >= cssUrls.length) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'; link.href = cssUrls[ci++];
+    link.onload = tryJs; link.onerror = () => { link.remove(); tryCss(); };
+    document.head.appendChild(link);
+  };
+  const tryJs = () => {
+    if(ji >= jsUrls.length){ katexLoading = false; return; }
+    const s = document.createElement('script');
+    s.src = jsUrls[ji++];
+    s.onload = () => { katexReady = true; katexLoading = false; doRenderMath(); };
+    s.onerror = () => { s.remove(); tryJs(); };
+    document.head.appendChild(s);
+  };
+  tryCss();
+}
+function doRenderMath(){
+  if(typeof katex === 'undefined') return;
+  // 行内公式：.katex-inline 里的内容
+  $$('.katex-inline').forEach(el=>{
+    try{ katex.render(el.textContent, el, {throwOnError:false}); }catch(e){}
+  });
+  // 块级公式：.katex-block 里的内容
+  $$('.katex-block').forEach(el=>{
+    try{ katex.render(el.textContent, el, {displayMode:true, throwOnError:false}); }catch(e){}
+  });
+}
+// 公式内容预处理：把 < 后跟字母的位置转成 &lt;，避免被 HTML 解析器当标签吃掉
+// （这是 first-principles-derivation 踩过的坑：$m<n$ 会变成残留 $m）
+function sanitizeMathHTML(){
+  $$('.katex-inline, .katex-block').forEach(el=>{
+    el.innerHTML = el.innerHTML.replace(/<([a-zA-Z])/g, '&lt;$1');
+  });
 }
 
 /* ---------- 进度 ---------- */
@@ -173,7 +298,7 @@ function updateProgress(){
   $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
 }
 function updatePath(){
-  document.querySelectorAll('.path-step').forEach(el=>{
+  $$('.path-step').forEach(el=>{
     const step = el.id.replace('path-','');
     const s = (manifest.learningPath||[]).find(x=>x.step===step);
     if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
@@ -183,9 +308,39 @@ function updatePath(){
   });
 }
 
-/* ---------- 测验 ---------- */
+/* ---------- 概念/章节依赖查找（用于诊断倒推） ---------- */
+function findConcept(id){ return (manifest.concepts||[]).find(c=>c.id===id); }
+function findChapter(id){ return (manifest.chapters||[]).find(c=>c.id===id); }
+function getPrereqs(node){
+  if(!node) return [];
+  return node.prerequisites || node.prereqs || [];
+}
+/**
+ * 答错倒推：从错题关联的概念/章节出发，沿 prerequisites 回溯，
+ * 返回一串"你可能需要先补的"节点，带跳转链接。
+ */
+function traceBack(startConceptId, startChapterId){
+  const visited = new Set();
+  const chain = [];
+  const queue = [];
+  if(startConceptId){ const c = findConcept(startConceptId); if(c) queue.push({node:c, kind:'concept'}); }
+  if(startChapterId){ const c = findChapter(startChapterId); if(c) queue.push({node:c, kind:'chapter'}); }
+  while(queue.length && chain.length < 6){
+    const {node, kind} = queue.shift();
+    if(visited.has(node.id)) continue;
+    visited.add(node.id);
+    chain.push({node, kind});
+    (getPrereqs(node)||[]).forEach(pid=>{
+      const cn = findConcept(pid); if(cn){ queue.push({node:cn, kind:'concept'}); return; }
+      const ch = findChapter(pid); if(ch) queue.push({node:ch, kind:'chapter'});
+    });
+  }
+  return chain;
+}
+
+/* ---------- 测验（带倒推） ---------- */
 function initQuizzes(rid){
-  document.querySelectorAll('.quiz-item').forEach(item=>{
+  $$('.quiz-item').forEach(item=>{
     const btn = item.querySelector('.quiz-check');
     if(!btn || item.dataset.inited){ return }
     item.dataset.inited='1';
@@ -211,8 +366,7 @@ function initQuizzes(rid){
       }
       item.querySelectorAll('input:checked').forEach(i=>{
         const val=parseInt(i.value);
-        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
-        else i.parentElement.style.color='var(--bad)';
+        i.parentElement.style.color = (Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) ? 'var(--ok)' : 'var(--bad)';
       });
       const feed = item.querySelector('.quiz-feedback');
       feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
@@ -220,7 +374,34 @@ function initQuizzes(rid){
       let ex = item.querySelector('.quiz-explain');
       if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
       ex.innerHTML = '解析：' + esc(q.explain||'');
-      // 记录成绩（按章聚合）
+      // 答错时：倒推前置 + 误解卡片 + 掌握度更新
+      if(!correct){
+        let remedy = item.querySelector('.quiz-remedy');
+        if(!remedy){ remedy = document.createElement('div'); remedy.className='quiz-remedy'; item.appendChild(remedy); }
+        const chain = traceBack(item.dataset.concept, item.dataset.chapter);
+        if(chain.length > 1){
+          const links = chain.slice(1).map(({node,kind})=>{
+            const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+            return `<a href="${href}">${esc(node.title||node.id)}</a>`;
+          }).join(' → ');
+          remedy.innerHTML = '🔍 可能的根因（沿依赖链回溯）：' + links;
+        }
+        // 误解卡片：如果选错的选项标注了 misconceptionId
+        const checked = item.querySelector('input:checked');
+        const misId = checked ? checked.dataset.misconception : '';
+        if(misId){
+          const mis = (manifest.misconceptions||[]).find(m=>m.id===misId);
+          if(mis){
+            let misCard = item.querySelector('.misconception-card');
+            if(!misCard){ misCard = document.createElement('div'); misCard.className='misconception-card'; item.appendChild(misCard); }
+            misCard.innerHTML = `<b>⚠ 常见误解</b><br>你选了「${esc(mis.wrong)}」——${esc(mis.correction)}`;
+          }
+        }
+        // 掌握度下降
+        updateMastery(item.dataset.concept, -0.15);
+      } else {
+        updateMastery(item.dataset.concept, +0.15);
+      }
       const ch = q.chapterId||'__all__';
       if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
       state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
@@ -230,7 +411,222 @@ function initQuizzes(rid){
   });
 }
 
+/* ---------- 知识图谱（vis-network） ---------- */
+let networkLoaded = false;
+function loadVisNetwork(cb){
+  if(networkLoaded){ cb(); return; }
+  const urls = [
+    'https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.js',
+    'https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js',
+    'https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js'
+  ];
+  let i = 0;
+  const tryNext = () => {
+    if(i >= urls.length) return;
+    const s = document.createElement('script');
+    s.src = urls[i++];
+    s.onload = () => { networkLoaded = true; cb(); };
+    s.onerror = () => { s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
+}
+function initGraph(){
+  const container = document.getElementById('graph-container');
+  if(!container) return;
+  loadVisNetwork(() => {
+    if(typeof vis === 'undefined'){ container.innerHTML = '<p class="empty">图谱库加载失败，请联网后刷新</p>'; return; }
+    const concepts = manifest.concepts || [];
+    const chapters = manifest.chapters || [];
+    const nodes = [];
+    const edges = [];
+    concepts.forEach(c => {
+      const mastery = Math.round(getMastery(c.id)*100);
+      nodes.push({
+        id: 'c_' + c.id,
+        label: c.title || c.id,
+        title: (c.title||c.id) + '（掌握度 ' + mastery + '%）',
+        color: mastery > 70 ? '#86efac' : mastery > 40 ? '#fde68a' : '#fca5a5',
+        shape: 'dot',
+        size: mastery > 70 ? 20 : 14,
+        font: { size: 13 }
+      });
+    });
+    chapters.forEach(ch => {
+      nodes.push({
+        id: 'ch_' + ch.id,
+        label: ch.title || ch.id,
+        shape: 'box',
+        color: '#93c5fd',
+        font: { size: 12 }
+      });
+    });
+    // 前置边
+    concepts.forEach(c => {
+      (c.prerequisites || []).forEach(p => {
+        const pid = typeof p === 'string' ? p : p.id;
+        const ptype = typeof p === 'string' ? 'hard' : (p.type || 'hard');
+        const from = (pid.startsWith('ch') ? 'ch_' : 'c_') + pid;
+        const to = 'c_' + c.id;
+        if(nodes.find(n => n.id === from)){
+          edges.push({
+            from: from, to: to,
+            color: { color: ptype === 'hard' ? '#dc2626' : ptype === 'soft' ? '#9ca3af' : '#3b82f6' },
+            arrows: 'to',
+            width: ptype === 'hard' ? 2 : 1,
+            dashes: ptype !== 'hard'
+          });
+        }
+      });
+    });
+    const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+    const options = {
+      physics: { stabilization: true, barnesHut: { gravitationalConstant: -3000 } },
+      interaction: { hover: true, tooltipDelay: 200 }
+    };
+    const net = new vis.Network(container, data, options);
+    net.on('click', params => {
+      if(params.nodes.length > 0){
+        const nid = params.nodes[0];
+        if(nid.startsWith('c_')) location.hash = '#/concept/' + nid.slice(2);
+        else if(nid.startsWith('ch_')) location.hash = '#/chapter/' + nid.slice(3);
+      }
+    });
+  });
+}
+
+/* ---------- 诊断模式 ---------- */
+let diagQueue = [], diagIdx = 0, diagWrong = [];
+function initDiagnosis(){
+  const startBtn = $('#diag-start');
+  if(!startBtn || startBtn.dataset.inited) return;
+  startBtn.dataset.inited='1';
+  startBtn.addEventListener('click', ()=>{
+    const all = (manifest.quizzes||[]).slice();
+    // 随机抽 5 题（不够就全抽）
+    for(let i = all.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+    diagQueue = all.slice(0, Math.min(5, all.length));
+    diagIdx = 0; diagWrong = [];
+    showDiagQuestion();
+  });
+}
+function showDiagQuestion(){
+  const stage = $('#diag-stage');
+  const result = $('#diag-result');
+  result.innerHTML = '';
+  if(diagIdx >= diagQueue.length){ finishDiagnosis(); return; }
+  const q = diagQueue[diagIdx];
+  $('#diag-progress').textContent = `第 ${diagIdx+1} / ${diagQueue.length} 题`;
+  const fakeItem = document.createElement('div');
+  fakeItem.innerHTML = _renderQuizHTML(q, diagIdx+1);
+  stage.innerHTML = fakeItem.innerHTML;
+  // 绑定检查按钮
+  const item = stage.querySelector('.quiz-item');
+  const btn = item.querySelector('.quiz-check');
+  btn.addEventListener('click', ()=>{
+    const type = item.dataset.type;
+    let user, correct=false;
+    if(type==='single'){
+      const sel = item.querySelector('input:checked');
+      user = sel? parseInt(sel.value) : null;
+      correct = user===q.answer;
+    } else if(type==='multi'){
+      user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+      const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+      correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+    } else if(type==='blank'){
+      const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+      correct = v===String(q.answer).trim().toLowerCase();
+    }
+    if(!correct){
+      diagWrong.push(q);
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      if(chain.length > 1){
+        const links = chain.slice(1).map(({node,kind})=>{
+          const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+          return `<div class="diag-remedy-item">建议先学：<a href="${href}">${esc(node.title||node.id)}</a></div>`;
+        }).join('');
+        $('#diag-result').innerHTML = '<h3>这道题答错了，可能的根因：</h3>' + links +
+          '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      } else {
+        $('#diag-result').innerHTML = '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      }
+    } else {
+      $('#diag-result').innerHTML = '<p>✓ 正确。<button id="diag-next" class="quiz-check">下一题 →</button></p>';
+    }
+    $('#diag-next').addEventListener('click', ()=>{ diagIdx++; showDiagQuestion(); });
+  });
+}
+function _renderQuizHTML(q, idx){
+  // 复用服务端渲染的 quiz HTML 结构
+  const qtype = q.type||'single';
+  const qid = q.id||('diag'+idx);
+  let html = `<div class='quiz-item' data-qid='${qid}' data-type='${qtype}' data-concept='${esc(q.relatedConceptId||"")}' data-chapter='${esc(q.chapterId||"")}'>`;
+  html += `<p class='quiz-q'><b>Q${idx}.</b> ${esc(q.question||"")}</p>`;
+  if(qtype==='single'||qtype==='multi'){
+    const it = qtype==='single'?'radio':'checkbox';
+    html += "<div class='quiz-opts'>";
+    (q.options||[]).forEach((o,i)=>{ html += `<label class='quiz-opt'><input type='${it}' name='${qid}' value='${i}'> ${esc(String(o))}</label>`; });
+    html += '</div>';
+  } else {
+    html += `<input class='quiz-blank' type='text' placeholder='填写答案'>`;
+  }
+  html += `<div class='quiz-actions'><button class='quiz-check'>检查答案</button><span class='quiz-feedback'></span></div></div>`;
+  return html;
+}
+function finishDiagnosis(){
+  const total = diagQueue.length;
+  const wrong = diagWrong.length;
+  const right = total - wrong;
+  let html = `<h2>诊断完成：${right}/${total} 正确</h2>`;
+  if(wrong === 0){
+    html += '<p>🎉 这组题全对，可以继续往下学。</p>';
+  } else {
+    html += `<p>有 ${wrong} 道题答错。下面是按依赖链回溯的补强建议：</p>`;
+    const seen = new Set();
+    diagWrong.forEach(q=>{
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      chain.slice(1).forEach(({node,kind})=>{
+        if(seen.has(node.id)) return;
+        seen.add(node.id);
+        const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+        html += `<div class="diag-remedy-item">📚 <a href="${href}">${esc(node.title||node.id)}</a></div>`;
+      });
+    });
+  }
+  html += '<p><button id="diag-restart" class="quiz-check">重新诊断</button></p>';
+  $('#diag-stage').innerHTML = '';
+  $('#diag-progress').textContent = '';
+  $('#diag-result').innerHTML = html;
+  $('#diag-restart').addEventListener('click', ()=>{
+    $('#diag-start').click();
+  });
+}
+
+/* ---------- 掌握度（简化 BKT） ---------- */
+function getMastery(cid){
+  if(!cid) return 0.5;
+  const m = (state.mastery||{})[cid];
+  return m !== undefined ? m : 0.3;
+}
+function updateMastery(cid, delta){
+  if(!cid) return;
+  if(!state.mastery) state.mastery = {};
+  const cur = state.mastery[cid] !== undefined ? state.mastery[cid] : 0.3;
+  state.mastery[cid] = Math.max(0, Math.min(1, cur + delta));
+  store.set('mastery', state.mastery);
+}
+function masteryBar(cid){
+  const v = Math.round(getMastery(cid)*100);
+  return `<div class="mastery-bar"><div style="width:${v}%"></div></div><span class="mastery-label">掌握度 ${v}%</span>`;
+}
+
 /* ---------- 抽认卡 ---------- */
+function sup(t){
+  return String(t==null?'':t).replace(/[&<>]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))
+    .replace(/\^(?:\{([^{}]+)\}|\(([^()]*)\)|([-+]?[A-Za-z0-9.]+))/g,
+      (m,a,b,c)=>'<sup>'+(a||b||c||'')+'</sup>');
+}
 let cardIdx = 0, cardList = [];
 function initCards(){
   const cards = manifest.flashcards||[];
@@ -251,8 +647,8 @@ function showCard(){
   updateCardCounts();
   if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
   const c = cardList[cardIdx];
-  document.querySelector('.fc-front').textContent = c.front;
-  document.querySelector('.fc-back').textContent = c.back;
+  document.querySelector('.fc-front').innerHTML = sup(c.front);
+  document.querySelector('.fc-back').innerHTML = sup(c.back);
   $('#flashcard').classList.remove('flip');
 }
 function markCard(known){
@@ -279,7 +675,7 @@ function initGlossary(){
   input.dataset.inited='1';
   input.oninput = ()=>{
     const v = input.value.trim().toLowerCase();
-    document.querySelectorAll('#glossary-list li').forEach(li=>{
+    $$('#glossary-list li').forEach(li=>{
       li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
     });
   };
@@ -308,12 +704,10 @@ $('#q').addEventListener('input', e=>{
                  : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
 });
 
-/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+/* ---------- Mermaid 懒加载 ---------- */
 function renderMermaid(){
   if(!document.querySelector('.mermaid')) return;
-  const s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-  s.onload=()=>{ try{
+  const boot=()=>{ try{
     mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
     document.querySelectorAll('.mermaid').forEach(el=>{
       const code=el.textContent;
@@ -322,7 +716,19 @@ function renderMermaid(){
         .catch(()=>{ el.textContent=code; });
     });
   }catch(e){} };
-  document.head.appendChild(s);
+  const urls=['https://registry.npmmirror.com/mermaid/10/files/dist/mermaid.min.js',
+              'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js',
+              'https://unpkg.com/mermaid@10/dist/mermaid.min.js'];
+  let ui=0;
+  const tryNext=()=>{
+    if(ui>=urls.length) return;
+    const s=document.createElement('script');
+    s.src=urls[ui++];
+    s.onload=boot;
+    s.onerror=()=>{ s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
 }
 
 /* ---------- 深色模式 ---------- */

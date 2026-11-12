@@ -3,17 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
 <title>直线形</title>
+<link rel="stylesheet" href="https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/picocss/2.0.6/dist/css/pico.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.css">
 <style>
 :root{
   --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
   --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
   --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+  --depth-bg:#fef9c3; --depth-border:#ca8a04;
 }
 [data-theme="dark"]{
   --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
   --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
   --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+  --depth-bg:#2a2410; --depth-border:#a16207;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -33,7 +39,7 @@ a:hover{text-decoration:underline}
 .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .nav-item .done{float:right;color:var(--ok);font-size:12px}
 #nav-toggle{display:none}
-.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px;margin:0 auto}
 .page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
 .page h2{font-size:20px;margin-top:26px}
 .page h3{font-size:17px;margin-top:22px}
@@ -49,6 +55,37 @@ a:hover{text-decoration:underline}
 .mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
 .mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
 svg{max-width:100%;height:auto}
+/* 出处脚注 */
+.source-badge{font-size:12px;color:var(--muted);background:var(--code-bg);padding:4px 10px;border-radius:6px;margin:0 0 12px;display:inline-block}
+/* 前置知识条 */
+.prereq-bar{font-size:13px;color:var(--muted);border-left:3px solid var(--accent);padding:4px 10px;margin:0 0 12px;background:var(--accent-soft)}
+.prereq-hard a{color:var(--bad);font-weight:600}
+.prereq-soft a{color:var(--muted)}
+.prereq-rec a{color:var(--accent)}
+.prereq-tag{display:inline-block;font-size:10px;padding:0 4px;border-radius:3px;margin-right:2px;vertical-align:middle}
+.prereq-hard .prereq-tag{background:var(--bad);color:#fff}
+.prereq-soft .prereq-tag{background:var(--muted);color:#fff}
+.prereq-rec .prereq-tag{background:var(--accent);color:#fff}
+/* 误解卡片 */
+.misconception-card{margin-top:10px;padding:10px 14px;border-left:4px solid var(--bad);background:#fef2f2;border-radius:0 8px 8px 0;font-size:13px}
+.misconception-card b{color:var(--bad)}
+[data-theme="dark"] .misconception-card{background:#2a1215}
+/* 掌握度条 */
+.mastery-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:4px 0}
+.mastery-bar>div{height:100%;background:var(--ok);transition:width .3s}
+.mastery-label{font-size:11px;color:var(--muted)}
+/* 深度推导片段 */
+.depth-fragment{margin:18px 0;border:1px solid var(--depth-border);border-radius:10px;background:var(--depth-bg);overflow:hidden}
+.depth-fragment>summary{padding:10px 14px;cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+.depth-fragment>summary:hover{filter:brightness(.95)}
+.depth-body{padding:14px 18px;border-top:1px dashed var(--depth-border);background:var(--panel)}
+.depth-missing{color:var(--bad);font-size:13px;padding:8px;background:var(--code-bg);border-radius:6px}
+/* KaTeX */
+sup{font-size:.72em;line-height:0;vertical-align:super}
+.katex-inline{font-size:1.05em}
+.katex-block{overflow-x:auto;padding:8px 0;text-align:center}
+.katex-block .katex{font-size:1.1em}
+/* 测验 */
 .quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
 .quiz-q{margin:0 0 8px;font-weight:500}
 .quiz-opts label{display:block;padding:4px 0;cursor:pointer}
@@ -57,6 +94,8 @@ svg{max-width:100%;height:auto}
 .quiz-feedback{margin-left:12px;font-size:13px}
 .fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
 .quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.quiz-remedy{margin-top:8px;padding:8px 12px;background:var(--accent-soft);border-radius:6px;font-size:13px}
+/* 抽认卡 */
 .flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
 .fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
 .flashcard.flip .fc-inner{transform:rotateY(180deg)}
@@ -80,11 +119,26 @@ svg{max-width:100%;height:auto}
 #progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
 #progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
 .empty{color:var(--muted);padding:20px 0}
-@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+/* 诊断 */
+.diag-controls{margin:14px 0;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+#diag-start{padding:8px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer;font-size:14px}
+#diag-progress{margin-left:12px;color:var(--muted);font-size:13px}
+#diag-stage .quiz-item{margin:10px 0}
+#diag-result{margin-top:16px;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+.diag-remedy-item{padding:10px;margin:8px 0;background:var(--accent-soft);border-radius:8px;font-size:14px}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls,.diag-controls{display:none!important}.main{max-width:none;padding:0}}
 @media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
-  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav{display:none;max-height:46vh;overflow-y:auto;overscroll-behavior:contain}.sidebar.open #nav{display:block}
+  .nav-item{padding:9px 10px}
+  #q,#glossary-filter{font-size:16px}
+  .quiz-opts label{padding:8px 0;min-height:30px}
+  .quiz-check{padding:10px 18px;min-height:40px}
+  #diag-start{min-height:40px}
+  .card-actions button{min-height:40px}
   #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
-  .layout{flex-direction:column}.main{padding:16px}}
+  .layout{flex-direction:column}.main{padding:20px 18px 64px;max-width:none;width:100%}
+  .page{overflow-wrap:anywhere}.page table{display:block;overflow-x:auto;max-width:100%}
+  .page h1,.page h2,.page h3{line-height:1.35}}
 </style>
 </head>
 <body>
@@ -103,17 +157,18 @@ svg{max-width:100%;height:auto}
   </main>
 </div>
 <script>
-const DATA = {"manifest": {"slug": "plane-figures", "title": "直线形", "subtitle": "直线围成的世界：角、三角形、相似与变换", "book": {"title": "直线形", "author": "毛鸿翔", "source": ["数学基础知识丛书-11-直线形 毛鸿翔.pdf"]}, "audience": "零基础", "goal": "掌握角的度量与平行线性质，熟悉三角形边角关系与全等、相似判定，理解平移、旋转、轴对称与位似的作用。", "learningPath": [{"step": "01", "title": "角与平行线", "chapterIds": ["ch01"], "checkpoint": "能用平行线性质推出角相等"}, {"step": "02", "title": "三角形与全等", "chapterIds": ["ch02"], "checkpoint": "能选出正确的全等判定条件"}, {"step": "03", "title": "相似、比例与变换", "chapterIds": ["ch03"], "checkpoint": "能用相似比求线段长"}], "chapters": [{"id": "ch01", "title": "第 1 章：角与平行线", "file": "chapters/ch01-angles-parallel.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：三角形与全等", "file": "chapters/ch02-triangle-congruence.md", "difficulty": 2}, {"id": "ch03", "title": "第 3 章：相似、比例与图形变换", "file": "chapters/ch03-similarity-transform.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "判定与性质", "file": "concepts/c01-criterion-property.md", "chapterIds": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "不变量", "file": "concepts/c02-invariant.md", "chapterIds": ["ch03"]}], "glossary": [{"term": "余角", "def": "两角之和为 90°。", "chapterId": "ch01"}, {"term": "补角", "def": "两角之和为 180°。", "chapterId": "ch01"}, {"term": "对顶角", "def": "两直线相交形成的顶点相对的两个角。", "chapterId": "ch01"}, {"term": "同位角", "def": "两条直线被第三条直线所截，位置相同的一对角。", "chapterId": "ch01"}, {"term": "全等", "def": "能完全重合的两个图形。", "chapterId": "ch02"}, {"term": "SSA", "def": "两边及其中一边的对角，不能判定全等。", "chapterId": "ch02"}, {"term": "相似", "def": "对应角相等、对应边成比例的两个图形。", "chapterId": "ch03"}, {"term": "相似比", "def": "相似图形对应线段的比值。", "chapterId": "ch03"}, {"term": "位似", "def": "从一点出发按比例缩放的相似变换。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "两条平行线被第三条直线所截，同旁内角的关系是：", "options": ["相等", "互补", "互余", "无法确定"], "answer": 1, "explain": "两直线平行时同旁内角之和为 180°，即互补。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "一个三角形的两个内角分别为 50° 和 60°，第三个内角是：", "options": ["60°", "70°", "80°", "90°"], "answer": 1, "explain": "180°−50°−60°=70°。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "下列条件能判定两个三角形全等的是：", "options": ["两边及其中一边的对角对应相等", "三个角对应相等", "两边及其夹角对应相等", "周长相等"], "answer": 2, "explain": "SAS 是标准判定；SSA 与 AAA 都不足以判定全等。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "三角形两边长为 3 和 7，第三边 x 的取值范围是：", "options": ["3<x<7", "4<x<10", "0<x<10", "x>4"], "answer": 1, "explain": "两边之差 4 < x < 两边之和 10。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "两个相似三角形的相似比为 1:2，则面积比为：", "options": ["1:2", "1:4", "2:1", "1:√2"], "answer": 1, "explain": "面积比是相似比的平方，即 1:4。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "下列变换中，属于相似变换而非全等变换的是：", "options": ["平移", "旋转", "轴对称", "位似"], "answer": 3, "explain": "位似会按比例改变大小，只保持形状；其余三种保形状也保大小。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "两个相似三角形的面积比为 9:16，则相似比为：", "options": ["9:16", "3:4", "4:3", "81:256"], "answer": 1, "explain": "相似比是面积比的平方根，√(9/16)=3/4。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "下列条件中不能判定两个三角形全等的是：", "options": ["三边对应相等", "两角及夹边对应相等", "两边及其中一边的对角对应相等", "两边及其夹角对应相等"], "answer": 2, "explain": "SSA 存在两种可能图形，不能判定全等。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：角与平行线」的一句话核心是什么？", "back": "平行线把“角相等”变成可传递的结论，这是整个平面几何的第一台发动机。", "tags": ["plane-figures", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：三角形与全等」的一句话核心是什么？", "back": "全等就是“完全重合”；四组判定条件都是在说“三条边、三个角里够用的那几条”。", "tags": ["plane-figures", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：相似、比例与图形变换」的一句话核心是什么？", "back": "相似是“形状不变、大小按比例”；变换是“搬动图形但保留某些性质”。", "tags": ["plane-figures", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「余角」？", "back": "两角之和为 90°。", "tags": ["plane-figures", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「补角」？", "back": "两角之和为 180°。", "tags": ["plane-figures", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「对顶角」？", "back": "两直线相交形成的顶点相对的两个角。", "tags": ["plane-figures", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「同位角」？", "back": "两条直线被第三条直线所截，位置相同的一对角。", "tags": ["plane-figures", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「全等」？", "back": "能完全重合的两个图形。", "tags": ["plane-figures", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「SSA」？", "back": "两边及其中一边的对角，不能判定全等。", "tags": ["plane-figures", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「相似」？", "back": "对应角相等、对应边成比例的两个图形。", "tags": ["plane-figures", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「相似比」？", "back": "相似图形对应线段的比值。", "tags": ["plane-figures", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「位似」？", "back": "从一点出发按比例缩放的相似变换。", "tags": ["plane-figures", "术语"]}], "companion": "plane-figures学习伴侣.html", "deriv": "plane-figures从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：角与平行线<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：基本作图\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用度与弧度表示角并互化\n<\/li><li>\n使用余角、补角、对顶角的性质\n<\/li><li>\n用平行线性质判断角的关系\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>平行线把“角相等”变成可传递的结论，这是整个平面几何的第一台发动机。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 角的度量<\/h3>\n<p>把一个周角分成 360 份，每份为 1 度。弧度制以弧长与半径的比为角的大小，π 弧度＝180°。<\/p>\n<p>互化：1°=π/180 弧度；1 弧度≈57.3°。<\/p>\n<h3>1.2 角的关系<\/h3>\n<ul><li>\n余角：两角相加为 90°；\n<\/li><li>\n补角：两角相加为 180°；\n<\/li><li>\n对顶角相等（两条直线相交形成）。\n<\/ul>\n<h3>1.3 平行线的性质<\/h3>\n<p>两直线平行时：<\/p>\n<ul><li>\n同位角相等；\n<\/li><li>\n内错角相等；\n<\/li><li>\n同旁内角互补（和为 180°）。\n<\/ul>\n<p>反过来，这三条任一成立，也能判定两直线平行。性质与判定是同一组事实的两个方向，做题时要分清“已知平行”还是“要证平行”。<\/p>\n<h3>1.4 三角形的内角和<\/h3>\n<p>三角形内角和为 180°，由“过顶点作平行线”配合内错角推出。外角等于与它不相邻的两个内角之和。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：平行线像两条永不相交的铁轨，横穿它们的枕木把“角度关系”固定住了。<\/p>\n<p><strong>失效边界<\/strong>：这些性质只在同一平面内成立；空间中两条直线可能既不平行也不相交（异面）。<\/p>\n<p><strong>实例<\/strong>：已知 l₁∥l₂，一条截线与它们相交，∠1=65°，则同位角也是 65°，内错角 65°，同旁内角 115°。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 同位角一定相等 —— 实际上 只有两直线平行时才相等；不平行时不相等。\n<\/li><li>\n别以为 三角形内角和总是 180° —— 实际上 在欧氏平面内成立；球面或双曲面上不成立。中学阶段默认欧氏几何。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n两条平行线被第三条直线所截，同旁内角的关系是：\n<\/li><li>\n一个三角形的两个内角分别为 50° 和 60°，第三个内角是：\n<p>A. 相等 ｜ B. 互补 ｜ C. 互余 ｜ D. 无法确定 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：两直线平行时同旁内角之和为 180°，即互补。 A. 60° ｜ B. 70° ｜ C. 80° ｜ D. 90° <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：180°−50°−60°=70°。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n平行 ⇒ 同位角相等、内错角相等、同旁内角互补\n<\/li><li>\n三角形内角和 180°，外角等于两不相邻内角之和\n<\/li><li>\n性质与判定互为逆用，先看已知条件\n<\/ul>", "kind": "chapter", "title": "第 1 章：角与平行线"}, "ch02": {"html": "<h1>第 2 章：三角形与全等<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n使用三角形不等式与大边对大角\n<\/li><li>\n按条件选择 SSS、SAS、ASA、AAS 判定全等\n<\/li><li>\n识别全等中的对应关系\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>全等就是“完全重合”；四组判定条件都是在说“三条边、三个角里够用的那几条”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 边角关系<\/h3>\n<ul><li>\n三角形任意两边之和大于第三边，两边之差小于第三边；\n<\/li><li>\n大边对大角，大角对大边；\n<\/li><li>\n直角三角形斜边最长。\n<\/ul>\n<h3>2.2 全等的判定<\/h3>\n<p>两个三角形全等指对应边、对应角全部相等。判定不必六条全查：<\/p>\n<ul><li>\n<strong>SSS<\/strong>：三边对应相等；\n<\/li><li>\n<strong>SAS<\/strong>：两边及其夹角对应相等；\n<\/li><li>\n<strong>ASA<\/strong>：两角及其夹边对应相等；\n<\/li><li>\n<strong>AAS<\/strong>：两角及其中一角的对边对应相等。\n<\/ul>\n<p><strong>SSA（两边及其中一边的对角）不能判定全等<\/strong>，这是最常见的陷阱。AAA 也只能判定相似，不能判定全等。<\/p>\n<h3>2.3 对应关系要按顺序写<\/h3>\n<p>写 △ABC≌△DEF 时，字母顺序就规定了对应关系：A↔D、B↔E、C↔F。顺序写错，后面用对应边、对应角就会出错。<\/p>\n<h3>2.4 特殊线段<\/h3>\n<p>中线连接顶点与对边中点；高垂直于对边；角平分线把角分成两半；中位线平行于第三边且等于它的一半。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：全等像两块完全相同的拼图，翻转、平移后能严丝合缝地重合。<\/p>\n<p><strong>失效边界<\/strong>：形状相同但大小不同只是相似，不是全等；判定条件不能混用。<\/p>\n<p><strong>实例<\/strong>：△ABC 与 △DEF 中，AB=DE，∠B=∠E，BC=EF，则按 SAS 全等。 若给出 AB=DE、∠B=∠E、AC=DF（边边角），则不能判定全等，可能有两种不同形状。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 边边角也能证全等 —— 实际上 SSA 不成立，满足条件的三角形可能有两个，无法保证重合。\n<\/li><li>\n别以为 三个角相等就是全等 —— 实际上 AAA 只能得到相似；全等还要求边长也相等。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n下列条件能判定两个三角形全等的是：\n<\/li><li>\n三角形两边长为 3 和 7，第三边 x 的取值范围是：\n<p>A. 两边及其中一边的对角对应相等 ｜ B. 三个角对应相等 ｜ C. 两边及其夹角对应相等 ｜ D. 周长相等 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：SAS 是标准判定；SSA 与 AAA 都不足以判定全等。 A. 3&lt;x&lt;7 ｜ B. 4&lt;x&lt;10 ｜ C. 0&lt;x&lt;10 ｜ D. x&gt;4 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：两边之差 4 &lt; x &lt; 两边之和 10。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n全等判定：SSS、SAS、ASA、AAS；SSA 不成立\n<\/li><li>\n字母顺序即对应关系\n<\/li><li>\n第三边在两边之差与两边之和之间\n<\/ul>", "kind": "chapter", "title": "第 2 章：三角形与全等"}, "ch03": {"html": "<h1>第 3 章：相似、比例与图形变换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用三组判定条件证明相似\n<\/li><li>\n用相似比求线段、周长、面积\n<\/li><li>\n说出四种变换的不变量\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>相似是“形状不变、大小按比例”；变换是“搬动图形但保留某些性质”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 相似的判定<\/h3>\n<ul><li>\n两角对应相等（AA）；\n<\/li><li>\n两边对应成比例且夹角相等（SAS）；\n<\/li><li>\n三边对应成比例（SSS）。\n<\/ul>\n<h3>3.2 相似比与面积比<\/h3>\n<p>若相似比为 k，则：<\/p>\n<ul><li>\n对应线段之比为 k；\n<\/li><li>\n周长之比为 k；\n<\/li><li>\n面积之比为 k²。\n<\/ul>\n<p>最后一条最容易错：面积是二维量，长度放大 k 倍，面积放大 k² 倍。<\/p>\n<h3>3.3 平行线分线段成比例<\/h3>\n<p>三条平行线截两条直线，截得的对应线段成比例。由此可得三角形中位线定理与“平行于一边的直线分另两边成比例”。<\/p>\n<h3>3.4 四种变换<\/h3>\n<ul><li>\n<strong>平移<\/strong>：形状、大小、方向都不变；\n<\/li><li>\n<strong>旋转<\/strong>：形状、大小不变，方向改变；\n<\/li><li>\n<strong>轴对称<\/strong>：形状、大小不变，左右翻转；\n<\/li><li>\n<strong>位似<\/strong>：形状不变，大小按比例放大缩小（相似变换）。\n<\/ul>\n<p>前三者是全等变换，位似是相似变换。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：相似像用复印机缩放，比例一致但尺寸不同；位似像从一点向外投影放大。<\/p>\n<p><strong>失效边界<\/strong>：面积比不是相似比，套错比例会差一个平方。<\/p>\n<p><strong>实例<\/strong>：两个相似三角形相似比 2:3，则周长比 2:3，面积比 4:9。 若小三角形面积为 8，则大三角形面积为 8×9/4=18。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 面积比等于相似比 —— 实际上 面积比是相似比的平方，因为面积涉及两个方向的长度。\n<\/li><li>\n别以为 所有变换都保持形状 —— 实际上 平移、旋转、轴对称、位似都保形状；投影、拉伸会改变形状。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n两个相似三角形的相似比为 1:2，则面积比为：\n<\/li><li>\n下列变换中，属于相似变换而非全等变换的是：\n<p>A. 1:2 ｜ B. 1:4 ｜ C. 2:1 ｜ D. 1:√2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：面积比是相似比的平方，即 1:4。 A. 平移 ｜ B. 旋转 ｜ C. 轴对称 ｜ D. 位似 <strong>答案<\/strong>：D ｜ <strong>解析<\/strong>：位似会按比例改变大小，只保持形状；其余三种保形状也保大小。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n相似判定：AA、SAS、SSS\n<\/li><li>\n相似比 k ⇒ 周长比 k、面积比 k²\n<\/li><li>\n平移/旋转/轴对称是全等变换，位似是相似变换\n<\/ul>", "kind": "chapter", "title": "第 3 章：相似、比例与图形变换"}, "c01": {"html": "<h1>判定与性质<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>“因为平行所以角相等”是性质，“因为角相等所以平行”是判定，方向不能反。<\/p>\n<h2>为什么重要<\/h2>\n<p>平面几何的证明几乎都在性质与判定之间来回切换，方向搞反就证不下去。<\/p>\n<h2>详解<\/h2>\n<p>性质是由已知的图形关系推出角或边的结论；判定是由角或边的条件推出图形关系。平行线、全等、相似都各有一对。做题时先看题目给的是“关系”还是“条件”，再决定用哪一个方向。<\/p>\n<h2>常见误解<\/h2>\n<p>把判定当性质用，比如由“同位角相等”直接说“两直线一定平行”却不说明理由，逻辑上仍成立但表述混乱。<\/p>\n<h2>相关概念<\/h2>\n<p>平行线（ch01）、全等（ch02）、相似（ch03）<\/p>", "kind": "concept", "title": "判定与性质"}, "c02": {"html": "<h1>不变量<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>变换改变位置，不改变某些量；找出不变量，问题就简化了。<\/p>\n<h2>为什么重要<\/h2>\n<p>几何变换题的核心就是找“变的是什么、不变的是什么”。<\/p>\n<h2>详解<\/h2>\n<p>平移保持方向与长度；旋转保持长度与角度；轴对称保持长度与角度但翻转方向；位似保持角度、按比例改变长度。面积在相似变换下按 k² 变化，是“半不变量”。<\/p>\n<h2>常见误解<\/h2>\n<p>以为变换后一切都不变，忽略位似会改变大小、轴对称会改变方向。<\/p>\n<h2>相关概念<\/h2>\n<p>图形变换（ch03）、相似比（ch03）<\/p>", "kind": "concept", "title": "不变量"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：角与平行线<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：角与平行线<\/a><br>检查点：能用平行线性质推出角相等<\/li><li class='path-step' id='path-02'><strong>步骤 02：三角形与全等<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：三角形与全等<\/a><br>检查点：能选出正确的全等判定条件<\/li><li class='path-step' id='path-03'><strong>步骤 03：相似、比例与变换<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：相似、比例与图形变换<\/a><br>检查点：能用相似比求线段长<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 两个相似三角形的面积比为 9:16，则相似比为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 9:16<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 3:4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4:3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 81:256<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 下列条件中不能判定两个三角形全等的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 三边对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 两角及夹边对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 两边及其中一边的对角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 两边及其夹角对应相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：角与平行线<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 两条平行线被第三条直线所截，同旁内角的关系是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 相等<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 互补<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 互余<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 无法确定<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 一个三角形的两个内角分别为 50° 和 60°，第三个内角是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 60°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 70°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 80°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 90°<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：三角形与全等<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 下列条件能判定两个三角形全等的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 两边及其中一边的对角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 三个角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 两边及其夹角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 周长相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 三角形两边长为 3 和 7，第三边 x 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 3&lt;x&lt;7<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 4&lt;x&lt;10<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 0&lt;x&lt;10<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> x&gt;4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：相似、比例与图形变换<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 两个相似三角形的相似比为 1:2，则面积比为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 1:2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 1:4<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 2:1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 1:√2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 下列变换中，属于相似变换而非全等变换的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 平移<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 旋转<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 轴对称<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 位似<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='余角'>余角 — 两角之和为 90°。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='补角'>补角 — 两角之和为 180°。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='对顶角'>对顶角 — 两直线相交形成的顶点相对的两个角。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='同位角'>同位角 — 两条直线被第三条直线所截，位置相同的一对角。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='全等'>全等 — 能完全重合的两个图形。 <span class=glossary-ref>（第 2 章：三角形与全等）<\/span><\/li><li data-term='ssa'>SSA — 两边及其中一边的对角，不能判定全等。 <span class=glossary-ref>（第 2 章：三角形与全等）<\/span><\/li><li data-term='相似'>相似 — 对应角相等、对应边成比例的两个图形。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><li data-term='相似比'>相似比 — 相似图形对应线段的比值。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><li data-term='位似'>位似 — 从一点出发按比例缩放的相似变换。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：证全等三步<\/h2>\n<p>① 找已知相等的边角；② 数够不够（SSS/SAS/ASA/AAS）；③ 按字母顺序写对应关系。<\/p>\n<h2>框架：相似题四问<\/h2>\n<p>① 有没有平行线（给出等角）；② 有没有公共角；③ 能否用比例；④ 求的是长度还是面积（决定用 k 还是 k²）。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>内角和<\/td><td>三角形 180°，n 边形 (n−2)×180°<\/td><\/tr><tr><td>外角<\/td><td>等于两个不相邻内角之和<\/td><\/tr><tr><td>全等判定<\/td><td>SSS、SAS、ASA、AAS<\/td><\/tr><tr><td>相似判定<\/td><td>AA、SAS、SSS<\/td><\/tr><tr><td>相似缩放<\/td><td>长度 k，周长 k，面积 k²<\/td><\/tr><tr><td>第三边范围<\/td><td>两边之差 &lt; x &lt; 两边之和<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/11-直线形", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：角与平行线", "href": "#/chapter/ch01"}, {"label": "第 2 章：三角形与全等", "href": "#/chapter/ch02"}, {"label": "第 3 章：相似、比例与图形变换", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "判定与性质", "href": "#/concept/c01"}, {"label": "不变量", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：角与平行线", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：三角形与全等", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：相似、比例与图形变换", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：角与平行线<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：基本作图\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用度与弧度表示角并互化\n<\/li><li>\n使用余角、补角、对顶角的性质\n<\/li><li>\n用平行线性质判断角的关系\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>平行线把“角相等”变成可传递的结论，这是整个平面几何的第一台发动机。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 角的度量<\/h3>\n<p>把一个周角分成 360 份，每份为 1 度。弧度制以弧长与半径的比为角的大小，π 弧度＝180°。<\/p>\n<p>互化：1°=π/180 弧度；1 弧度≈57.3°。<\/p>\n<h3>1.2 角的关系<\/h3>\n<ul><li>\n余角：两角相加为 90°；\n<\/li><li>\n补角：两角相加为 180°；\n<\/li><li>\n对顶角相等（两条直线相交形成）。\n<\/ul>\n<h3>1.3 平行线的性质<\/h3>\n<p>两直线平行时：<\/p>\n<ul><li>\n同位角相等；\n<\/li><li>\n内错角相等；\n<\/li><li>\n同旁内角互补（和为 180°）。\n<\/ul>\n<p>反过来，这三条任一成立，也能判定两直线平行。性质与判定是同一组事实的两个方向，做题时要分清“已知平行”还是“要证平行”。<\/p>\n<h3>1.4 三角形的内角和<\/h3>\n<p>三角形内角和为 180°，由“过顶点作平行线”配合内错角推出。外角等于与它不相邻的两个内角之和。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：平行线像两条永不相交的铁轨，横穿它们的枕木把“角度关系”固定住了。<\/p>\n<p><strong>失效边界<\/strong>：这些性质只在同一平面内成立；空间中两条直线可能既不平行也不相交（异面）。<\/p>\n<p><strong>实例<\/strong>：已知 l₁∥l₂，一条截线与它们相交，∠1=65°，则同位角也是 65°，内错角 65°，同旁内角 115°。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 同位角一定相等 —— 实际上 只有两直线平行时才相等；不平行时不相等。\n<\/li><li>\n别以为 三角形内角和总是 180° —— 实际上 在欧氏平面内成立；球面或双曲面上不成立。中学阶段默认欧氏几何。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n两条平行线被第三条直线所截，同旁内角的关系是：\n<\/li><li>\n一个三角形的两个内角分别为 50° 和 60°，第三个内角是：\n<p>A. 相等 ｜ B. 互补 ｜ C. 互余 ｜ D. 无法确定 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：两直线平行时同旁内角之和为 180°，即互补。 A. 60° ｜ B. 70° ｜ C. 80° ｜ D. 90° <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：180°−50°−60°=70°。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n平行 ⇒ 同位角相等、内错角相等、同旁内角互补\n<\/li><li>\n三角形内角和 180°，外角等于两不相邻内角之和\n<\/li><li>\n性质与判定互为逆用，先看已知条件\n<\/ul>", "ch02": "<h1>第 2 章：三角形与全等<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n使用三角形不等式与大边对大角\n<\/li><li>\n按条件选择 SSS、SAS、ASA、AAS 判定全等\n<\/li><li>\n识别全等中的对应关系\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>全等就是“完全重合”；四组判定条件都是在说“三条边、三个角里够用的那几条”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 边角关系<\/h3>\n<ul><li>\n三角形任意两边之和大于第三边，两边之差小于第三边；\n<\/li><li>\n大边对大角，大角对大边；\n<\/li><li>\n直角三角形斜边最长。\n<\/ul>\n<h3>2.2 全等的判定<\/h3>\n<p>两个三角形全等指对应边、对应角全部相等。判定不必六条全查：<\/p>\n<ul><li>\n<strong>SSS<\/strong>：三边对应相等；\n<\/li><li>\n<strong>SAS<\/strong>：两边及其夹角对应相等；\n<\/li><li>\n<strong>ASA<\/strong>：两角及其夹边对应相等；\n<\/li><li>\n<strong>AAS<\/strong>：两角及其中一角的对边对应相等。\n<\/ul>\n<p><strong>SSA（两边及其中一边的对角）不能判定全等<\/strong>，这是最常见的陷阱。AAA 也只能判定相似，不能判定全等。<\/p>\n<h3>2.3 对应关系要按顺序写<\/h3>\n<p>写 △ABC≌△DEF 时，字母顺序就规定了对应关系：A↔D、B↔E、C↔F。顺序写错，后面用对应边、对应角就会出错。<\/p>\n<h3>2.4 特殊线段<\/h3>\n<p>中线连接顶点与对边中点；高垂直于对边；角平分线把角分成两半；中位线平行于第三边且等于它的一半。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：全等像两块完全相同的拼图，翻转、平移后能严丝合缝地重合。<\/p>\n<p><strong>失效边界<\/strong>：形状相同但大小不同只是相似，不是全等；判定条件不能混用。<\/p>\n<p><strong>实例<\/strong>：△ABC 与 △DEF 中，AB=DE，∠B=∠E，BC=EF，则按 SAS 全等。 若给出 AB=DE、∠B=∠E、AC=DF（边边角），则不能判定全等，可能有两种不同形状。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 边边角也能证全等 —— 实际上 SSA 不成立，满足条件的三角形可能有两个，无法保证重合。\n<\/li><li>\n别以为 三个角相等就是全等 —— 实际上 AAA 只能得到相似；全等还要求边长也相等。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n下列条件能判定两个三角形全等的是：\n<\/li><li>\n三角形两边长为 3 和 7，第三边 x 的取值范围是：\n<p>A. 两边及其中一边的对角对应相等 ｜ B. 三个角对应相等 ｜ C. 两边及其夹角对应相等 ｜ D. 周长相等 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：SAS 是标准判定；SSA 与 AAA 都不足以判定全等。 A. 3&lt;x&lt;7 ｜ B. 4&lt;x&lt;10 ｜ C. 0&lt;x&lt;10 ｜ D. x&gt;4 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：两边之差 4 &lt; x &lt; 两边之和 10。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n全等判定：SSS、SAS、ASA、AAS；SSA 不成立\n<\/li><li>\n字母顺序即对应关系\n<\/li><li>\n第三边在两边之差与两边之和之间\n<\/ul>", "ch03": "<h1>第 3 章：相似、比例与图形变换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用三组判定条件证明相似\n<\/li><li>\n用相似比求线段、周长、面积\n<\/li><li>\n说出四种变换的不变量\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>相似是“形状不变、大小按比例”；变换是“搬动图形但保留某些性质”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 相似的判定<\/h3>\n<ul><li>\n两角对应相等（AA）；\n<\/li><li>\n两边对应成比例且夹角相等（SAS）；\n<\/li><li>\n三边对应成比例（SSS）。\n<\/ul>\n<h3>3.2 相似比与面积比<\/h3>\n<p>若相似比为 k，则：<\/p>\n<ul><li>\n对应线段之比为 k；\n<\/li><li>\n周长之比为 k；\n<\/li><li>\n面积之比为 k²。\n<\/ul>\n<p>最后一条最容易错：面积是二维量，长度放大 k 倍，面积放大 k² 倍。<\/p>\n<h3>3.3 平行线分线段成比例<\/h3>\n<p>三条平行线截两条直线，截得的对应线段成比例。由此可得三角形中位线定理与“平行于一边的直线分另两边成比例”。<\/p>\n<h3>3.4 四种变换<\/h3>\n<ul><li>\n<strong>平移<\/strong>：形状、大小、方向都不变；\n<\/li><li>\n<strong>旋转<\/strong>：形状、大小不变，方向改变；\n<\/li><li>\n<strong>轴对称<\/strong>：形状、大小不变，左右翻转；\n<\/li><li>\n<strong>位似<\/strong>：形状不变，大小按比例放大缩小（相似变换）。\n<\/ul>\n<p>前三者是全等变换，位似是相似变换。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：相似像用复印机缩放，比例一致但尺寸不同；位似像从一点向外投影放大。<\/p>\n<p><strong>失效边界<\/strong>：面积比不是相似比，套错比例会差一个平方。<\/p>\n<p><strong>实例<\/strong>：两个相似三角形相似比 2:3，则周长比 2:3，面积比 4:9。 若小三角形面积为 8，则大三角形面积为 8×9/4=18。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 面积比等于相似比 —— 实际上 面积比是相似比的平方，因为面积涉及两个方向的长度。\n<\/li><li>\n别以为 所有变换都保持形状 —— 实际上 平移、旋转、轴对称、位似都保形状；投影、拉伸会改变形状。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n两个相似三角形的相似比为 1:2，则面积比为：\n<\/li><li>\n下列变换中，属于相似变换而非全等变换的是：\n<p>A. 1:2 ｜ B. 1:4 ｜ C. 2:1 ｜ D. 1:√2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：面积比是相似比的平方，即 1:4。 A. 平移 ｜ B. 旋转 ｜ C. 轴对称 ｜ D. 位似 <strong>答案<\/strong>：D ｜ <strong>解析<\/strong>：位似会按比例改变大小，只保持形状；其余三种保形状也保大小。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n相似判定：AA、SAS、SSS\n<\/li><li>\n相似比 k ⇒ 周长比 k、面积比 k²\n<\/li><li>\n平移/旋转/轴对称是全等变换，位似是相似变换\n<\/ul>", "c01": "<h1>判定与性质<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>“因为平行所以角相等”是性质，“因为角相等所以平行”是判定，方向不能反。<\/p>\n<h2>为什么重要<\/h2>\n<p>平面几何的证明几乎都在性质与判定之间来回切换，方向搞反就证不下去。<\/p>\n<h2>详解<\/h2>\n<p>性质是由已知的图形关系推出角或边的结论；判定是由角或边的条件推出图形关系。平行线、全等、相似都各有一对。做题时先看题目给的是“关系”还是“条件”，再决定用哪一个方向。<\/p>\n<h2>常见误解<\/h2>\n<p>把判定当性质用，比如由“同位角相等”直接说“两直线一定平行”却不说明理由，逻辑上仍成立但表述混乱。<\/p>\n<h2>相关概念<\/h2>\n<p>平行线（ch01）、全等（ch02）、相似（ch03）<\/p>", "c02": "<h1>不变量<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>变换改变位置，不改变某些量；找出不变量，问题就简化了。<\/p>\n<h2>为什么重要<\/h2>\n<p>几何变换题的核心就是找“变的是什么、不变的是什么”。<\/p>\n<h2>详解<\/h2>\n<p>平移保持方向与长度；旋转保持长度与角度；轴对称保持长度与角度但翻转方向；位似保持角度、按比例改变长度。面积在相似变换下按 k² 变化，是“半不变量”。<\/p>\n<h2>常见误解<\/h2>\n<p>以为变换后一切都不变，忽略位似会改变大小、轴对称会改变方向。<\/p>\n<h2>相关概念<\/h2>\n<p>图形变换（ch03）、相似比（ch03）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：角与平行线<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：角与平行线<\/a><br>检查点：能用平行线性质推出角相等<\/li><li class='path-step' id='path-02'><strong>步骤 02：三角形与全等<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：三角形与全等<\/a><br>检查点：能选出正确的全等判定条件<\/li><li class='path-step' id='path-03'><strong>步骤 03：相似、比例与变换<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：相似、比例与图形变换<\/a><br>检查点：能用相似比求线段长<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 两个相似三角形的面积比为 9:16，则相似比为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 9:16<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 3:4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4:3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 81:256<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 下列条件中不能判定两个三角形全等的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 三边对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 两角及夹边对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 两边及其中一边的对角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 两边及其夹角对应相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：角与平行线<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 两条平行线被第三条直线所截，同旁内角的关系是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 相等<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 互补<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 互余<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 无法确定<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 一个三角形的两个内角分别为 50° 和 60°，第三个内角是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 60°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 70°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 80°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 90°<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：三角形与全等<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 下列条件能判定两个三角形全等的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 两边及其中一边的对角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 三个角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 两边及其夹角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 周长相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 三角形两边长为 3 和 7，第三边 x 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 3&lt;x&lt;7<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 4&lt;x&lt;10<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 0&lt;x&lt;10<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> x&gt;4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：相似、比例与图形变换<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 两个相似三角形的相似比为 1:2，则面积比为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 1:2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 1:4<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 2:1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 1:√2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 下列变换中，属于相似变换而非全等变换的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 平移<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 旋转<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 轴对称<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 位似<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='余角'>余角 — 两角之和为 90°。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='补角'>补角 — 两角之和为 180°。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='对顶角'>对顶角 — 两直线相交形成的顶点相对的两个角。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='同位角'>同位角 — 两条直线被第三条直线所截，位置相同的一对角。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='全等'>全等 — 能完全重合的两个图形。 <span class=glossary-ref>（第 2 章：三角形与全等）<\/span><\/li><li data-term='ssa'>SSA — 两边及其中一边的对角，不能判定全等。 <span class=glossary-ref>（第 2 章：三角形与全等）<\/span><\/li><li data-term='相似'>相似 — 对应角相等、对应边成比例的两个图形。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><li data-term='相似比'>相似比 — 相似图形对应线段的比值。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><li data-term='位似'>位似 — 从一点出发按比例缩放的相似变换。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：证全等三步<\/h2>\n<p>① 找已知相等的边角；② 数够不够（SSS/SAS/ASA/AAS）；③ 按字母顺序写对应关系。<\/p>\n<h2>框架：相似题四问<\/h2>\n<p>① 有没有平行线（给出等角）；② 有没有公共角；③ 能否用比例；④ 求的是长度还是面积（决定用 k 还是 k²）。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>内角和<\/td><td>三角形 180°，n 边形 (n−2)×180°<\/td><\/tr><tr><td>外角<\/td><td>等于两个不相邻内角之和<\/td><\/tr><tr><td>全等判定<\/td><td>SSS、SAS、ASA、AAS<\/td><\/tr><tr><td>相似判定<\/td><td>AA、SAS、SSS<\/td><\/tr><tr><td>相似缩放<\/td><td>长度 k，周长 k，面积 k²<\/td><\/tr><tr><td>第三边范围<\/td><td>两边之差 &lt; x &lt; 两边之和<\/td><\/tr><\/tbody><\/table>"}};
+const DATA = {"manifest": {"slug": "plane-figures", "title": "直线形", "subtitle": "直线围成的世界：角、三角形、相似与变换", "book": {"title": "直线形", "author": "毛鸿翔", "source": ["数学基础知识丛书-11-直线形 毛鸿翔.pdf"]}, "audience": "零基础", "goal": "掌握角的度量与平行线性质，熟悉三角形边角关系与全等、相似判定，理解平移、旋转、轴对称与位似的作用。", "learningPath": [{"step": "01", "title": "角与平行线", "chapterIds": ["ch01"], "checkpoint": "能用平行线性质推出角相等"}, {"step": "02", "title": "三角形与全等", "chapterIds": ["ch02"], "checkpoint": "能选出正确的全等判定条件"}, {"step": "03", "title": "相似、比例与变换", "chapterIds": ["ch03"], "checkpoint": "能用相似比求线段长"}], "chapters": [{"id": "ch01", "title": "第 1 章：角与平行线", "file": "chapters/ch01-angles-parallel.md", "difficulty": 2, "source": {"file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf", "kind": "原书 PDF"}, "prereqNote": "基本作图", "depthFragment": "chapters/ch01-depth.md", "prerequisites": []}, {"id": "ch02", "title": "第 2 章：三角形与全等", "file": "chapters/ch02-triangle-congruence.md", "difficulty": 2, "source": {"file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch02-depth.md", "prerequisites": ["ch01"]}, {"id": "ch03", "title": "第 3 章：相似、比例与图形变换", "file": "chapters/ch03-similarity-transform.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch03-depth.md", "prerequisites": ["ch02"]}], "concepts": [{"id": "c01", "title": "判定与性质", "file": "concepts/c01-criterion-property.md", "chapterIds": ["ch01", "ch02", "ch03"], "source": {"file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "不变量", "file": "concepts/c02-invariant.md", "chapterIds": ["ch03"], "source": {"file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch03"]}], "glossary": [{"term": "余角", "def": "两角之和为 90°。", "chapterId": "ch01"}, {"term": "补角", "def": "两角之和为 180°。", "chapterId": "ch01"}, {"term": "对顶角", "def": "两直线相交形成的顶点相对的两个角。", "chapterId": "ch01"}, {"term": "同位角", "def": "两条直线被第三条直线所截，位置相同的一对角。", "chapterId": "ch01"}, {"term": "全等", "def": "能完全重合的两个图形。", "chapterId": "ch02"}, {"term": "SSA", "def": "两边及其中一边的对角，不能判定全等。", "chapterId": "ch02"}, {"term": "相似", "def": "对应角相等、对应边成比例的两个图形。", "chapterId": "ch03"}, {"term": "相似比", "def": "相似图形对应线段的比值。", "chapterId": "ch03"}, {"term": "位似", "def": "从一点出发按比例缩放的相似变换。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "两条平行线被第三条直线所截，同旁内角的关系是：", "options": ["相等", "互补", "互余", "无法确定"], "answer": 1, "explain": "两直线平行时同旁内角之和为 180°，即互补。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "一个三角形的两个内角分别为 50° 和 60°，第三个内角是：", "options": ["60°", "70°", "80°", "90°"], "answer": 1, "explain": "180°−50°−60°=70°。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "下列条件能判定两个三角形全等的是：", "options": ["两边及其中一边的对角对应相等", "三个角对应相等", "两边及其夹角对应相等", "周长相等"], "answer": 2, "explain": "SAS 是标准判定；SSA 与 AAA 都不足以判定全等。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "三角形两边长为 3 和 7，第三边 x 的取值范围是：", "options": ["3<x<7", "4<x<10", "0<x<10", "x>4"], "answer": 1, "explain": "两边之差 4 < x < 两边之和 10。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "两个相似三角形的相似比为 1:2，则面积比为：", "options": ["1:2", "1:4", "2:1", "1:√2"], "answer": 1, "explain": "面积比是相似比的平方，即 1:4。", "relatedConceptId": "c01", "prerequisites": ["ch03"]}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "下列变换中，属于相似变换而非全等变换的是：", "options": ["平移", "旋转", "轴对称", "位似"], "answer": 3, "explain": "位似会按比例改变大小，只保持形状；其余三种保形状也保大小。", "relatedConceptId": "c01", "prerequisites": ["ch03"]}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "两个相似三角形的面积比为 9:16，则相似比为：", "options": ["9:16", "3:4", "4:3", "81:256"], "answer": 1, "explain": "相似比是面积比的平方根，√(9/16)=3/4。", "relatedConceptId": "", "prerequisites": ["__all__"]}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "下列条件中不能判定两个三角形全等的是：", "options": ["三边对应相等", "两角及夹边对应相等", "两边及其中一边的对角对应相等", "两边及其夹角对应相等"], "answer": 2, "explain": "SSA 存在两种可能图形，不能判定全等。", "relatedConceptId": "", "prerequisites": ["__all__"]}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：角与平行线」的一句话核心是什么？", "back": "平行线把“角相等”变成可传递的结论，这是整个平面几何的第一台发动机。", "tags": ["plane-figures", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：三角形与全等」的一句话核心是什么？", "back": "全等就是“完全重合”；四组判定条件都是在说“三条边、三个角里够用的那几条”。", "tags": ["plane-figures", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：相似、比例与图形变换」的一句话核心是什么？", "back": "相似是“形状不变、大小按比例”；变换是“搬动图形但保留某些性质”。", "tags": ["plane-figures", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「余角」？", "back": "两角之和为 90°。", "tags": ["plane-figures", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「补角」？", "back": "两角之和为 180°。", "tags": ["plane-figures", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「对顶角」？", "back": "两直线相交形成的顶点相对的两个角。", "tags": ["plane-figures", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「同位角」？", "back": "两条直线被第三条直线所截，位置相同的一对角。", "tags": ["plane-figures", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「全等」？", "back": "能完全重合的两个图形。", "tags": ["plane-figures", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「SSA」？", "back": "两边及其中一边的对角，不能判定全等。", "tags": ["plane-figures", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「相似」？", "back": "对应角相等、对应边成比例的两个图形。", "tags": ["plane-figures", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「相似比」？", "back": "相似图形对应线段的比值。", "tags": ["plane-figures", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「位似」？", "back": "从一点出发按比例缩放的相似变换。", "tags": ["plane-figures", "术语"]}], "companion": "plane-figures学习伴侣.html", "deriv": "plane-figures从零推导.html"}, "pages": {"ch01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">基本作图<\/span><\/div><h1>第 1 章：角与平行线<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：基本作图\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用度与弧度表示角并互化\n<\/li><li>\n使用余角、补角、对顶角的性质\n<\/li><li>\n用平行线性质判断角的关系\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>平行线把“角相等”变成可传递的结论，这是整个平面几何的第一台发动机。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 角的度量<\/h3>\n<p>把一个周角分成 360 份，每份为 1 度。弧度制以弧长与半径的比为角的大小，π 弧度＝180°。<\/p>\n<p>互化：1°=π/180 弧度；1 弧度≈57.3°。<\/p>\n<h3>1.2 角的关系<\/h3>\n<ul><li>\n余角：两角相加为 90°；\n<\/li><li>\n补角：两角相加为 180°；\n<\/li><li>\n对顶角相等（两条直线相交形成）。\n<\/ul>\n<h3>1.3 平行线的性质<\/h3>\n<p>两直线平行时：<\/p>\n<ul><li>\n同位角相等；\n<\/li><li>\n内错角相等；\n<\/li><li>\n同旁内角互补（和为 180°）。\n<\/ul>\n<p>反过来，这三条任一成立，也能判定两直线平行。性质与判定是同一组事实的两个方向，做题时要分清“已知平行”还是“要证平行”。<\/p>\n<h3>1.4 三角形的内角和<\/h3>\n<p>三角形内角和为 180°，由“过顶点作平行线”配合内错角推出。外角等于与它不相邻的两个内角之和。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：平行线像两条永不相交的铁轨，横穿它们的枕木把“角度关系”固定住了。<\/p>\n<p><strong>失效边界<\/strong>：这些性质只在同一平面内成立；空间中两条直线可能既不平行也不相交（异面）。<\/p>\n<p><strong>实例<\/strong>：已知 l₁∥l₂，一条截线与它们相交，∠1=65°，则同位角也是 65°，内错角 65°，同旁内角 115°。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 同位角一定相等 —— 实际上 只有两直线平行时才相等；不平行时不相等。\n<\/li><li>\n别以为 三角形内角和总是 180° —— 实际上 在欧氏平面内成立；球面或双曲面上不成立。中学阶段默认欧氏几何。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n两条平行线被第三条直线所截，同旁内角的关系是：\n<\/li><li>\n一个三角形的两个内角分别为 50° 和 60°，第三个内角是：\n<p>A. 相等 ｜ B. 互补 ｜ C. 互余 ｜ D. 无法确定 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：两直线平行时同旁内角之和为 180°，即互补。 A. 60° ｜ B. 70° ｜ C. 80° ｜ D. 90° <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：180°−50°−60°=70°。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n平行 ⇒ 同位角相等、内错角相等、同旁内角互补\n<\/li><li>\n三角形内角和 180°，外角等于两不相邻内角之和\n<\/li><li>\n性质与判定互为逆用，先看已知条件\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：角与平行线）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：角与平行线<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>几何的第一批结论不是背的，是从“平行线”这一条假设推出来的：有了它，角就能搬家。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>同一平面内不相交的两条直线叫平行线；两条直线被第三条直线所截形成的角叫三线八角。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像把一张纸对折两次，折痕平行，折出的角自然相等。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 补角<\/h3>\n<div class=\"katex-block\">\\angle A+\\angle B=180^{\\circ}<\/div>\n<p>两角拼成一条直线，和为平角。<\/p>\n<h3>2. 对顶角<\/h3>\n<div class=\"katex-block\">\\angle 1=\\angle 3<\/div>\n<p>两条直线相交，顶点两侧相对的两个角相等。<\/p>\n<h3>3. 平行线性质<\/h3>\n<div class=\"katex-block\">l_{1}\\parallel l_{2}\\ \\Rightarrow\\ \\angle_{\\text{同位}}=\\angle_{\\text{同位}}<\/div>\n<p>平行是把角“搬”到另一个位置的通行证。<\/p>\n<h3>4. 内角和<\/h3>\n<div class=\"katex-block\">\\angle A+\\angle B+\\angle C=180^{\\circ}<\/div>\n<p>过顶点作平行线，把三个角拼成一个平角。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>平行公设是欧氏几何的基石，非欧几何里它不成立，整套结论都会改变。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《直线形》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 1 章：角与平行线"}, "ch02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：角与平行线<\/a><\/span><\/div><h1>第 2 章：三角形与全等<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n使用三角形不等式与大边对大角\n<\/li><li>\n按条件选择 SSS、SAS、ASA、AAS 判定全等\n<\/li><li>\n识别全等中的对应关系\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>全等就是“完全重合”；四组判定条件都是在说“三条边、三个角里够用的那几条”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 边角关系<\/h3>\n<ul><li>\n三角形任意两边之和大于第三边，两边之差小于第三边；\n<\/li><li>\n大边对大角，大角对大边；\n<\/li><li>\n直角三角形斜边最长。\n<\/ul>\n<h3>2.2 全等的判定<\/h3>\n<p>两个三角形全等指对应边、对应角全部相等。判定不必六条全查：<\/p>\n<ul><li>\n<strong>SSS<\/strong>：三边对应相等；\n<\/li><li>\n<strong>SAS<\/strong>：两边及其夹角对应相等；\n<\/li><li>\n<strong>ASA<\/strong>：两角及其夹边对应相等；\n<\/li><li>\n<strong>AAS<\/strong>：两角及其中一角的对边对应相等。\n<\/ul>\n<p><strong>SSA（两边及其中一边的对角）不能判定全等<\/strong>，这是最常见的陷阱。AAA 也只能判定相似，不能判定全等。<\/p>\n<h3>2.3 对应关系要按顺序写<\/h3>\n<p>写 △ABC≌△DEF 时，字母顺序就规定了对应关系：A↔D、B↔E、C↔F。顺序写错，后面用对应边、对应角就会出错。<\/p>\n<h3>2.4 特殊线段<\/h3>\n<p>中线连接顶点与对边中点；高垂直于对边；角平分线把角分成两半；中位线平行于第三边且等于它的一半。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：全等像两块完全相同的拼图，翻转、平移后能严丝合缝地重合。<\/p>\n<p><strong>失效边界<\/strong>：形状相同但大小不同只是相似，不是全等；判定条件不能混用。<\/p>\n<p><strong>实例<\/strong>：△ABC 与 △DEF 中，AB=DE，∠B=∠E，BC=EF，则按 SAS 全等。 若给出 AB=DE、∠B=∠E、AC=DF（边边角），则不能判定全等，可能有两种不同形状。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 边边角也能证全等 —— 实际上 SSA 不成立，满足条件的三角形可能有两个，无法保证重合。\n<\/li><li>\n别以为 三个角相等就是全等 —— 实际上 AAA 只能得到相似；全等还要求边长也相等。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n下列条件能判定两个三角形全等的是：\n<\/li><li>\n三角形两边长为 3 和 7，第三边 x 的取值范围是：\n<p>A. 两边及其中一边的对角对应相等 ｜ B. 三个角对应相等 ｜ C. 两边及其夹角对应相等 ｜ D. 周长相等 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：SAS 是标准判定；SSA 与 AAA 都不足以判定全等。 A. 3&lt;x&lt;7 ｜ B. 4&lt;x&lt;10 ｜ C. 0&lt;x&lt;10 ｜ D. x&gt;4 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：两边之差 4 &lt; x &lt; 两边之和 10。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n全等判定：SSS、SAS、ASA、AAS；SSA 不成立\n<\/li><li>\n字母顺序即对应关系\n<\/li><li>\n第三边在两边之差与两边之和之间\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：三角形与全等）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：三角形与全等<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>全等的判定条件不是规定，而是“确定一个三角形最少需要几个独立条件”的答案。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>两个三角形能完全重合叫全等；形状相同、大小成比例叫相似。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像配钥匙：齿形、长度都对上才能开同一把锁，缺一项就不行。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 三角形不等式<\/h3>\n<div class=\"katex-block\">|a-b|&lt;c&lt;a+b<\/div>\n<p>两边之差小于第三边，第三边小于两边之和。<\/p>\n<h3>2. SAS<\/h3>\n<div class=\"katex-block\">AB=DE,\\ \\angle B=\\angle E,\\ BC=EF\\ \\Rightarrow\\ \\triangle ABC\\cong\\triangle DEF<\/div>\n<p>夹角确定后，第三边的长度被唯一确定。<\/p>\n<h3>3. SSA 反例<\/h3>\n<div class=\"katex-block\">\\text{已知两边及一边对角，可能有两个解}<\/div>\n<p>所以 SSA 不能作为全等判定。<\/p>\n<h3>4. 相似（AAA）<\/h3>\n<div class=\"katex-block\">\\angle A=\\angle D,\\ \\angle B=\\angle E\\ \\Rightarrow\\ \\triangle ABC\\sim\\triangle DEF<\/div>\n<p>角相等只保证形状，不保证大小相等。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>判定条件依赖欧氏平面的刚性；在曲面上“全等”的含义要重新定义。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《直线形》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 2 章：三角形与全等"}, "ch03": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：三角形与全等<\/a><\/span><\/div><h1>第 3 章：相似、比例与图形变换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用三组判定条件证明相似\n<\/li><li>\n用相似比求线段、周长、面积\n<\/li><li>\n说出四种变换的不变量\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>相似是“形状不变、大小按比例”；变换是“搬动图形但保留某些性质”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 相似的判定<\/h3>\n<ul><li>\n两角对应相等（AA）；\n<\/li><li>\n两边对应成比例且夹角相等（SAS）；\n<\/li><li>\n三边对应成比例（SSS）。\n<\/ul>\n<h3>3.2 相似比与面积比<\/h3>\n<p>若相似比为 k，则：<\/p>\n<ul><li>\n对应线段之比为 k；\n<\/li><li>\n周长之比为 k；\n<\/li><li>\n面积之比为 k²。\n<\/ul>\n<p>最后一条最容易错：面积是二维量，长度放大 k 倍，面积放大 k² 倍。<\/p>\n<h3>3.3 平行线分线段成比例<\/h3>\n<p>三条平行线截两条直线，截得的对应线段成比例。由此可得三角形中位线定理与“平行于一边的直线分另两边成比例”。<\/p>\n<h3>3.4 四种变换<\/h3>\n<ul><li>\n<strong>平移<\/strong>：形状、大小、方向都不变；\n<\/li><li>\n<strong>旋转<\/strong>：形状、大小不变，方向改变；\n<\/li><li>\n<strong>轴对称<\/strong>：形状、大小不变，左右翻转；\n<\/li><li>\n<strong>位似<\/strong>：形状不变，大小按比例放大缩小（相似变换）。\n<\/ul>\n<p>前三者是全等变换，位似是相似变换。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：相似像用复印机缩放，比例一致但尺寸不同；位似像从一点向外投影放大。<\/p>\n<p><strong>失效边界<\/strong>：面积比不是相似比，套错比例会差一个平方。<\/p>\n<p><strong>实例<\/strong>：两个相似三角形相似比 2:3，则周长比 2:3，面积比 4:9。 若小三角形面积为 8，则大三角形面积为 8×9/4=18。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 面积比等于相似比 —— 实际上 面积比是相似比的平方，因为面积涉及两个方向的长度。\n<\/li><li>\n别以为 所有变换都保持形状 —— 实际上 平移、旋转、轴对称、位似都保形状；投影、拉伸会改变形状。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n两个相似三角形的相似比为 1:2，则面积比为：\n<\/li><li>\n下列变换中，属于相似变换而非全等变换的是：\n<p>A. 1:2 ｜ B. 1:4 ｜ C. 2:1 ｜ D. 1:√2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：面积比是相似比的平方，即 1:4。 A. 平移 ｜ B. 旋转 ｜ C. 轴对称 ｜ D. 位似 <strong>答案<\/strong>：D ｜ <strong>解析<\/strong>：位似会按比例改变大小，只保持形状；其余三种保形状也保大小。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n相似判定：AA、SAS、SSS\n<\/li><li>\n相似比 k ⇒ 周长比 k、面积比 k²\n<\/li><li>\n平移/旋转/轴对称是全等变换，位似是相似变换\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：相似、比例与图形变换）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：相似、比例与图形变换<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>相似的所有结论都来自一个事实：对应边成比例、对应角相等。比例一旦成立，长度、周长、面积就按不同幂次缩放。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>对应角相等、对应边成比例的两个图形叫相似图形，比值叫相似比。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像把地图放大：每条路都按同一倍数变长，但角度完全不变。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 相似判定<\/h3>\n<div class=\"katex-block\">\\angle A=\\angle D,\\ \\angle B=\\angle E\\ \\Rightarrow\\ \\triangle ABC\\sim\\triangle DEF<\/div>\n<p>两组角相等即可，第三组自动相等。<\/p>\n<h3>2. 线段比<\/h3>\n<div class=\"katex-block\">\\frac{AB}{DE}=\\frac{BC}{EF}=k<\/div>\n<p>所有对应线段按同一比例 k 缩放。<\/p>\n<h3>3. 面积比<\/h3>\n<div class=\"katex-block\">\\frac{S_{1}}{S_{2}}=k^{2}<\/div>\n<p>长度按 k 缩放，面积按 k² 缩放。<\/p>\n<h3>4. 位似<\/h3>\n<div class=\"katex-block\">\\vec{OP'}=k\\vec{OP}<\/div>\n<p>从同一点出发按比例缩放，是最典型的相似变换。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>只有对应边成比例还不够，必须配合对应角相等（或夹角相等）。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《直线形》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 3 章：相似、比例与图形变换"}, "c01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：角与平行线<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：三角形与全等<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：相似、比例与图形变换<\/a><\/span><\/div><h1>判定与性质<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>“因为平行所以角相等”是性质，“因为角相等所以平行”是判定，方向不能反。<\/p>\n<h2>为什么重要<\/h2>\n<p>平面几何的证明几乎都在性质与判定之间来回切换，方向搞反就证不下去。<\/p>\n<h2>详解<\/h2>\n<p>性质是由已知的图形关系推出角或边的结论；判定是由角或边的条件推出图形关系。平行线、全等、相似都各有一对。做题时先看题目给的是“关系”还是“条件”，再决定用哪一个方向。<\/p>\n<h2>常见误解<\/h2>\n<p>把判定当性质用，比如由“同位角相等”直接说“两直线一定平行”却不说明理由，逻辑上仍成立但表述混乱。<\/p>\n<h2>相关概念<\/h2>\n<p>平行线（ch01）、全等（ch02）、相似（ch03）<\/p>", "kind": "concept", "title": "判定与性质"}, "c02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：相似、比例与图形变换<\/a><\/span><\/div><h1>不变量<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>变换改变位置，不改变某些量；找出不变量，问题就简化了。<\/p>\n<h2>为什么重要<\/h2>\n<p>几何变换题的核心就是找“变的是什么、不变的是什么”。<\/p>\n<h2>详解<\/h2>\n<p>平移保持方向与长度；旋转保持长度与角度；轴对称保持长度与角度但翻转方向；位似保持角度、按比例改变长度。面积在相似变换下按 k² 变化，是“半不变量”。<\/p>\n<h2>常见误解<\/h2>\n<p>以为变换后一切都不变，忽略位似会改变大小、轴对称会改变方向。<\/p>\n<h2>相关概念<\/h2>\n<p>图形变换（ch03）、相似比（ch03）<\/p>", "kind": "concept", "title": "不变量"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：角与平行线<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：角与平行线<\/a><br>检查点：能用平行线性质推出角相等<\/li><li class='path-step' id='path-02'><strong>步骤 02：三角形与全等<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：三角形与全等<\/a><br>检查点：能选出正确的全等判定条件<\/li><li class='path-step' id='path-03'><strong>步骤 03：相似、比例与变换<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：相似、比例与图形变换<\/a><br>检查点：能用相似比求线段长<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__graph__": {"html": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "kind": "graph", "title": "知识图谱"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 两个相似三角形的面积比为 9:16，则相似比为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 9:16<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 3:4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4:3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 81:256<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 下列条件中不能判定两个三角形全等的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 三边对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 两角及夹边对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 两边及其中一边的对角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 两边及其夹角对应相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：角与平行线<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 两条平行线被第三条直线所截，同旁内角的关系是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 相等<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 互补<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 互余<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 无法确定<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 一个三角形的两个内角分别为 50° 和 60°，第三个内角是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 60°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 70°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 80°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 90°<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：三角形与全等<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 下列条件能判定两个三角形全等的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 两边及其中一边的对角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 三个角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 两边及其夹角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 周长相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 三角形两边长为 3 和 7，第三边 x 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 3&lt;x&lt;7<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 4&lt;x&lt;10<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 0&lt;x&lt;10<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> x&gt;4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：相似、比例与图形变换<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 两个相似三角形的相似比为 1:2，则面积比为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 1:2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 1:4<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 2:1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 1:√2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 下列变换中，属于相似变换而非全等变换的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 平移<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 旋转<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 轴对称<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 位似<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='余角'>余角 — 两角之和为 90°。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='补角'>补角 — 两角之和为 180°。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='对顶角'>对顶角 — 两直线相交形成的顶点相对的两个角。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='同位角'>同位角 — 两条直线被第三条直线所截，位置相同的一对角。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='全等'>全等 — 能完全重合的两个图形。 <span class=glossary-ref>（第 2 章：三角形与全等）<\/span><\/li><li data-term='ssa'>SSA — 两边及其中一边的对角，不能判定全等。 <span class=glossary-ref>（第 2 章：三角形与全等）<\/span><\/li><li data-term='相似'>相似 — 对应角相等、对应边成比例的两个图形。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><li data-term='相似比'>相似比 — 相似图形对应线段的比值。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><li data-term='位似'>位似 — 从一点出发按比例缩放的相似变换。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__diagnosis__": {"html": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "kind": "diagnosis", "title": "诊断测试"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：证全等三步<\/h2>\n<p>① 找已知相等的边角；② 数够不够（SSS/SAS/ASA/AAS）；③ 按字母顺序写对应关系。<\/p>\n<h2>框架：相似题四问<\/h2>\n<p>① 有没有平行线（给出等角）；② 有没有公共角；③ 能否用比例；④ 求的是长度还是面积（决定用 k 还是 k²）。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>内角和<\/td><td>三角形 180°，n 边形 (n−2)×180°<\/td><\/tr><tr><td>外角<\/td><td>等于两个不相邻内角之和<\/td><\/tr><tr><td>全等判定<\/td><td>SSS、SAS、ASA、AAS<\/td><\/tr><tr><td>相似判定<\/td><td>AA、SAS、SSS<\/td><\/tr><tr><td>相似缩放<\/td><td>长度 k，周长 k，面积 k²<\/td><\/tr><tr><td>第三边范围<\/td><td>两边之差 &lt; x &lt; 两边之和<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/11-直线形", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "🕸 知识图谱", "href": "#/graph"}, {"label": "🩺 诊断测试", "href": "#/diagnosis"}, {"label": "章节", "children": [{"label": "第 1 章：角与平行线", "href": "#/chapter/ch01"}, {"label": "第 2 章：三角形与全等", "href": "#/chapter/ch02"}, {"label": "第 3 章：相似、比例与图形变换", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "判定与性质", "href": "#/concept/c01"}, {"label": "不变量", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：角与平行线", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：三角形与全等", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：相似、比例与图形变换", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">基本作图<\/span><\/div><h1>第 1 章：角与平行线<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：基本作图\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用度与弧度表示角并互化\n<\/li><li>\n使用余角、补角、对顶角的性质\n<\/li><li>\n用平行线性质判断角的关系\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>平行线把“角相等”变成可传递的结论，这是整个平面几何的第一台发动机。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 角的度量<\/h3>\n<p>把一个周角分成 360 份，每份为 1 度。弧度制以弧长与半径的比为角的大小，π 弧度＝180°。<\/p>\n<p>互化：1°=π/180 弧度；1 弧度≈57.3°。<\/p>\n<h3>1.2 角的关系<\/h3>\n<ul><li>\n余角：两角相加为 90°；\n<\/li><li>\n补角：两角相加为 180°；\n<\/li><li>\n对顶角相等（两条直线相交形成）。\n<\/ul>\n<h3>1.3 平行线的性质<\/h3>\n<p>两直线平行时：<\/p>\n<ul><li>\n同位角相等；\n<\/li><li>\n内错角相等；\n<\/li><li>\n同旁内角互补（和为 180°）。\n<\/ul>\n<p>反过来，这三条任一成立，也能判定两直线平行。性质与判定是同一组事实的两个方向，做题时要分清“已知平行”还是“要证平行”。<\/p>\n<h3>1.4 三角形的内角和<\/h3>\n<p>三角形内角和为 180°，由“过顶点作平行线”配合内错角推出。外角等于与它不相邻的两个内角之和。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：平行线像两条永不相交的铁轨，横穿它们的枕木把“角度关系”固定住了。<\/p>\n<p><strong>失效边界<\/strong>：这些性质只在同一平面内成立；空间中两条直线可能既不平行也不相交（异面）。<\/p>\n<p><strong>实例<\/strong>：已知 l₁∥l₂，一条截线与它们相交，∠1=65°，则同位角也是 65°，内错角 65°，同旁内角 115°。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 同位角一定相等 —— 实际上 只有两直线平行时才相等；不平行时不相等。\n<\/li><li>\n别以为 三角形内角和总是 180° —— 实际上 在欧氏平面内成立；球面或双曲面上不成立。中学阶段默认欧氏几何。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n两条平行线被第三条直线所截，同旁内角的关系是：\n<\/li><li>\n一个三角形的两个内角分别为 50° 和 60°，第三个内角是：\n<p>A. 相等 ｜ B. 互补 ｜ C. 互余 ｜ D. 无法确定 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：两直线平行时同旁内角之和为 180°，即互补。 A. 60° ｜ B. 70° ｜ C. 80° ｜ D. 90° <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：180°−50°−60°=70°。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n平行 ⇒ 同位角相等、内错角相等、同旁内角互补\n<\/li><li>\n三角形内角和 180°，外角等于两不相邻内角之和\n<\/li><li>\n性质与判定互为逆用，先看已知条件\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：角与平行线）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：角与平行线<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>几何的第一批结论不是背的，是从“平行线”这一条假设推出来的：有了它，角就能搬家。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>同一平面内不相交的两条直线叫平行线；两条直线被第三条直线所截形成的角叫三线八角。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像把一张纸对折两次，折痕平行，折出的角自然相等。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 补角<\/h3>\n<div class=\"katex-block\">\\angle A+\\angle B=180^{\\circ}<\/div>\n<p>两角拼成一条直线，和为平角。<\/p>\n<h3>2. 对顶角<\/h3>\n<div class=\"katex-block\">\\angle 1=\\angle 3<\/div>\n<p>两条直线相交，顶点两侧相对的两个角相等。<\/p>\n<h3>3. 平行线性质<\/h3>\n<div class=\"katex-block\">l_{1}\\parallel l_{2}\\ \\Rightarrow\\ \\angle_{\\text{同位}}=\\angle_{\\text{同位}}<\/div>\n<p>平行是把角“搬”到另一个位置的通行证。<\/p>\n<h3>4. 内角和<\/h3>\n<div class=\"katex-block\">\\angle A+\\angle B+\\angle C=180^{\\circ}<\/div>\n<p>过顶点作平行线，把三个角拼成一个平角。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>平行公设是欧氏几何的基石，非欧几何里它不成立，整套结论都会改变。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《直线形》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：角与平行线<\/a><\/span><\/div><h1>第 2 章：三角形与全等<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n使用三角形不等式与大边对大角\n<\/li><li>\n按条件选择 SSS、SAS、ASA、AAS 判定全等\n<\/li><li>\n识别全等中的对应关系\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>全等就是“完全重合”；四组判定条件都是在说“三条边、三个角里够用的那几条”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 边角关系<\/h3>\n<ul><li>\n三角形任意两边之和大于第三边，两边之差小于第三边；\n<\/li><li>\n大边对大角，大角对大边；\n<\/li><li>\n直角三角形斜边最长。\n<\/ul>\n<h3>2.2 全等的判定<\/h3>\n<p>两个三角形全等指对应边、对应角全部相等。判定不必六条全查：<\/p>\n<ul><li>\n<strong>SSS<\/strong>：三边对应相等；\n<\/li><li>\n<strong>SAS<\/strong>：两边及其夹角对应相等；\n<\/li><li>\n<strong>ASA<\/strong>：两角及其夹边对应相等；\n<\/li><li>\n<strong>AAS<\/strong>：两角及其中一角的对边对应相等。\n<\/ul>\n<p><strong>SSA（两边及其中一边的对角）不能判定全等<\/strong>，这是最常见的陷阱。AAA 也只能判定相似，不能判定全等。<\/p>\n<h3>2.3 对应关系要按顺序写<\/h3>\n<p>写 △ABC≌△DEF 时，字母顺序就规定了对应关系：A↔D、B↔E、C↔F。顺序写错，后面用对应边、对应角就会出错。<\/p>\n<h3>2.4 特殊线段<\/h3>\n<p>中线连接顶点与对边中点；高垂直于对边；角平分线把角分成两半；中位线平行于第三边且等于它的一半。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：全等像两块完全相同的拼图，翻转、平移后能严丝合缝地重合。<\/p>\n<p><strong>失效边界<\/strong>：形状相同但大小不同只是相似，不是全等；判定条件不能混用。<\/p>\n<p><strong>实例<\/strong>：△ABC 与 △DEF 中，AB=DE，∠B=∠E，BC=EF，则按 SAS 全等。 若给出 AB=DE、∠B=∠E、AC=DF（边边角），则不能判定全等，可能有两种不同形状。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 边边角也能证全等 —— 实际上 SSA 不成立，满足条件的三角形可能有两个，无法保证重合。\n<\/li><li>\n别以为 三个角相等就是全等 —— 实际上 AAA 只能得到相似；全等还要求边长也相等。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n下列条件能判定两个三角形全等的是：\n<\/li><li>\n三角形两边长为 3 和 7，第三边 x 的取值范围是：\n<p>A. 两边及其中一边的对角对应相等 ｜ B. 三个角对应相等 ｜ C. 两边及其夹角对应相等 ｜ D. 周长相等 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：SAS 是标准判定；SSA 与 AAA 都不足以判定全等。 A. 3&lt;x&lt;7 ｜ B. 4&lt;x&lt;10 ｜ C. 0&lt;x&lt;10 ｜ D. x&gt;4 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：两边之差 4 &lt; x &lt; 两边之和 10。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n全等判定：SSS、SAS、ASA、AAS；SSA 不成立\n<\/li><li>\n字母顺序即对应关系\n<\/li><li>\n第三边在两边之差与两边之和之间\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：三角形与全等）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：三角形与全等<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>全等的判定条件不是规定，而是“确定一个三角形最少需要几个独立条件”的答案。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>两个三角形能完全重合叫全等；形状相同、大小成比例叫相似。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像配钥匙：齿形、长度都对上才能开同一把锁，缺一项就不行。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 三角形不等式<\/h3>\n<div class=\"katex-block\">|a-b|&lt;c&lt;a+b<\/div>\n<p>两边之差小于第三边，第三边小于两边之和。<\/p>\n<h3>2. SAS<\/h3>\n<div class=\"katex-block\">AB=DE,\\ \\angle B=\\angle E,\\ BC=EF\\ \\Rightarrow\\ \\triangle ABC\\cong\\triangle DEF<\/div>\n<p>夹角确定后，第三边的长度被唯一确定。<\/p>\n<h3>3. SSA 反例<\/h3>\n<div class=\"katex-block\">\\text{已知两边及一边对角，可能有两个解}<\/div>\n<p>所以 SSA 不能作为全等判定。<\/p>\n<h3>4. 相似（AAA）<\/h3>\n<div class=\"katex-block\">\\angle A=\\angle D,\\ \\angle B=\\angle E\\ \\Rightarrow\\ \\triangle ABC\\sim\\triangle DEF<\/div>\n<p>角相等只保证形状，不保证大小相等。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>判定条件依赖欧氏平面的刚性；在曲面上“全等”的含义要重新定义。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《直线形》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch03": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：三角形与全等<\/a><\/span><\/div><h1>第 3 章：相似、比例与图形变换<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用三组判定条件证明相似\n<\/li><li>\n用相似比求线段、周长、面积\n<\/li><li>\n说出四种变换的不变量\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>相似是“形状不变、大小按比例”；变换是“搬动图形但保留某些性质”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 相似的判定<\/h3>\n<ul><li>\n两角对应相等（AA）；\n<\/li><li>\n两边对应成比例且夹角相等（SAS）；\n<\/li><li>\n三边对应成比例（SSS）。\n<\/ul>\n<h3>3.2 相似比与面积比<\/h3>\n<p>若相似比为 k，则：<\/p>\n<ul><li>\n对应线段之比为 k；\n<\/li><li>\n周长之比为 k；\n<\/li><li>\n面积之比为 k²。\n<\/ul>\n<p>最后一条最容易错：面积是二维量，长度放大 k 倍，面积放大 k² 倍。<\/p>\n<h3>3.3 平行线分线段成比例<\/h3>\n<p>三条平行线截两条直线，截得的对应线段成比例。由此可得三角形中位线定理与“平行于一边的直线分另两边成比例”。<\/p>\n<h3>3.4 四种变换<\/h3>\n<ul><li>\n<strong>平移<\/strong>：形状、大小、方向都不变；\n<\/li><li>\n<strong>旋转<\/strong>：形状、大小不变，方向改变；\n<\/li><li>\n<strong>轴对称<\/strong>：形状、大小不变，左右翻转；\n<\/li><li>\n<strong>位似<\/strong>：形状不变，大小按比例放大缩小（相似变换）。\n<\/ul>\n<p>前三者是全等变换，位似是相似变换。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：相似像用复印机缩放，比例一致但尺寸不同；位似像从一点向外投影放大。<\/p>\n<p><strong>失效边界<\/strong>：面积比不是相似比，套错比例会差一个平方。<\/p>\n<p><strong>实例<\/strong>：两个相似三角形相似比 2:3，则周长比 2:3，面积比 4:9。 若小三角形面积为 8，则大三角形面积为 8×9/4=18。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 面积比等于相似比 —— 实际上 面积比是相似比的平方，因为面积涉及两个方向的长度。\n<\/li><li>\n别以为 所有变换都保持形状 —— 实际上 平移、旋转、轴对称、位似都保形状；投影、拉伸会改变形状。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n两个相似三角形的相似比为 1:2，则面积比为：\n<\/li><li>\n下列变换中，属于相似变换而非全等变换的是：\n<p>A. 1:2 ｜ B. 1:4 ｜ C. 2:1 ｜ D. 1:√2 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：面积比是相似比的平方，即 1:4。 A. 平移 ｜ B. 旋转 ｜ C. 轴对称 ｜ D. 位似 <strong>答案<\/strong>：D ｜ <strong>解析<\/strong>：位似会按比例改变大小，只保持形状；其余三种保形状也保大小。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n相似判定：AA、SAS、SSS\n<\/li><li>\n相似比 k ⇒ 周长比 k、面积比 k²\n<\/li><li>\n平移/旋转/轴对称是全等变换，位似是相似变换\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：相似、比例与图形变换）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：相似、比例与图形变换<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>相似的所有结论都来自一个事实：对应边成比例、对应角相等。比例一旦成立，长度、周长、面积就按不同幂次缩放。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>对应角相等、对应边成比例的两个图形叫相似图形，比值叫相似比。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像把地图放大：每条路都按同一倍数变长，但角度完全不变。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 相似判定<\/h3>\n<div class=\"katex-block\">\\angle A=\\angle D,\\ \\angle B=\\angle E\\ \\Rightarrow\\ \\triangle ABC\\sim\\triangle DEF<\/div>\n<p>两组角相等即可，第三组自动相等。<\/p>\n<h3>2. 线段比<\/h3>\n<div class=\"katex-block\">\\frac{AB}{DE}=\\frac{BC}{EF}=k<\/div>\n<p>所有对应线段按同一比例 k 缩放。<\/p>\n<h3>3. 面积比<\/h3>\n<div class=\"katex-block\">\\frac{S_{1}}{S_{2}}=k^{2}<\/div>\n<p>长度按 k 缩放，面积按 k² 缩放。<\/p>\n<h3>4. 位似<\/h3>\n<div class=\"katex-block\">\\vec{OP'}=k\\vec{OP}<\/div>\n<p>从同一点出发按比例缩放，是最典型的相似变换。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>只有对应边成比例还不够，必须配合对应角相等（或夹角相等）。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《直线形》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "c01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：角与平行线<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：三角形与全等<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：相似、比例与图形变换<\/a><\/span><\/div><h1>判定与性质<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>“因为平行所以角相等”是性质，“因为角相等所以平行”是判定，方向不能反。<\/p>\n<h2>为什么重要<\/h2>\n<p>平面几何的证明几乎都在性质与判定之间来回切换，方向搞反就证不下去。<\/p>\n<h2>详解<\/h2>\n<p>性质是由已知的图形关系推出角或边的结论；判定是由角或边的条件推出图形关系。平行线、全等、相似都各有一对。做题时先看题目给的是“关系”还是“条件”，再决定用哪一个方向。<\/p>\n<h2>常见误解<\/h2>\n<p>把判定当性质用，比如由“同位角相等”直接说“两直线一定平行”却不说明理由，逻辑上仍成立但表述混乱。<\/p>\n<h2>相关概念<\/h2>\n<p>平行线（ch01）、全等（ch02）、相似（ch03）<\/p>", "c02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-11-直线形 毛鸿翔.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：相似、比例与图形变换<\/a><\/span><\/div><h1>不变量<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>变换改变位置，不改变某些量；找出不变量，问题就简化了。<\/p>\n<h2>为什么重要<\/h2>\n<p>几何变换题的核心就是找“变的是什么、不变的是什么”。<\/p>\n<h2>详解<\/h2>\n<p>平移保持方向与长度；旋转保持长度与角度；轴对称保持长度与角度但翻转方向；位似保持角度、按比例改变长度。面积在相似变换下按 k² 变化，是“半不变量”。<\/p>\n<h2>常见误解<\/h2>\n<p>以为变换后一切都不变，忽略位似会改变大小、轴对称会改变方向。<\/p>\n<h2>相关概念<\/h2>\n<p>图形变换（ch03）、相似比（ch03）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：角与平行线<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：角与平行线<\/a><br>检查点：能用平行线性质推出角相等<\/li><li class='path-step' id='path-02'><strong>步骤 02：三角形与全等<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：三角形与全等<\/a><br>检查点：能选出正确的全等判定条件<\/li><li class='path-step' id='path-03'><strong>步骤 03：相似、比例与变换<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：相似、比例与图形变换<\/a><br>检查点：能用相似比求线段长<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__graph__": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 两个相似三角形的面积比为 9:16，则相似比为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 9:16<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 3:4<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 4:3<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 81:256<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 下列条件中不能判定两个三角形全等的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> 三边对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> 两角及夹边对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 两边及其中一边的对角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 两边及其夹角对应相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：角与平行线<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 两条平行线被第三条直线所截，同旁内角的关系是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 相等<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 互补<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 互余<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 无法确定<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 一个三角形的两个内角分别为 50° 和 60°，第三个内角是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 60°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 70°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 80°<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 90°<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：三角形与全等<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 下列条件能判定两个三角形全等的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 两边及其中一边的对角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 三个角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 两边及其夹角对应相等<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 周长相等<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 三角形两边长为 3 和 7，第三边 x 的取值范围是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 3&lt;x&lt;7<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 4&lt;x&lt;10<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 0&lt;x&lt;10<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> x&gt;4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：相似、比例与图形变换<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 两个相似三角形的相似比为 1:2，则面积比为：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 1:2<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 1:4<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 2:1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 1:√2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 下列变换中，属于相似变换而非全等变换的是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 平移<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 旋转<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 轴对称<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 位似<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='余角'>余角 — 两角之和为 90°。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='补角'>补角 — 两角之和为 180°。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='对顶角'>对顶角 — 两直线相交形成的顶点相对的两个角。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='同位角'>同位角 — 两条直线被第三条直线所截，位置相同的一对角。 <span class=glossary-ref>（第 1 章：角与平行线）<\/span><\/li><li data-term='全等'>全等 — 能完全重合的两个图形。 <span class=glossary-ref>（第 2 章：三角形与全等）<\/span><\/li><li data-term='ssa'>SSA — 两边及其中一边的对角，不能判定全等。 <span class=glossary-ref>（第 2 章：三角形与全等）<\/span><\/li><li data-term='相似'>相似 — 对应角相等、对应边成比例的两个图形。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><li data-term='相似比'>相似比 — 相似图形对应线段的比值。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><li data-term='位似'>位似 — 从一点出发按比例缩放的相似变换。 <span class=glossary-ref>（第 3 章：相似、比例与图形变换）<\/span><\/li><\/ul>", "__diagnosis__": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：证全等三步<\/h2>\n<p>① 找已知相等的边角；② 数够不够（SSS/SAS/ASA/AAS）；③ 按字母顺序写对应关系。<\/p>\n<h2>框架：相似题四问<\/h2>\n<p>① 有没有平行线（给出等角）；② 有没有公共角；③ 能否用比例；④ 求的是长度还是面积（决定用 k 还是 k²）。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>内角和<\/td><td>三角形 180°，n 边形 (n−2)×180°<\/td><\/tr><tr><td>外角<\/td><td>等于两个不相邻内角之和<\/td><\/tr><tr><td>全等判定<\/td><td>SSS、SAS、ASA、AAS<\/td><\/tr><tr><td>相似判定<\/td><td>AA、SAS、SSS<\/td><\/tr><tr><td>相似缩放<\/td><td>长度 k，周长 k，面积 k²<\/td><\/tr><tr><td>第三边范围<\/td><td>两边之差 &lt; x &lt; 两边之和<\/td><\/tr><\/tbody><\/table>"}};
 const pages = DATA.rendered;
 const manifest = DATA.manifest;
 const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SLUG = manifest.slug || 'book';
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
   set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
 };
-let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{}, mastery: store.get('mastery')||{} };
 
 /* ---------- 导航 ---------- */
 function renderNav(){
@@ -144,15 +199,27 @@ function routeIdFromHash(){
   let h = location.hash.replace(/^#\//,'');
   if(!h) return 'path';
   if(h==='path') return 'path';
+  if(h==='diagnosis') return 'diagnosis';
   const m = h.match(/^(chapter|concept)\/(.+)$/);
   if(m) return m[1]+'/'+m[2];
-  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+  return h;
 }
 function showPage(rid){
-  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  let id;
+  if(rid==='path') id='__path__';
+  else if(rid==='diagnosis') id='__diagnosis__';
+  else if(rid==='graph') id='__graph__';
+  else if(rid.startsWith('quiz/')) id='__quiz_'+rid.split('/')[1]+'__';
+  else if(rid==='cards') id='__cards__';
+  else if(rid==='glossary') id='__glossary__';
+  else if(rid==='patterns') id='__patterns__';
+  else if(rid==='cheatsheet') id='__cheatsheet__';
+  else if(rid.startsWith('chapter/')) id=rid.split('/')[1];
+  else if(rid.startsWith('concept/')) id=rid.split('/')[1];
+  else id=rid;
   const html = pages[id] || '<div class="empty">页面不存在</div>';
   $('#view').innerHTML = html;
-  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  $$('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
   if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
     state.visited.push(rid); store.set('visited', state.visited); renderNav();
   }
@@ -160,8 +227,66 @@ function showPage(rid){
   if(rid==='cards') initCards();
   if(rid==='glossary') initGlossary();
   if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(rid==='diagnosis') initDiagnosis();
+  if(rid==='graph') initGraph();
   if(id==='__path__') updatePath();
+  renderMath();
   renderMermaid();
+}
+
+/* ---------- KaTeX 渲染（多源回退） ---------- */
+let katexLoading = false, katexReady = false;
+function renderMath(){
+  const hasMath = document.querySelector('.katex-inline, .katex-block');
+  if(!hasMath) return;
+  if(katexReady){ doRenderMath(); return; }
+  if(katexLoading) return;
+  katexLoading = true;
+  const cssUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.css'
+  ];
+  const jsUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.js',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.js'
+  ];
+  let ci = 0, ji = 0;
+  const tryCss = () => {
+    if(ci >= cssUrls.length) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'; link.href = cssUrls[ci++];
+    link.onload = tryJs; link.onerror = () => { link.remove(); tryCss(); };
+    document.head.appendChild(link);
+  };
+  const tryJs = () => {
+    if(ji >= jsUrls.length){ katexLoading = false; return; }
+    const s = document.createElement('script');
+    s.src = jsUrls[ji++];
+    s.onload = () => { katexReady = true; katexLoading = false; doRenderMath(); };
+    s.onerror = () => { s.remove(); tryJs(); };
+    document.head.appendChild(s);
+  };
+  tryCss();
+}
+function doRenderMath(){
+  if(typeof katex === 'undefined') return;
+  // 行内公式：.katex-inline 里的内容
+  $$('.katex-inline').forEach(el=>{
+    try{ katex.render(el.textContent, el, {throwOnError:false}); }catch(e){}
+  });
+  // 块级公式：.katex-block 里的内容
+  $$('.katex-block').forEach(el=>{
+    try{ katex.render(el.textContent, el, {displayMode:true, throwOnError:false}); }catch(e){}
+  });
+}
+// 公式内容预处理：把 < 后跟字母的位置转成 &lt;，避免被 HTML 解析器当标签吃掉
+// （这是 first-principles-derivation 踩过的坑：$m<n$ 会变成残留 $m）
+function sanitizeMathHTML(){
+  $$('.katex-inline, .katex-block').forEach(el=>{
+    el.innerHTML = el.innerHTML.replace(/<([a-zA-Z])/g, '&lt;$1');
+  });
 }
 
 /* ---------- 进度 ---------- */
@@ -173,7 +298,7 @@ function updateProgress(){
   $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
 }
 function updatePath(){
-  document.querySelectorAll('.path-step').forEach(el=>{
+  $$('.path-step').forEach(el=>{
     const step = el.id.replace('path-','');
     const s = (manifest.learningPath||[]).find(x=>x.step===step);
     if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
@@ -183,9 +308,39 @@ function updatePath(){
   });
 }
 
-/* ---------- 测验 ---------- */
+/* ---------- 概念/章节依赖查找（用于诊断倒推） ---------- */
+function findConcept(id){ return (manifest.concepts||[]).find(c=>c.id===id); }
+function findChapter(id){ return (manifest.chapters||[]).find(c=>c.id===id); }
+function getPrereqs(node){
+  if(!node) return [];
+  return node.prerequisites || node.prereqs || [];
+}
+/**
+ * 答错倒推：从错题关联的概念/章节出发，沿 prerequisites 回溯，
+ * 返回一串"你可能需要先补的"节点，带跳转链接。
+ */
+function traceBack(startConceptId, startChapterId){
+  const visited = new Set();
+  const chain = [];
+  const queue = [];
+  if(startConceptId){ const c = findConcept(startConceptId); if(c) queue.push({node:c, kind:'concept'}); }
+  if(startChapterId){ const c = findChapter(startChapterId); if(c) queue.push({node:c, kind:'chapter'}); }
+  while(queue.length && chain.length < 6){
+    const {node, kind} = queue.shift();
+    if(visited.has(node.id)) continue;
+    visited.add(node.id);
+    chain.push({node, kind});
+    (getPrereqs(node)||[]).forEach(pid=>{
+      const cn = findConcept(pid); if(cn){ queue.push({node:cn, kind:'concept'}); return; }
+      const ch = findChapter(pid); if(ch) queue.push({node:ch, kind:'chapter'});
+    });
+  }
+  return chain;
+}
+
+/* ---------- 测验（带倒推） ---------- */
 function initQuizzes(rid){
-  document.querySelectorAll('.quiz-item').forEach(item=>{
+  $$('.quiz-item').forEach(item=>{
     const btn = item.querySelector('.quiz-check');
     if(!btn || item.dataset.inited){ return }
     item.dataset.inited='1';
@@ -211,8 +366,7 @@ function initQuizzes(rid){
       }
       item.querySelectorAll('input:checked').forEach(i=>{
         const val=parseInt(i.value);
-        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
-        else i.parentElement.style.color='var(--bad)';
+        i.parentElement.style.color = (Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) ? 'var(--ok)' : 'var(--bad)';
       });
       const feed = item.querySelector('.quiz-feedback');
       feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
@@ -220,7 +374,34 @@ function initQuizzes(rid){
       let ex = item.querySelector('.quiz-explain');
       if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
       ex.innerHTML = '解析：' + esc(q.explain||'');
-      // 记录成绩（按章聚合）
+      // 答错时：倒推前置 + 误解卡片 + 掌握度更新
+      if(!correct){
+        let remedy = item.querySelector('.quiz-remedy');
+        if(!remedy){ remedy = document.createElement('div'); remedy.className='quiz-remedy'; item.appendChild(remedy); }
+        const chain = traceBack(item.dataset.concept, item.dataset.chapter);
+        if(chain.length > 1){
+          const links = chain.slice(1).map(({node,kind})=>{
+            const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+            return `<a href="${href}">${esc(node.title||node.id)}</a>`;
+          }).join(' → ');
+          remedy.innerHTML = '🔍 可能的根因（沿依赖链回溯）：' + links;
+        }
+        // 误解卡片：如果选错的选项标注了 misconceptionId
+        const checked = item.querySelector('input:checked');
+        const misId = checked ? checked.dataset.misconception : '';
+        if(misId){
+          const mis = (manifest.misconceptions||[]).find(m=>m.id===misId);
+          if(mis){
+            let misCard = item.querySelector('.misconception-card');
+            if(!misCard){ misCard = document.createElement('div'); misCard.className='misconception-card'; item.appendChild(misCard); }
+            misCard.innerHTML = `<b>⚠ 常见误解</b><br>你选了「${esc(mis.wrong)}」——${esc(mis.correction)}`;
+          }
+        }
+        // 掌握度下降
+        updateMastery(item.dataset.concept, -0.15);
+      } else {
+        updateMastery(item.dataset.concept, +0.15);
+      }
       const ch = q.chapterId||'__all__';
       if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
       state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
@@ -230,7 +411,222 @@ function initQuizzes(rid){
   });
 }
 
+/* ---------- 知识图谱（vis-network） ---------- */
+let networkLoaded = false;
+function loadVisNetwork(cb){
+  if(networkLoaded){ cb(); return; }
+  const urls = [
+    'https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.js',
+    'https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js',
+    'https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js'
+  ];
+  let i = 0;
+  const tryNext = () => {
+    if(i >= urls.length) return;
+    const s = document.createElement('script');
+    s.src = urls[i++];
+    s.onload = () => { networkLoaded = true; cb(); };
+    s.onerror = () => { s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
+}
+function initGraph(){
+  const container = document.getElementById('graph-container');
+  if(!container) return;
+  loadVisNetwork(() => {
+    if(typeof vis === 'undefined'){ container.innerHTML = '<p class="empty">图谱库加载失败，请联网后刷新</p>'; return; }
+    const concepts = manifest.concepts || [];
+    const chapters = manifest.chapters || [];
+    const nodes = [];
+    const edges = [];
+    concepts.forEach(c => {
+      const mastery = Math.round(getMastery(c.id)*100);
+      nodes.push({
+        id: 'c_' + c.id,
+        label: c.title || c.id,
+        title: (c.title||c.id) + '（掌握度 ' + mastery + '%）',
+        color: mastery > 70 ? '#86efac' : mastery > 40 ? '#fde68a' : '#fca5a5',
+        shape: 'dot',
+        size: mastery > 70 ? 20 : 14,
+        font: { size: 13 }
+      });
+    });
+    chapters.forEach(ch => {
+      nodes.push({
+        id: 'ch_' + ch.id,
+        label: ch.title || ch.id,
+        shape: 'box',
+        color: '#93c5fd',
+        font: { size: 12 }
+      });
+    });
+    // 前置边
+    concepts.forEach(c => {
+      (c.prerequisites || []).forEach(p => {
+        const pid = typeof p === 'string' ? p : p.id;
+        const ptype = typeof p === 'string' ? 'hard' : (p.type || 'hard');
+        const from = (pid.startsWith('ch') ? 'ch_' : 'c_') + pid;
+        const to = 'c_' + c.id;
+        if(nodes.find(n => n.id === from)){
+          edges.push({
+            from: from, to: to,
+            color: { color: ptype === 'hard' ? '#dc2626' : ptype === 'soft' ? '#9ca3af' : '#3b82f6' },
+            arrows: 'to',
+            width: ptype === 'hard' ? 2 : 1,
+            dashes: ptype !== 'hard'
+          });
+        }
+      });
+    });
+    const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+    const options = {
+      physics: { stabilization: true, barnesHut: { gravitationalConstant: -3000 } },
+      interaction: { hover: true, tooltipDelay: 200 }
+    };
+    const net = new vis.Network(container, data, options);
+    net.on('click', params => {
+      if(params.nodes.length > 0){
+        const nid = params.nodes[0];
+        if(nid.startsWith('c_')) location.hash = '#/concept/' + nid.slice(2);
+        else if(nid.startsWith('ch_')) location.hash = '#/chapter/' + nid.slice(3);
+      }
+    });
+  });
+}
+
+/* ---------- 诊断模式 ---------- */
+let diagQueue = [], diagIdx = 0, diagWrong = [];
+function initDiagnosis(){
+  const startBtn = $('#diag-start');
+  if(!startBtn || startBtn.dataset.inited) return;
+  startBtn.dataset.inited='1';
+  startBtn.addEventListener('click', ()=>{
+    const all = (manifest.quizzes||[]).slice();
+    // 随机抽 5 题（不够就全抽）
+    for(let i = all.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+    diagQueue = all.slice(0, Math.min(5, all.length));
+    diagIdx = 0; diagWrong = [];
+    showDiagQuestion();
+  });
+}
+function showDiagQuestion(){
+  const stage = $('#diag-stage');
+  const result = $('#diag-result');
+  result.innerHTML = '';
+  if(diagIdx >= diagQueue.length){ finishDiagnosis(); return; }
+  const q = diagQueue[diagIdx];
+  $('#diag-progress').textContent = `第 ${diagIdx+1} / ${diagQueue.length} 题`;
+  const fakeItem = document.createElement('div');
+  fakeItem.innerHTML = _renderQuizHTML(q, diagIdx+1);
+  stage.innerHTML = fakeItem.innerHTML;
+  // 绑定检查按钮
+  const item = stage.querySelector('.quiz-item');
+  const btn = item.querySelector('.quiz-check');
+  btn.addEventListener('click', ()=>{
+    const type = item.dataset.type;
+    let user, correct=false;
+    if(type==='single'){
+      const sel = item.querySelector('input:checked');
+      user = sel? parseInt(sel.value) : null;
+      correct = user===q.answer;
+    } else if(type==='multi'){
+      user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+      const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+      correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+    } else if(type==='blank'){
+      const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+      correct = v===String(q.answer).trim().toLowerCase();
+    }
+    if(!correct){
+      diagWrong.push(q);
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      if(chain.length > 1){
+        const links = chain.slice(1).map(({node,kind})=>{
+          const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+          return `<div class="diag-remedy-item">建议先学：<a href="${href}">${esc(node.title||node.id)}</a></div>`;
+        }).join('');
+        $('#diag-result').innerHTML = '<h3>这道题答错了，可能的根因：</h3>' + links +
+          '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      } else {
+        $('#diag-result').innerHTML = '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      }
+    } else {
+      $('#diag-result').innerHTML = '<p>✓ 正确。<button id="diag-next" class="quiz-check">下一题 →</button></p>';
+    }
+    $('#diag-next').addEventListener('click', ()=>{ diagIdx++; showDiagQuestion(); });
+  });
+}
+function _renderQuizHTML(q, idx){
+  // 复用服务端渲染的 quiz HTML 结构
+  const qtype = q.type||'single';
+  const qid = q.id||('diag'+idx);
+  let html = `<div class='quiz-item' data-qid='${qid}' data-type='${qtype}' data-concept='${esc(q.relatedConceptId||"")}' data-chapter='${esc(q.chapterId||"")}'>`;
+  html += `<p class='quiz-q'><b>Q${idx}.</b> ${esc(q.question||"")}</p>`;
+  if(qtype==='single'||qtype==='multi'){
+    const it = qtype==='single'?'radio':'checkbox';
+    html += "<div class='quiz-opts'>";
+    (q.options||[]).forEach((o,i)=>{ html += `<label class='quiz-opt'><input type='${it}' name='${qid}' value='${i}'> ${esc(String(o))}</label>`; });
+    html += '</div>';
+  } else {
+    html += `<input class='quiz-blank' type='text' placeholder='填写答案'>`;
+  }
+  html += `<div class='quiz-actions'><button class='quiz-check'>检查答案</button><span class='quiz-feedback'></span></div></div>`;
+  return html;
+}
+function finishDiagnosis(){
+  const total = diagQueue.length;
+  const wrong = diagWrong.length;
+  const right = total - wrong;
+  let html = `<h2>诊断完成：${right}/${total} 正确</h2>`;
+  if(wrong === 0){
+    html += '<p>🎉 这组题全对，可以继续往下学。</p>';
+  } else {
+    html += `<p>有 ${wrong} 道题答错。下面是按依赖链回溯的补强建议：</p>`;
+    const seen = new Set();
+    diagWrong.forEach(q=>{
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      chain.slice(1).forEach(({node,kind})=>{
+        if(seen.has(node.id)) return;
+        seen.add(node.id);
+        const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+        html += `<div class="diag-remedy-item">📚 <a href="${href}">${esc(node.title||node.id)}</a></div>`;
+      });
+    });
+  }
+  html += '<p><button id="diag-restart" class="quiz-check">重新诊断</button></p>';
+  $('#diag-stage').innerHTML = '';
+  $('#diag-progress').textContent = '';
+  $('#diag-result').innerHTML = html;
+  $('#diag-restart').addEventListener('click', ()=>{
+    $('#diag-start').click();
+  });
+}
+
+/* ---------- 掌握度（简化 BKT） ---------- */
+function getMastery(cid){
+  if(!cid) return 0.5;
+  const m = (state.mastery||{})[cid];
+  return m !== undefined ? m : 0.3;
+}
+function updateMastery(cid, delta){
+  if(!cid) return;
+  if(!state.mastery) state.mastery = {};
+  const cur = state.mastery[cid] !== undefined ? state.mastery[cid] : 0.3;
+  state.mastery[cid] = Math.max(0, Math.min(1, cur + delta));
+  store.set('mastery', state.mastery);
+}
+function masteryBar(cid){
+  const v = Math.round(getMastery(cid)*100);
+  return `<div class="mastery-bar"><div style="width:${v}%"></div></div><span class="mastery-label">掌握度 ${v}%</span>`;
+}
+
 /* ---------- 抽认卡 ---------- */
+function sup(t){
+  return String(t==null?'':t).replace(/[&<>]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))
+    .replace(/\^(?:\{([^{}]+)\}|\(([^()]*)\)|([-+]?[A-Za-z0-9.]+))/g,
+      (m,a,b,c)=>'<sup>'+(a||b||c||'')+'</sup>');
+}
 let cardIdx = 0, cardList = [];
 function initCards(){
   const cards = manifest.flashcards||[];
@@ -251,8 +647,8 @@ function showCard(){
   updateCardCounts();
   if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
   const c = cardList[cardIdx];
-  document.querySelector('.fc-front').textContent = c.front;
-  document.querySelector('.fc-back').textContent = c.back;
+  document.querySelector('.fc-front').innerHTML = sup(c.front);
+  document.querySelector('.fc-back').innerHTML = sup(c.back);
   $('#flashcard').classList.remove('flip');
 }
 function markCard(known){
@@ -279,7 +675,7 @@ function initGlossary(){
   input.dataset.inited='1';
   input.oninput = ()=>{
     const v = input.value.trim().toLowerCase();
-    document.querySelectorAll('#glossary-list li').forEach(li=>{
+    $$('#glossary-list li').forEach(li=>{
       li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
     });
   };
@@ -308,12 +704,10 @@ $('#q').addEventListener('input', e=>{
                  : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
 });
 
-/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+/* ---------- Mermaid 懒加载 ---------- */
 function renderMermaid(){
   if(!document.querySelector('.mermaid')) return;
-  const s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-  s.onload=()=>{ try{
+  const boot=()=>{ try{
     mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
     document.querySelectorAll('.mermaid').forEach(el=>{
       const code=el.textContent;
@@ -322,7 +716,19 @@ function renderMermaid(){
         .catch(()=>{ el.textContent=code; });
     });
   }catch(e){} };
-  document.head.appendChild(s);
+  const urls=['https://registry.npmmirror.com/mermaid/10/files/dist/mermaid.min.js',
+              'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js',
+              'https://unpkg.com/mermaid@10/dist/mermaid.min.js'];
+  let ui=0;
+  const tryNext=()=>{
+    if(ui>=urls.length) return;
+    const s=document.createElement('script');
+    s.src=urls[ui++];
+    s.onload=boot;
+    s.onerror=()=>{ s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
 }
 
 /* ---------- 深色模式 ---------- */

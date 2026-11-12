@@ -50,25 +50,57 @@
    "id": "ch01",
    "title": "第 1 章：有理分式的概念与运算",
    "file": "chapters/ch01-rational-expression.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-04-分式与根式 周锦辉 黄久征 孔馨逸.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "整式、因式分解",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：分式方程与同解原理",
    "file": "chapters/ch02-fractional-equation.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-04-分式与根式 周锦辉 黄久征 孔馨逸.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：部分分式",
    "file": "chapters/ch03-partial-fraction.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-04-分式与根式 周锦辉 黄久征 孔馨逸.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "待定系数法",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "ch04",
    "title": "第 4 章：根式与算术根",
    "file": "chapters/ch04-radical.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-04-分式与根式 周锦辉 黄久征 孔馨逸.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "开方、绝对值",
+   "depthFragment": "chapters/ch04-depth.md",
+   "prerequisites": []
   }
  ],
  "concepts": [
@@ -80,6 +112,15 @@
     "ch01",
     "ch02",
     "ch04"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-04-分式与根式 周锦辉 黄久征 孔馨逸.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch02",
+    "ch04"
    ]
   },
   {
@@ -87,6 +128,13 @@
    "title": "部分分式分解",
    "file": "concepts/c02-partial-fraction-concept.md",
    "chapterIds": [
+    "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-04-分式与根式 周锦辉 黄久征 孔馨逸.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch03"
    ]
   }
@@ -157,7 +205,11 @@
     "x≠0"
    ],
    "answer": 2,
-   "explain": "分母 x²−9=(x−3)(x+3)，要求 x≠3 且 x≠−3。"
+   "explain": "分母 x²−9=(x−3)(x+3)，要求 x≠3 且 x≠−3。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -171,7 +223,11 @@
     "(x+1)/x"
    ],
    "answer": 0,
-   "explain": "分子 (x−1)(x+1)，分母 x(x+1)，约去 (x+1) 得 (x−1)/x（x≠0，x≠−1）。"
+   "explain": "分子 (x−1)(x+1)，分母 x(x+1)，约去 (x+1) 得 (x−1)/x（x≠0，x≠−1）。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -185,7 +241,11 @@
     "没有通分"
    ],
    "answer": 1,
-   "explain": "乘以含未知数的式子会把原定义域外的点带入等式，使不满足原方程的值成为候选解。"
+   "explain": "乘以含未知数的式子会把原定义域外的点带入等式，使不满足原方程的值成为候选解。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -199,7 +259,11 @@
     "任意实数"
    ],
    "answer": 1,
-   "explain": "分式的值为零要求分子为零且分母不为零；这里分子恒为 1，故无解。"
+   "explain": "分式的值为零要求分子为零且分母不为零；这里分子恒为 1，故无解。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -213,7 +277,11 @@
     "无法判断"
    ],
    "answer": 1,
-   "explain": "分子次数 2 不低于分母次数 1，是假分式，需先做除法。"
+   "explain": "分子次数 2 不低于分母次数 1，是假分式，需先做除法。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -227,7 +295,11 @@
     "A/[(x−1)(x−2)]"
    ],
    "answer": 0,
-   "explain": "分母是两个不同的一次因式，各对应一个常数分子的一次分式。"
+   "explain": "分母是两个不同的一次因式，各对应一个常数分子的一次分式。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -241,7 +313,11 @@
     "x+2"
    ],
    "answer": 1,
-   "explain": "被开方数是 (x−2)²，开方得绝对值 |x−2|，符号随 x 变化。"
+   "explain": "被开方数是 (x−2)²，开方得绝对值 |x−2|，符号随 x 变化。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch04"
+   ]
   },
   {
    "id": "q08",
@@ -255,7 +331,11 @@
     "(√5−2)/9"
    ],
    "answer": 0,
-   "explain": "分子分母同乘 (√5+2)：分母 (√5)²−2²=5−4=1，所以结果为 √5+2。"
+   "explain": "分子分母同乘 (√5+2)：分母 (√5)²−2²=5−4=1，所以结果为 √5+2。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch04"
+   ]
   },
   {
    "id": "q09",
@@ -269,7 +349,11 @@
     "x=±1"
    ],
    "answer": 2,
-   "explain": "约分后 x+1=2 得 x=1，但 x=1 使原分母为零，是增根；原方程无解。"
+   "explain": "约分后 x+1=2 得 x=1，但 x=1 使原分母为零，是增根；原方程无解。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q10",
@@ -283,7 +367,11 @@
     "√3"
    ],
    "answer": 0,
-   "explain": "√12=2√3，√27=3√3，合并得 2√3+3√3−√3=4√3。"
+   "explain": "√12=2√3，√27=3√3，合并得 2√3+3√3−√3=4√3。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

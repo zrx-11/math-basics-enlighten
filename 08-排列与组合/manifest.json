@@ -42,19 +42,44 @@
    "id": "ch01",
    "title": "第 1 章：两条原理与排列",
    "file": "chapters/ch01-principles-permutation.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "乘法、阶乘",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：组合与组合数",
    "file": "chapters/ch02-combination.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：可重复排列与分组分配",
    "file": "chapters/ch03-repeat-grouping.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -65,6 +90,14 @@
    "chapterIds": [
     "ch01",
     "ch02"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch02"
    ]
   },
   {
@@ -72,6 +105,13 @@
    "title": "先分组后分配",
    "file": "concepts/c02-group-then-assign.md",
    "chapterIds": [
+    "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-08-排列与组合 吴世煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch03"
    ]
   }
@@ -142,7 +182,11 @@
     "15"
    ],
    "answer": 1,
-   "explain": "A(5,3)=5×4×3=60。"
+   "explain": "A(5,3)=5×4×3=60。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -156,7 +200,11 @@
     "4"
    ],
    "answer": 1,
-   "explain": "分两步，用乘法原理：3×4=12。"
+   "explain": "分两步，用乘法原理：3×4=12。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -170,7 +218,11 @@
     "36"
    ],
    "answer": 1,
-   "explain": "不分顺序，C(6,2)=15。"
+   "explain": "不分顺序，C(6,2)=15。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -184,7 +236,11 @@
     "90"
    ],
    "answer": 0,
-   "explain": "C(10,3)=10×9×8/6=120。"
+   "explain": "C(10,3)=10×9×8/6=120。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -198,7 +254,11 @@
     "81"
    ],
    "answer": 2,
-   "explain": "每一位都有 3 种选择：3³=27。"
+   "explain": "每一位都有 3 种选择：3³=27。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -212,7 +272,11 @@
     "20"
    ],
    "answer": 1,
-   "explain": "C(6,2)C(4,2)C(2,2)/3!=15×6×1/6=15。"
+   "explain": "C(6,2)C(4,2)C(2,2)/3!=15×6×1/6=15。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -226,7 +290,11 @@
     "21"
    ],
    "answer": 1,
-   "explain": "有序，A(7,3)=7×6×5=210。"
+   "explain": "有序，A(7,3)=7×6×5=210。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -240,7 +308,11 @@
     "4"
    ],
    "answer": 1,
-   "explain": "C(4,2)C(2,2)/2!=3，两堆无标号要除以 2!。"
+   "explain": "C(4,2)C(2,2)/2!=3，两堆无标号要除以 2!。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

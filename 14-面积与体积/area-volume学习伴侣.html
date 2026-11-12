@@ -3,17 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
 <title>面积与体积</title>
+<link rel="stylesheet" href="https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/picocss/2.0.6/dist/css/pico.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.css">
 <style>
 :root{
   --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
   --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
   --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+  --depth-bg:#fef9c3; --depth-border:#ca8a04;
 }
 [data-theme="dark"]{
   --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
   --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
   --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+  --depth-bg:#2a2410; --depth-border:#a16207;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -33,7 +39,7 @@ a:hover{text-decoration:underline}
 .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .nav-item .done{float:right;color:var(--ok);font-size:12px}
 #nav-toggle{display:none}
-.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px;margin:0 auto}
 .page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
 .page h2{font-size:20px;margin-top:26px}
 .page h3{font-size:17px;margin-top:22px}
@@ -49,6 +55,37 @@ a:hover{text-decoration:underline}
 .mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
 .mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
 svg{max-width:100%;height:auto}
+/* 出处脚注 */
+.source-badge{font-size:12px;color:var(--muted);background:var(--code-bg);padding:4px 10px;border-radius:6px;margin:0 0 12px;display:inline-block}
+/* 前置知识条 */
+.prereq-bar{font-size:13px;color:var(--muted);border-left:3px solid var(--accent);padding:4px 10px;margin:0 0 12px;background:var(--accent-soft)}
+.prereq-hard a{color:var(--bad);font-weight:600}
+.prereq-soft a{color:var(--muted)}
+.prereq-rec a{color:var(--accent)}
+.prereq-tag{display:inline-block;font-size:10px;padding:0 4px;border-radius:3px;margin-right:2px;vertical-align:middle}
+.prereq-hard .prereq-tag{background:var(--bad);color:#fff}
+.prereq-soft .prereq-tag{background:var(--muted);color:#fff}
+.prereq-rec .prereq-tag{background:var(--accent);color:#fff}
+/* 误解卡片 */
+.misconception-card{margin-top:10px;padding:10px 14px;border-left:4px solid var(--bad);background:#fef2f2;border-radius:0 8px 8px 0;font-size:13px}
+.misconception-card b{color:var(--bad)}
+[data-theme="dark"] .misconception-card{background:#2a1215}
+/* 掌握度条 */
+.mastery-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:4px 0}
+.mastery-bar>div{height:100%;background:var(--ok);transition:width .3s}
+.mastery-label{font-size:11px;color:var(--muted)}
+/* 深度推导片段 */
+.depth-fragment{margin:18px 0;border:1px solid var(--depth-border);border-radius:10px;background:var(--depth-bg);overflow:hidden}
+.depth-fragment>summary{padding:10px 14px;cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+.depth-fragment>summary:hover{filter:brightness(.95)}
+.depth-body{padding:14px 18px;border-top:1px dashed var(--depth-border);background:var(--panel)}
+.depth-missing{color:var(--bad);font-size:13px;padding:8px;background:var(--code-bg);border-radius:6px}
+/* KaTeX */
+sup{font-size:.72em;line-height:0;vertical-align:super}
+.katex-inline{font-size:1.05em}
+.katex-block{overflow-x:auto;padding:8px 0;text-align:center}
+.katex-block .katex{font-size:1.1em}
+/* 测验 */
 .quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
 .quiz-q{margin:0 0 8px;font-weight:500}
 .quiz-opts label{display:block;padding:4px 0;cursor:pointer}
@@ -57,6 +94,8 @@ svg{max-width:100%;height:auto}
 .quiz-feedback{margin-left:12px;font-size:13px}
 .fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
 .quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.quiz-remedy{margin-top:8px;padding:8px 12px;background:var(--accent-soft);border-radius:6px;font-size:13px}
+/* 抽认卡 */
 .flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
 .fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
 .flashcard.flip .fc-inner{transform:rotateY(180deg)}
@@ -80,11 +119,26 @@ svg{max-width:100%;height:auto}
 #progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
 #progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
 .empty{color:var(--muted);padding:20px 0}
-@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+/* 诊断 */
+.diag-controls{margin:14px 0;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+#diag-start{padding:8px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer;font-size:14px}
+#diag-progress{margin-left:12px;color:var(--muted);font-size:13px}
+#diag-stage .quiz-item{margin:10px 0}
+#diag-result{margin-top:16px;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+.diag-remedy-item{padding:10px;margin:8px 0;background:var(--accent-soft);border-radius:8px;font-size:14px}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls,.diag-controls{display:none!important}.main{max-width:none;padding:0}}
 @media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
-  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav{display:none;max-height:46vh;overflow-y:auto;overscroll-behavior:contain}.sidebar.open #nav{display:block}
+  .nav-item{padding:9px 10px}
+  #q,#glossary-filter{font-size:16px}
+  .quiz-opts label{padding:8px 0;min-height:30px}
+  .quiz-check{padding:10px 18px;min-height:40px}
+  #diag-start{min-height:40px}
+  .card-actions button{min-height:40px}
   #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
-  .layout{flex-direction:column}.main{padding:16px}}
+  .layout{flex-direction:column}.main{padding:20px 18px 64px;max-width:none;width:100%}
+  .page{overflow-wrap:anywhere}.page table{display:block;overflow-x:auto;max-width:100%}
+  .page h1,.page h2,.page h3{line-height:1.35}}
 </style>
 </head>
 <body>
@@ -103,17 +157,18 @@ svg{max-width:100%;height:auto}
   </main>
 </div>
 <script>
-const DATA = {"manifest": {"slug": "area-volume", "title": "面积与体积", "subtitle": "量的几何：从割补到辛普森公式", "book": {"title": "面积与体积", "author": "吕林根", "source": ["数学基础知识丛书-14-面积与体积 吕林根.pdf"]}, "audience": "零基础", "goal": "掌握常见平面图形面积公式的来源，会算圆与扇形，理解柱、锥、台、球的体积公式并用辛普森公式统一处理。", "learningPath": [{"step": "01", "title": "平面图形的面积", "chapterIds": ["ch01"], "checkpoint": "能用割补法求不规则图形面积"}, {"step": "02", "title": "圆、扇形与曲线形面积", "chapterIds": ["ch02"], "checkpoint": "能用极限思想说明圆面积公式"}, {"step": "03", "title": "立体图形的体积", "chapterIds": ["ch03"], "checkpoint": "能用辛普森公式统一求柱锥台球"}], "chapters": [{"id": "ch01", "title": "第 1 章：平面图形的面积", "file": "chapters/ch01-plane-area.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：圆、扇形与曲线形面积", "file": "chapters/ch02-circle-area.md", "difficulty": 3}, {"id": "ch03", "title": "第 3 章：立体图形的体积", "file": "chapters/ch03-solid-volume.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "割补与极限", "file": "concepts/c01-dissection-limit.md", "chapterIds": ["ch01", "ch02"]}, {"id": "c02", "title": "统一公式", "file": "concepts/c02-unified-formula.md", "chapterIds": ["ch03"]}], "glossary": [{"term": "面积", "def": "图形包含的单位正方形个数。", "chapterId": "ch01"}, {"term": "割补法", "def": "剪切重拼求面积的方法。", "chapterId": "ch01"}, {"term": "等积变形", "def": "形状改变而面积不变的变形。", "chapterId": "ch01"}, {"term": "圆周率", "def": "圆周长与直径之比 π。", "chapterId": "ch02"}, {"term": "扇形", "def": "两条半径与一段弧围成的图形。", "chapterId": "ch02"}, {"term": "弓形", "def": "弦与弧围成的图形。", "chapterId": "ch02"}, {"term": "祖暅原理", "def": "等高处截面积相等的两个立体体积相等。", "chapterId": "ch03"}, {"term": "辛普森公式", "def": "V=(h/6)(S顶+4S中+S底)。", "chapterId": "ch03"}, {"term": "台体", "def": "锥体被平行于底面的平面截去上部后的部分。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "三角形底为 8、高为 5，面积是：", "options": ["40", "20", "13", "10"], "answer": 1, "explain": "S=8×5/2=20。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "把一个图形按 1:3 放大，面积变为原来的：", "options": ["3 倍", "6 倍", "9 倍", "1/3"], "answer": 2, "explain": "面积比是相似比的平方，3²=9。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "半径为 3 的圆，面积是：", "options": ["6π", "9π", "3π", "12π"], "answer": 1, "explain": "S=πr²=9π。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "半径为 4、圆心角为 90° 的扇形面积是：", "options": ["4π", "8π", "2π", "16π"], "answer": 0, "explain": "90°=π/2，S=(1/2)×16×π/2=4π。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "圆锥底面半径 3、高 4，体积是：", "options": ["12π", "36π", "16π", "4π"], "answer": 0, "explain": "V=(1/3)π×9×4=12π。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "半径为 3 的球的体积是：", "options": ["12π", "36π", "27π", "9π"], "answer": 1, "explain": "V=(4/3)π×27=36π。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "圆柱底面半径 2、高 6，体积是：", "options": ["24π", "12π", "8π", "36π"], "answer": 0, "explain": "V=π×4×6=24π。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "用辛普森公式求半径为 r 的球体积，代入 S顶=S底=0、S中=πr²，得到：", "options": ["(2/3)πr³", "(4/3)πr³", "πr³", "(1/3)πr³"], "answer": 1, "explain": "V=(2r/6)(0+4πr²+0)=(4/3)πr³，与球体积公式一致。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：平面图形的面积」的一句话核心是什么？", "back": "所有直线图形的面积公式都从“矩形面积＝长×宽”出发，靠割补推出来。", "tags": ["area-volume", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：圆、扇形与曲线形面积」的一句话核心是什么？", "back": "圆面积是把圆切成无数个小扇形拼成矩形得到的：S=πr²，周长 C=2πr。", "tags": ["area-volume", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：立体图形的体积」的一句话核心是什么？", "back": "柱是“底面积乘高”，锥是柱的三分之一，台是两锥相减，球是 4πr³/3；辛普森公式把它们合成一条。", "tags": ["area-volume", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「面积」？", "back": "图形包含的单位正方形个数。", "tags": ["area-volume", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「割补法」？", "back": "剪切重拼求面积的方法。", "tags": ["area-volume", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「等积变形」？", "back": "形状改变而面积不变的变形。", "tags": ["area-volume", "术语"]}, {"id": "f07", "chapterId": "ch02", "front": "什么是「圆周率」？", "back": "圆周长与直径之比 π。", "tags": ["area-volume", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「扇形」？", "back": "两条半径与一段弧围成的图形。", "tags": ["area-volume", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「弓形」？", "back": "弦与弧围成的图形。", "tags": ["area-volume", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「祖暅原理」？", "back": "等高处截面积相等的两个立体体积相等。", "tags": ["area-volume", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「辛普森公式」？", "back": "V=(h/6)(S顶+4S中+S底)。", "tags": ["area-volume", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「台体」？", "back": "锥体被平行于底面的平面截去上部后的部分。", "tags": ["area-volume", "术语"]}], "companion": "area-volume学习伴侣.html", "deriv": "area-volume从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：平面图形的面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：长度、相似\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由矩形面积推出三角形、平行四边形、梯形公式\n<\/li><li>\n用割补法求组合图形面积\n<\/li><li>\n理解等积变形的原理\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>所有直线图形的面积公式都从“矩形面积＝长×宽”出发，靠割补推出来。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 面积的起点<\/h3>\n<p>规定单位正方形的面积为 1，任何图形的面积就是它包含多少个单位面积。这是度量的定义，不是公式。<\/p>\n<h3>1.2 由矩形推出其他公式<\/h3>\n<ul><li>\n平行四边形：沿高剪下三角形平移到另一侧，拼成矩形，故 S=底×高；\n<\/li><li>\n三角形：两个全等三角形拼成平行四边形，故 S=底×高/2；\n<\/li><li>\n梯形：两个全等梯形拼成平行四边形，底为 (a+b)，故 S=(a+b)h/2。\n<\/ul>\n<p>每个公式都能用“拼”或“剪”验证，不必死记。<\/p>\n<h3>1.3 割补与等积变形<\/h3>\n<p>把不规则图形切成若干块，重新拼成规则图形，面积不变。常见技巧：补形成矩形再减去多余部分；把弓形补成扇形减三角形。<\/p>\n<h3>1.4 相似与面积比<\/h3>\n<p>相似比为 k 的两个图形，面积比为 k²。这条结论在处理“放大缩小”问题时最常用。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：割补像拼七巧板，块数不变、形状变了，总面积不变。<\/p>\n<p><strong>失效边界<\/strong>：割补只适用于能有限次剪拼的图形；曲线围成的图形需要极限思想。<\/p>\n<p><strong>实例<\/strong>：梯形上底 3、下底 7、高 4，面积 (3+7)×4/2=20。 三角形底 6、高 5，面积 15；若把它按 1:2 放大，面积变为 15×4=60。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 面积公式需要背很多条 —— 实际上 除矩形外都能由割补推出，理解一条就够用。\n<\/li><li>\n别以为 周长大的图形面积一定大 —— 实际上 两者没有必然联系，细长的长方形可能周长很大而面积很小。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n三角形底为 8、高为 5，面积是：\n<\/li><li>\n把一个图形按 1:3 放大，面积变为原来的：\n<p>A. 40 ｜ B. 20 ｜ C. 13 ｜ D. 10 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：S=8×5/2=20。 A. 3 倍 ｜ B. 6 倍 ｜ C. 9 倍 ｜ D. 1/3 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：面积比是相似比的平方，3²=9。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n面积从单位正方形定义出发\n<\/li><li>\n三角形、平行四边形、梯形都由矩形割补而来\n<\/li><li>\n相似比 k ⇒ 面积比 k²\n<\/ul>", "kind": "chapter", "title": "第 1 章：平面图形的面积"}, "ch02": {"html": "<h1>第 2 章：圆、扇形与曲线形面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01、圆周率\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明圆面积公式的极限来源\n<\/li><li>\n计算扇形、弓形面积\n<\/li><li>\n区分弧长与面积两类公式\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>圆面积是把圆切成无数个小扇形拼成矩形得到的：S=πr²，周长 C=2πr。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 圆周率与周长<\/h3>\n<p>圆的周长与直径之比是常数 π≈3.1416，故 C=2πr。<\/p>\n<h3>2.2 圆面积的极限推导<\/h3>\n<p>把圆分成 n 个全等的小扇形，交错拼成一个近似平行四边形：底近似为半个圆周（πr），高近似为半径 r。n 越大越接近矩形，故 S=πr·r=πr²。<\/p>\n<p>这就是“化圆为方”的极限思想，也是后面微积分里“以直代曲”的雏形。<\/p>\n<h3>2.3 扇形<\/h3>\n<p>圆心角为 θ（弧度）的扇形：弧长 l=rθ，面积 S=(1/2)lr=(1/2)r²θ。<\/p>\n<p>用角度制时 θ 要换成弧度；360°＝2π 弧度，故整圆面积 (1/2)r²·2π=πr²，与上式一致。<\/p>\n<h3>2.4 弓形<\/h3>\n<p>弓形＝扇形 − 三角形。先算扇形面积，再减去由两条半径与弦围成的三角形面积。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：把圆切成很多细长的扇形，像切西瓜，交错摆放就接近一个长方形。<\/p>\n<p><strong>失效边界<\/strong>：有限次切割只能得到近似值；“等于”要靠 n 趋于无穷的极限。<\/p>\n<p><strong>实例<\/strong>：半径 6、圆心角 60°（π/3 弧度）的扇形：弧长 6×π/3=2π，面积 (1/2)×36×π/3=6π。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 圆面积公式可以直接背，不必理解 —— 实际上 它是极限的结果；不理解来源，遇到扇形、弓形就容易套错系数。\n<\/li><li>\n别以为 扇形面积等于弧长乘半径 —— 实际上 差一个 1/2：S=(1/2)lr，漏掉系数会算成两倍。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n半径为 3 的圆，面积是：\n<\/li><li>\n半径为 4、圆心角为 90° 的扇形面积是：\n<p>A. 6π ｜ B. 9π ｜ C. 3π ｜ D. 12π <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：S=πr²=9π。 A. 4π ｜ B. 8π ｜ C. 2π ｜ D. 16π <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：90°=π/2，S=(1/2)×16×π/2=4π。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nC=2πr，S=πr²\n<\/li><li>\n扇形：l=rθ，S=(1/2)lr\n<\/li><li>\n弓形＝扇形−三角形\n<\/ul>", "kind": "chapter", "title": "第 2 章：圆、扇形与曲线形面积"}, "ch03": {"html": "<h1>第 3 章：立体图形的体积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用底面积×高求柱体体积\n<\/li><li>\n说明锥体体积为何有 1/3\n<\/li><li>\n用辛普森公式统一求柱锥台球\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>柱是“底面积乘高”，锥是柱的三分之一，台是两锥相减，球是 4πr³/3；辛普森公式把它们合成一条。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 柱体<\/h3>\n<p>棱柱、圆柱的体积 V=S·h（底面积乘高）。直观来源：把柱体切成无数薄片，每片近似为底面积的薄板，叠加即得。<\/p>\n<h3>3.2 锥体<\/h3>\n<p>棱锥、圆锥的体积 V=(1/3)S·h。<\/p>\n<p>为什么是 1/3：三个全等的锥可以拼成一个等底等高的柱（对三棱锥可以严格拼出；一般锥体用极限或祖暅原理证明）。<\/p>\n<h3>3.3 台体<\/h3>\n<p>台体是“大锥减去小锥”：<\/p>\n<p>V=(h/3)(S₁+S₂+√(S₁S₂))<\/p>\n<p>其中 S₁、S₂ 是上下底面积。这个公式对棱台、圆台都成立。<\/p>\n<h3>3.4 球<\/h3>\n<p>球的体积 V=(4/3)πr³，表面积 S=4πr²。<\/p>\n<p>记忆钩子：表面积是 4πr²，体积是表面积乘以 r/3——与“锥体是柱体的 1/3”同源。<\/p>\n<h3>3.5 辛普森公式<\/h3>\n<p>若一个立体在高度 x 处的截面积为 S(x)，且 S(x) 是 x 的二次函数，则<\/p>\n<p>V=(h/6)[S(顶)+4S(中)+S(底)]<\/p>\n<p>柱、锥、台、球都满足这个条件，所以一条公式通吃。这是全书最漂亮的结果。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：柱像一摞同样大小的纸，锥像同样的纸越往上越小，到顶缩成一点。<\/p>\n<p><strong>失效边界<\/strong>：辛普森公式要求截面积是高度的二次函数；截面形状变化不满足这个条件时不能直接用。<\/p>\n<p><strong>实例<\/strong>：圆柱 r=2、h=5：V=π×4×5=20π。 同底等高的圆锥：V=20π/3。 球 r=3：V=(4/3)π×27=36π。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 锥的体积是柱的一半 —— 实际上 是三分之一；把三个同样的锥拼起来才等于一个柱。\n<\/li><li>\n别以为 球体积公式与表面积无关 —— 实际上 V=(r/3)×S，两者通过半径联系，可以互相校验。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n圆锥底面半径 3、高 4，体积是：\n<\/li><li>\n半径为 3 的球的体积是：\n<p>A. 12π ｜ B. 36π ｜ C. 16π ｜ D. 4π <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：V=(1/3)π×9×4=12π。 A. 12π ｜ B. 36π ｜ C. 27π ｜ D. 9π <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：V=(4/3)π×27=36π。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n柱 S·h，锥 S·h/3，台 (h/3)(S₁+S₂+√(S₁S₂))\n<\/li><li>\n球 V=4πr³/3，S=4πr²\n<\/li><li>\n辛普森公式统一柱锥台球\n<\/ul>", "kind": "chapter", "title": "第 3 章：立体图形的体积"}, "c01": {"html": "<h1>割补与极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>能剪拼的用割补，剪不动的用极限。<\/p>\n<h2>为什么重要<\/h2>\n<p>这两条方法覆盖了从三角形到圆的所有面积推导。<\/p>\n<h2>详解<\/h2>\n<p>割补法：有限次剪拼，面积不变，适用于多边形。极限法：把曲边图形切成无穷多小块，用直边近似，取极限得到精确值，适用于圆、扇形等。两者本质都是“化未知为已知”。<\/p>\n<h2>常见误解<\/h2>\n<p>把极限结果当成有限次切割的结果，或认为曲线图形也能精确剪拼。<\/p>\n<h2>相关概念<\/h2>\n<p>平面面积（ch01）、圆面积（ch02）<\/p>", "kind": "concept", "title": "割补与极限"}, "c02": {"html": "<h1>统一公式<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>柱、锥、台、球看似不同，截面积的变化规律却能让同一条公式成立。<\/p>\n<h2>为什么重要<\/h2>\n<p>理解统一性比记四个公式更省力，也是数学里“找结构”的典型例子。<\/p>\n<h2>详解<\/h2>\n<p>辛普森公式 V=(h/6)(S顶+4S中+S底) 对截面积为二次函数的立体精确成立。柱的截面积恒定，锥的截面积按平方递减，球也满足，因此都能代入。<\/p>\n<h2>常见误解<\/h2>\n<p>对任意立体都套辛普森公式；截面形状变化不规则时会得到近似值而非精确值。<\/p>\n<h2>相关概念<\/h2>\n<p>锥体（ch03）、球（ch03）<\/p>", "kind": "concept", "title": "统一公式"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：平面图形的面积<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：平面图形的面积<\/a><br>检查点：能用割补法求不规则图形面积<\/li><li class='path-step' id='path-02'><strong>步骤 02：圆、扇形与曲线形面积<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：圆、扇形与曲线形面积<\/a><br>检查点：能用极限思想说明圆面积公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：立体图形的体积<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：立体图形的体积<\/a><br>检查点：能用辛普森公式统一求柱锥台球<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 圆柱底面半径 2、高 6，体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 24π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 8π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 36π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 用辛普森公式求半径为 r 的球体积，代入 S顶=S底=0、S中=πr²，得到：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> (2/3)πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> (4/3)πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> (1/3)πr³<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：平面图形的面积<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 三角形底为 8、高为 5，面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 40<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 20<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 13<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 10<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 把一个图形按 1:3 放大，面积变为原来的：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 3 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 6 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 9 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 1/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：圆、扇形与曲线形面积<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 半径为 3 的圆，面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 6π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 9π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 3π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 12π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 半径为 4、圆心角为 90° 的扇形面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 4π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 8π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 2π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 16π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：立体图形的体积<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 圆锥底面半径 3、高 4，体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 36π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 16π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 4π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 半径为 3 的球的体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 36π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 27π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 9π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='面积'>面积 — 图形包含的单位正方形个数。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='割补法'>割补法 — 剪切重拼求面积的方法。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='等积变形'>等积变形 — 形状改变而面积不变的变形。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='圆周率'>圆周率 — 圆周长与直径之比 π。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='扇形'>扇形 — 两条半径与一段弧围成的图形。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='弓形'>弓形 — 弦与弧围成的图形。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='祖暅原理'>祖暅原理 — 等高处截面积相等的两个立体体积相等。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><li data-term='辛普森公式'>辛普森公式 — V=(h/6)(S顶+4S中+S底)。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><li data-term='台体'>台体 — 锥体被平行于底面的平面截去上部后的部分。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：求面积三选一<\/h2>\n<p>规则图形套公式；不规则图形割补；曲边图形用极限或积分。<\/p>\n<h2>框架：求体积四步<\/h2>\n<p>① 认形体（柱/锥/台/球）；② 找底面积与高；③ 选公式；④ 检查单位与量纲（体积是三次方）。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>三角形<\/td><td>S=ah/2<\/td><\/tr><tr><td>梯形<\/td><td>S=(a+b)h/2<\/td><\/tr><tr><td>圆<\/td><td>C=2πr，S=πr²<\/td><\/tr><tr><td>扇形<\/td><td>S=(1/2)lr=(1/2)r²θ<\/td><\/tr><tr><td>柱/锥<\/td><td>V=S·h；V=S·h/3<\/td><\/tr><tr><td>台<\/td><td>V=(h/3)(S₁+S₂+√(S₁S₂))<\/td><\/tr><tr><td>球<\/td><td>V=4πr³/3，S=4πr²<\/td><\/tr><tr><td>辛普森<\/td><td>V=(h/6)(S顶+4S中+S底)<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/14-面积与体积", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：平面图形的面积", "href": "#/chapter/ch01"}, {"label": "第 2 章：圆、扇形与曲线形面积", "href": "#/chapter/ch02"}, {"label": "第 3 章：立体图形的体积", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "割补与极限", "href": "#/concept/c01"}, {"label": "统一公式", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：平面图形的面积", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：圆、扇形与曲线形面积", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：立体图形的体积", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：平面图形的面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：长度、相似\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由矩形面积推出三角形、平行四边形、梯形公式\n<\/li><li>\n用割补法求组合图形面积\n<\/li><li>\n理解等积变形的原理\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>所有直线图形的面积公式都从“矩形面积＝长×宽”出发，靠割补推出来。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 面积的起点<\/h3>\n<p>规定单位正方形的面积为 1，任何图形的面积就是它包含多少个单位面积。这是度量的定义，不是公式。<\/p>\n<h3>1.2 由矩形推出其他公式<\/h3>\n<ul><li>\n平行四边形：沿高剪下三角形平移到另一侧，拼成矩形，故 S=底×高；\n<\/li><li>\n三角形：两个全等三角形拼成平行四边形，故 S=底×高/2；\n<\/li><li>\n梯形：两个全等梯形拼成平行四边形，底为 (a+b)，故 S=(a+b)h/2。\n<\/ul>\n<p>每个公式都能用“拼”或“剪”验证，不必死记。<\/p>\n<h3>1.3 割补与等积变形<\/h3>\n<p>把不规则图形切成若干块，重新拼成规则图形，面积不变。常见技巧：补形成矩形再减去多余部分；把弓形补成扇形减三角形。<\/p>\n<h3>1.4 相似与面积比<\/h3>\n<p>相似比为 k 的两个图形，面积比为 k²。这条结论在处理“放大缩小”问题时最常用。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：割补像拼七巧板，块数不变、形状变了，总面积不变。<\/p>\n<p><strong>失效边界<\/strong>：割补只适用于能有限次剪拼的图形；曲线围成的图形需要极限思想。<\/p>\n<p><strong>实例<\/strong>：梯形上底 3、下底 7、高 4，面积 (3+7)×4/2=20。 三角形底 6、高 5，面积 15；若把它按 1:2 放大，面积变为 15×4=60。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 面积公式需要背很多条 —— 实际上 除矩形外都能由割补推出，理解一条就够用。\n<\/li><li>\n别以为 周长大的图形面积一定大 —— 实际上 两者没有必然联系，细长的长方形可能周长很大而面积很小。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n三角形底为 8、高为 5，面积是：\n<\/li><li>\n把一个图形按 1:3 放大，面积变为原来的：\n<p>A. 40 ｜ B. 20 ｜ C. 13 ｜ D. 10 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：S=8×5/2=20。 A. 3 倍 ｜ B. 6 倍 ｜ C. 9 倍 ｜ D. 1/3 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：面积比是相似比的平方，3²=9。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n面积从单位正方形定义出发\n<\/li><li>\n三角形、平行四边形、梯形都由矩形割补而来\n<\/li><li>\n相似比 k ⇒ 面积比 k²\n<\/ul>", "ch02": "<h1>第 2 章：圆、扇形与曲线形面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01、圆周率\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明圆面积公式的极限来源\n<\/li><li>\n计算扇形、弓形面积\n<\/li><li>\n区分弧长与面积两类公式\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>圆面积是把圆切成无数个小扇形拼成矩形得到的：S=πr²，周长 C=2πr。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 圆周率与周长<\/h3>\n<p>圆的周长与直径之比是常数 π≈3.1416，故 C=2πr。<\/p>\n<h3>2.2 圆面积的极限推导<\/h3>\n<p>把圆分成 n 个全等的小扇形，交错拼成一个近似平行四边形：底近似为半个圆周（πr），高近似为半径 r。n 越大越接近矩形，故 S=πr·r=πr²。<\/p>\n<p>这就是“化圆为方”的极限思想，也是后面微积分里“以直代曲”的雏形。<\/p>\n<h3>2.3 扇形<\/h3>\n<p>圆心角为 θ（弧度）的扇形：弧长 l=rθ，面积 S=(1/2)lr=(1/2)r²θ。<\/p>\n<p>用角度制时 θ 要换成弧度；360°＝2π 弧度，故整圆面积 (1/2)r²·2π=πr²，与上式一致。<\/p>\n<h3>2.4 弓形<\/h3>\n<p>弓形＝扇形 − 三角形。先算扇形面积，再减去由两条半径与弦围成的三角形面积。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：把圆切成很多细长的扇形，像切西瓜，交错摆放就接近一个长方形。<\/p>\n<p><strong>失效边界<\/strong>：有限次切割只能得到近似值；“等于”要靠 n 趋于无穷的极限。<\/p>\n<p><strong>实例<\/strong>：半径 6、圆心角 60°（π/3 弧度）的扇形：弧长 6×π/3=2π，面积 (1/2)×36×π/3=6π。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 圆面积公式可以直接背，不必理解 —— 实际上 它是极限的结果；不理解来源，遇到扇形、弓形就容易套错系数。\n<\/li><li>\n别以为 扇形面积等于弧长乘半径 —— 实际上 差一个 1/2：S=(1/2)lr，漏掉系数会算成两倍。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n半径为 3 的圆，面积是：\n<\/li><li>\n半径为 4、圆心角为 90° 的扇形面积是：\n<p>A. 6π ｜ B. 9π ｜ C. 3π ｜ D. 12π <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：S=πr²=9π。 A. 4π ｜ B. 8π ｜ C. 2π ｜ D. 16π <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：90°=π/2，S=(1/2)×16×π/2=4π。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nC=2πr，S=πr²\n<\/li><li>\n扇形：l=rθ，S=(1/2)lr\n<\/li><li>\n弓形＝扇形−三角形\n<\/ul>", "ch03": "<h1>第 3 章：立体图形的体积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用底面积×高求柱体体积\n<\/li><li>\n说明锥体体积为何有 1/3\n<\/li><li>\n用辛普森公式统一求柱锥台球\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>柱是“底面积乘高”，锥是柱的三分之一，台是两锥相减，球是 4πr³/3；辛普森公式把它们合成一条。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 柱体<\/h3>\n<p>棱柱、圆柱的体积 V=S·h（底面积乘高）。直观来源：把柱体切成无数薄片，每片近似为底面积的薄板，叠加即得。<\/p>\n<h3>3.2 锥体<\/h3>\n<p>棱锥、圆锥的体积 V=(1/3)S·h。<\/p>\n<p>为什么是 1/3：三个全等的锥可以拼成一个等底等高的柱（对三棱锥可以严格拼出；一般锥体用极限或祖暅原理证明）。<\/p>\n<h3>3.3 台体<\/h3>\n<p>台体是“大锥减去小锥”：<\/p>\n<p>V=(h/3)(S₁+S₂+√(S₁S₂))<\/p>\n<p>其中 S₁、S₂ 是上下底面积。这个公式对棱台、圆台都成立。<\/p>\n<h3>3.4 球<\/h3>\n<p>球的体积 V=(4/3)πr³，表面积 S=4πr²。<\/p>\n<p>记忆钩子：表面积是 4πr²，体积是表面积乘以 r/3——与“锥体是柱体的 1/3”同源。<\/p>\n<h3>3.5 辛普森公式<\/h3>\n<p>若一个立体在高度 x 处的截面积为 S(x)，且 S(x) 是 x 的二次函数，则<\/p>\n<p>V=(h/6)[S(顶)+4S(中)+S(底)]<\/p>\n<p>柱、锥、台、球都满足这个条件，所以一条公式通吃。这是全书最漂亮的结果。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：柱像一摞同样大小的纸，锥像同样的纸越往上越小，到顶缩成一点。<\/p>\n<p><strong>失效边界<\/strong>：辛普森公式要求截面积是高度的二次函数；截面形状变化不满足这个条件时不能直接用。<\/p>\n<p><strong>实例<\/strong>：圆柱 r=2、h=5：V=π×4×5=20π。 同底等高的圆锥：V=20π/3。 球 r=3：V=(4/3)π×27=36π。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 锥的体积是柱的一半 —— 实际上 是三分之一；把三个同样的锥拼起来才等于一个柱。\n<\/li><li>\n别以为 球体积公式与表面积无关 —— 实际上 V=(r/3)×S，两者通过半径联系，可以互相校验。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n圆锥底面半径 3、高 4，体积是：\n<\/li><li>\n半径为 3 的球的体积是：\n<p>A. 12π ｜ B. 36π ｜ C. 16π ｜ D. 4π <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：V=(1/3)π×9×4=12π。 A. 12π ｜ B. 36π ｜ C. 27π ｜ D. 9π <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：V=(4/3)π×27=36π。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n柱 S·h，锥 S·h/3，台 (h/3)(S₁+S₂+√(S₁S₂))\n<\/li><li>\n球 V=4πr³/3，S=4πr²\n<\/li><li>\n辛普森公式统一柱锥台球\n<\/ul>", "c01": "<h1>割补与极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>能剪拼的用割补，剪不动的用极限。<\/p>\n<h2>为什么重要<\/h2>\n<p>这两条方法覆盖了从三角形到圆的所有面积推导。<\/p>\n<h2>详解<\/h2>\n<p>割补法：有限次剪拼，面积不变，适用于多边形。极限法：把曲边图形切成无穷多小块，用直边近似，取极限得到精确值，适用于圆、扇形等。两者本质都是“化未知为已知”。<\/p>\n<h2>常见误解<\/h2>\n<p>把极限结果当成有限次切割的结果，或认为曲线图形也能精确剪拼。<\/p>\n<h2>相关概念<\/h2>\n<p>平面面积（ch01）、圆面积（ch02）<\/p>", "c02": "<h1>统一公式<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>柱、锥、台、球看似不同，截面积的变化规律却能让同一条公式成立。<\/p>\n<h2>为什么重要<\/h2>\n<p>理解统一性比记四个公式更省力，也是数学里“找结构”的典型例子。<\/p>\n<h2>详解<\/h2>\n<p>辛普森公式 V=(h/6)(S顶+4S中+S底) 对截面积为二次函数的立体精确成立。柱的截面积恒定，锥的截面积按平方递减，球也满足，因此都能代入。<\/p>\n<h2>常见误解<\/h2>\n<p>对任意立体都套辛普森公式；截面形状变化不规则时会得到近似值而非精确值。<\/p>\n<h2>相关概念<\/h2>\n<p>锥体（ch03）、球（ch03）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：平面图形的面积<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：平面图形的面积<\/a><br>检查点：能用割补法求不规则图形面积<\/li><li class='path-step' id='path-02'><strong>步骤 02：圆、扇形与曲线形面积<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：圆、扇形与曲线形面积<\/a><br>检查点：能用极限思想说明圆面积公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：立体图形的体积<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：立体图形的体积<\/a><br>检查点：能用辛普森公式统一求柱锥台球<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 圆柱底面半径 2、高 6，体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 24π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 8π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 36π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 用辛普森公式求半径为 r 的球体积，代入 S顶=S底=0、S中=πr²，得到：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> (2/3)πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> (4/3)πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> (1/3)πr³<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：平面图形的面积<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 三角形底为 8、高为 5，面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 40<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 20<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 13<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 10<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 把一个图形按 1:3 放大，面积变为原来的：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 3 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 6 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 9 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 1/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：圆、扇形与曲线形面积<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 半径为 3 的圆，面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 6π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 9π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 3π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 12π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 半径为 4、圆心角为 90° 的扇形面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 4π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 8π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 2π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 16π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：立体图形的体积<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 圆锥底面半径 3、高 4，体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 36π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 16π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 4π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 半径为 3 的球的体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 36π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 27π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 9π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='面积'>面积 — 图形包含的单位正方形个数。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='割补法'>割补法 — 剪切重拼求面积的方法。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='等积变形'>等积变形 — 形状改变而面积不变的变形。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='圆周率'>圆周率 — 圆周长与直径之比 π。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='扇形'>扇形 — 两条半径与一段弧围成的图形。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='弓形'>弓形 — 弦与弧围成的图形。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='祖暅原理'>祖暅原理 — 等高处截面积相等的两个立体体积相等。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><li data-term='辛普森公式'>辛普森公式 — V=(h/6)(S顶+4S中+S底)。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><li data-term='台体'>台体 — 锥体被平行于底面的平面截去上部后的部分。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：求面积三选一<\/h2>\n<p>规则图形套公式；不规则图形割补；曲边图形用极限或积分。<\/p>\n<h2>框架：求体积四步<\/h2>\n<p>① 认形体（柱/锥/台/球）；② 找底面积与高；③ 选公式；④ 检查单位与量纲（体积是三次方）。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>三角形<\/td><td>S=ah/2<\/td><\/tr><tr><td>梯形<\/td><td>S=(a+b)h/2<\/td><\/tr><tr><td>圆<\/td><td>C=2πr，S=πr²<\/td><\/tr><tr><td>扇形<\/td><td>S=(1/2)lr=(1/2)r²θ<\/td><\/tr><tr><td>柱/锥<\/td><td>V=S·h；V=S·h/3<\/td><\/tr><tr><td>台<\/td><td>V=(h/3)(S₁+S₂+√(S₁S₂))<\/td><\/tr><tr><td>球<\/td><td>V=4πr³/3，S=4πr²<\/td><\/tr><tr><td>辛普森<\/td><td>V=(h/6)(S顶+4S中+S底)<\/td><\/tr><\/tbody><\/table>"}};
+const DATA = {"manifest": {"slug": "area-volume", "title": "面积与体积", "subtitle": "量的几何：从割补到辛普森公式", "book": {"title": "面积与体积", "author": "吕林根", "source": ["数学基础知识丛书-14-面积与体积 吕林根.pdf"]}, "audience": "零基础", "goal": "掌握常见平面图形面积公式的来源，会算圆与扇形，理解柱、锥、台、球的体积公式并用辛普森公式统一处理。", "learningPath": [{"step": "01", "title": "平面图形的面积", "chapterIds": ["ch01"], "checkpoint": "能用割补法求不规则图形面积"}, {"step": "02", "title": "圆、扇形与曲线形面积", "chapterIds": ["ch02"], "checkpoint": "能用极限思想说明圆面积公式"}, {"step": "03", "title": "立体图形的体积", "chapterIds": ["ch03"], "checkpoint": "能用辛普森公式统一求柱锥台球"}], "chapters": [{"id": "ch01", "title": "第 1 章：平面图形的面积", "file": "chapters/ch01-plane-area.md", "difficulty": 2, "source": {"file": "数学基础知识丛书-14-面积与体积 吕林根.pdf", "kind": "原书 PDF"}, "prereqNote": "长度、相似", "depthFragment": "chapters/ch01-depth.md", "prerequisites": []}, {"id": "ch02", "title": "第 2 章：圆、扇形与曲线形面积", "file": "chapters/ch02-circle-area.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-14-面积与体积 吕林根.pdf", "kind": "原书 PDF"}, "prereqNote": "圆周率", "depthFragment": "chapters/ch02-depth.md", "prerequisites": ["ch01"]}, {"id": "ch03", "title": "第 3 章：立体图形的体积", "file": "chapters/ch03-solid-volume.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-14-面积与体积 吕林根.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch03-depth.md", "prerequisites": ["ch02"]}], "concepts": [{"id": "c01", "title": "割补与极限", "file": "concepts/c01-dissection-limit.md", "chapterIds": ["ch01", "ch02"], "source": {"file": "数学基础知识丛书-14-面积与体积 吕林根.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch01", "ch02"]}, {"id": "c02", "title": "统一公式", "file": "concepts/c02-unified-formula.md", "chapterIds": ["ch03"], "source": {"file": "数学基础知识丛书-14-面积与体积 吕林根.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch03"]}], "glossary": [{"term": "面积", "def": "图形包含的单位正方形个数。", "chapterId": "ch01"}, {"term": "割补法", "def": "剪切重拼求面积的方法。", "chapterId": "ch01"}, {"term": "等积变形", "def": "形状改变而面积不变的变形。", "chapterId": "ch01"}, {"term": "圆周率", "def": "圆周长与直径之比 π。", "chapterId": "ch02"}, {"term": "扇形", "def": "两条半径与一段弧围成的图形。", "chapterId": "ch02"}, {"term": "弓形", "def": "弦与弧围成的图形。", "chapterId": "ch02"}, {"term": "祖暅原理", "def": "等高处截面积相等的两个立体体积相等。", "chapterId": "ch03"}, {"term": "辛普森公式", "def": "V=(h/6)(S顶+4S中+S底)。", "chapterId": "ch03"}, {"term": "台体", "def": "锥体被平行于底面的平面截去上部后的部分。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "三角形底为 8、高为 5，面积是：", "options": ["40", "20", "13", "10"], "answer": 1, "explain": "S=8×5/2=20。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "把一个图形按 1:3 放大，面积变为原来的：", "options": ["3 倍", "6 倍", "9 倍", "1/3"], "answer": 2, "explain": "面积比是相似比的平方，3²=9。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "半径为 3 的圆，面积是：", "options": ["6π", "9π", "3π", "12π"], "answer": 1, "explain": "S=πr²=9π。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "半径为 4、圆心角为 90° 的扇形面积是：", "options": ["4π", "8π", "2π", "16π"], "answer": 0, "explain": "90°=π/2，S=(1/2)×16×π/2=4π。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "圆锥底面半径 3、高 4，体积是：", "options": ["12π", "36π", "16π", "4π"], "answer": 0, "explain": "V=(1/3)π×9×4=12π。", "relatedConceptId": "c02", "prerequisites": ["ch03"]}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "半径为 3 的球的体积是：", "options": ["12π", "36π", "27π", "9π"], "answer": 1, "explain": "V=(4/3)π×27=36π。", "relatedConceptId": "c02", "prerequisites": ["ch03"]}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "圆柱底面半径 2、高 6，体积是：", "options": ["24π", "12π", "8π", "36π"], "answer": 0, "explain": "V=π×4×6=24π。", "relatedConceptId": "", "prerequisites": ["__all__"]}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "用辛普森公式求半径为 r 的球体积，代入 S顶=S底=0、S中=πr²，得到：", "options": ["(2/3)πr³", "(4/3)πr³", "πr³", "(1/3)πr³"], "answer": 1, "explain": "V=(2r/6)(0+4πr²+0)=(4/3)πr³，与球体积公式一致。", "relatedConceptId": "", "prerequisites": ["__all__"]}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：平面图形的面积」的一句话核心是什么？", "back": "所有直线图形的面积公式都从“矩形面积＝长×宽”出发，靠割补推出来。", "tags": ["area-volume", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：圆、扇形与曲线形面积」的一句话核心是什么？", "back": "圆面积是把圆切成无数个小扇形拼成矩形得到的：S=πr²，周长 C=2πr。", "tags": ["area-volume", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：立体图形的体积」的一句话核心是什么？", "back": "柱是“底面积乘高”，锥是柱的三分之一，台是两锥相减，球是 4πr³/3；辛普森公式把它们合成一条。", "tags": ["area-volume", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「面积」？", "back": "图形包含的单位正方形个数。", "tags": ["area-volume", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「割补法」？", "back": "剪切重拼求面积的方法。", "tags": ["area-volume", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「等积变形」？", "back": "形状改变而面积不变的变形。", "tags": ["area-volume", "术语"]}, {"id": "f07", "chapterId": "ch02", "front": "什么是「圆周率」？", "back": "圆周长与直径之比 π。", "tags": ["area-volume", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「扇形」？", "back": "两条半径与一段弧围成的图形。", "tags": ["area-volume", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「弓形」？", "back": "弦与弧围成的图形。", "tags": ["area-volume", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「祖暅原理」？", "back": "等高处截面积相等的两个立体体积相等。", "tags": ["area-volume", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「辛普森公式」？", "back": "V=(h/6)(S顶+4S中+S底)。", "tags": ["area-volume", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「台体」？", "back": "锥体被平行于底面的平面截去上部后的部分。", "tags": ["area-volume", "术语"]}], "companion": "area-volume学习伴侣.html", "deriv": "area-volume从零推导.html"}, "pages": {"ch01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">长度、相似<\/span><\/div><h1>第 1 章：平面图形的面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：长度、相似\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由矩形面积推出三角形、平行四边形、梯形公式\n<\/li><li>\n用割补法求组合图形面积\n<\/li><li>\n理解等积变形的原理\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>所有直线图形的面积公式都从“矩形面积＝长×宽”出发，靠割补推出来。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 面积的起点<\/h3>\n<p>规定单位正方形的面积为 1，任何图形的面积就是它包含多少个单位面积。这是度量的定义，不是公式。<\/p>\n<h3>1.2 由矩形推出其他公式<\/h3>\n<ul><li>\n平行四边形：沿高剪下三角形平移到另一侧，拼成矩形，故 S=底×高；\n<\/li><li>\n三角形：两个全等三角形拼成平行四边形，故 S=底×高/2；\n<\/li><li>\n梯形：两个全等梯形拼成平行四边形，底为 (a+b)，故 S=(a+b)h/2。\n<\/ul>\n<p>每个公式都能用“拼”或“剪”验证，不必死记。<\/p>\n<h3>1.3 割补与等积变形<\/h3>\n<p>把不规则图形切成若干块，重新拼成规则图形，面积不变。常见技巧：补形成矩形再减去多余部分；把弓形补成扇形减三角形。<\/p>\n<h3>1.4 相似与面积比<\/h3>\n<p>相似比为 k 的两个图形，面积比为 k²。这条结论在处理“放大缩小”问题时最常用。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：割补像拼七巧板，块数不变、形状变了，总面积不变。<\/p>\n<p><strong>失效边界<\/strong>：割补只适用于能有限次剪拼的图形；曲线围成的图形需要极限思想。<\/p>\n<p><strong>实例<\/strong>：梯形上底 3、下底 7、高 4，面积 (3+7)×4/2=20。 三角形底 6、高 5，面积 15；若把它按 1:2 放大，面积变为 15×4=60。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 面积公式需要背很多条 —— 实际上 除矩形外都能由割补推出，理解一条就够用。\n<\/li><li>\n别以为 周长大的图形面积一定大 —— 实际上 两者没有必然联系，细长的长方形可能周长很大而面积很小。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n三角形底为 8、高为 5，面积是：\n<\/li><li>\n把一个图形按 1:3 放大，面积变为原来的：\n<p>A. 40 ｜ B. 20 ｜ C. 13 ｜ D. 10 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：S=8×5/2=20。 A. 3 倍 ｜ B. 6 倍 ｜ C. 9 倍 ｜ D. 1/3 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：面积比是相似比的平方，3²=9。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n面积从单位正方形定义出发\n<\/li><li>\n三角形、平行四边形、梯形都由矩形割补而来\n<\/li><li>\n相似比 k ⇒ 面积比 k²\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：平面图形的面积）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：平面图形的面积<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>面积公式不是规定，是“剪一剪、拼一拼”的结果。理解了拼法，公式就不会记错。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>图形的面积指它包含的单位正方形个数；等积变形指形状改变而面积不变的变形。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像拼地砖：同样的砖重新排列，铺满的地面大小不变。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 矩形<\/h3>\n<div class=\"katex-block\">S=ab<\/div>\n<p>单位正方形铺满，长宽相乘即块数。<\/p>\n<h3>2. 三角形<\/h3>\n<div class=\"katex-block\">S=\\frac{1}{2}ah<\/div>\n<p>两个全等三角形拼成平行四边形，面积减半。<\/p>\n<h3>3. 梯形<\/h3>\n<div class=\"katex-block\">S=\\frac{(a+b)h}{2}<\/div>\n<p>两个全等梯形拼成底为 a+b 的平行四边形。<\/p>\n<h3>4. 相似缩放<\/h3>\n<div class=\"katex-block\">\\frac{S_{1}}{S_{2}}=k^{2}<\/div>\n<p>长度按 k 缩放，面积按 k² 缩放。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>割补要求剪拼后不重叠、不遗漏；曲线边界需要取极限才能严格成立。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《面积与体积》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 1 章：平面图形的面积"}, "ch02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：平面图形的面积<\/a><\/span><\/div><h1>第 2 章：圆、扇形与曲线形面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01、圆周率\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明圆面积公式的极限来源\n<\/li><li>\n计算扇形、弓形面积\n<\/li><li>\n区分弧长与面积两类公式\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>圆面积是把圆切成无数个小扇形拼成矩形得到的：S=πr²，周长 C=2πr。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 圆周率与周长<\/h3>\n<p>圆的周长与直径之比是常数 π≈3.1416，故 C=2πr。<\/p>\n<h3>2.2 圆面积的极限推导<\/h3>\n<p>把圆分成 n 个全等的小扇形，交错拼成一个近似平行四边形：底近似为半个圆周（πr），高近似为半径 r。n 越大越接近矩形，故 S=πr·r=πr²。<\/p>\n<p>这就是“化圆为方”的极限思想，也是后面微积分里“以直代曲”的雏形。<\/p>\n<h3>2.3 扇形<\/h3>\n<p>圆心角为 θ（弧度）的扇形：弧长 l=rθ，面积 S=(1/2)lr=(1/2)r²θ。<\/p>\n<p>用角度制时 θ 要换成弧度；360°＝2π 弧度，故整圆面积 (1/2)r²·2π=πr²，与上式一致。<\/p>\n<h3>2.4 弓形<\/h3>\n<p>弓形＝扇形 − 三角形。先算扇形面积，再减去由两条半径与弦围成的三角形面积。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：把圆切成很多细长的扇形，像切西瓜，交错摆放就接近一个长方形。<\/p>\n<p><strong>失效边界<\/strong>：有限次切割只能得到近似值；“等于”要靠 n 趋于无穷的极限。<\/p>\n<p><strong>实例<\/strong>：半径 6、圆心角 60°（π/3 弧度）的扇形：弧长 6×π/3=2π，面积 (1/2)×36×π/3=6π。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 圆面积公式可以直接背，不必理解 —— 实际上 它是极限的结果；不理解来源，遇到扇形、弓形就容易套错系数。\n<\/li><li>\n别以为 扇形面积等于弧长乘半径 —— 实际上 差一个 1/2：S=(1/2)lr，漏掉系数会算成两倍。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n半径为 3 的圆，面积是：\n<\/li><li>\n半径为 4、圆心角为 90° 的扇形面积是：\n<p>A. 6π ｜ B. 9π ｜ C. 3π ｜ D. 12π <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：S=πr²=9π。 A. 4π ｜ B. 8π ｜ C. 2π ｜ D. 16π <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：90°=π/2，S=(1/2)×16×π/2=4π。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nC=2πr，S=πr²\n<\/li><li>\n扇形：l=rθ，S=(1/2)lr\n<\/li><li>\n弓形＝扇形−三角形\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：圆、扇形与曲线形面积）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：圆、扇形与曲线形面积<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>圆面积看起来是“曲线问题”，其实是用无数个小直线图形去逼近——这正是极限思想的第一次登场。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>扇形是由两条半径和一段弧围成的图形；弓形是由一条弦和一段弧围成的图形。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像把披萨切成很多细条再拼成长方形，切得越细越接近矩形。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 周长<\/h3>\n<div class=\"katex-block\">C=2\\pi r<\/div>\n<p>周长与直径之比恒为 π。<\/p>\n<h3>2. 圆面积<\/h3>\n<div class=\"katex-block\">S=\\pi r^{2}<\/div>\n<p>拼成的矩形底为 πr、高为 r。<\/p>\n<h3>3. 扇形<\/h3>\n<div class=\"katex-block\">l=r\\theta,\\quad S=\\frac{1}{2}lr=\\frac{1}{2}r^{2}\\theta<\/div>\n<p>θ 为弧度；整圆 θ=2π 时回到 πr²。<\/p>\n<h3>4. 弓形<\/h3>\n<div class=\"katex-block\">S_{\\text{弓}}=S_{\\text{扇}}-S_{\\triangle}<\/div>\n<p>扇形减去两条半径与弦围成的三角形。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>θ 必须用弧度；用角度直接代入公式会得到错误结果。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《面积与体积》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 2 章：圆、扇形与曲线形面积"}, "ch03": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：圆、扇形与曲线形面积<\/a><\/span><\/div><h1>第 3 章：立体图形的体积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用底面积×高求柱体体积\n<\/li><li>\n说明锥体体积为何有 1/3\n<\/li><li>\n用辛普森公式统一求柱锥台球\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>柱是“底面积乘高”，锥是柱的三分之一，台是两锥相减，球是 4πr³/3；辛普森公式把它们合成一条。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 柱体<\/h3>\n<p>棱柱、圆柱的体积 V=S·h（底面积乘高）。直观来源：把柱体切成无数薄片，每片近似为底面积的薄板，叠加即得。<\/p>\n<h3>3.2 锥体<\/h3>\n<p>棱锥、圆锥的体积 V=(1/3)S·h。<\/p>\n<p>为什么是 1/3：三个全等的锥可以拼成一个等底等高的柱（对三棱锥可以严格拼出；一般锥体用极限或祖暅原理证明）。<\/p>\n<h3>3.3 台体<\/h3>\n<p>台体是“大锥减去小锥”：<\/p>\n<p>V=(h/3)(S₁+S₂+√(S₁S₂))<\/p>\n<p>其中 S₁、S₂ 是上下底面积。这个公式对棱台、圆台都成立。<\/p>\n<h3>3.4 球<\/h3>\n<p>球的体积 V=(4/3)πr³，表面积 S=4πr²。<\/p>\n<p>记忆钩子：表面积是 4πr²，体积是表面积乘以 r/3——与“锥体是柱体的 1/3”同源。<\/p>\n<h3>3.5 辛普森公式<\/h3>\n<p>若一个立体在高度 x 处的截面积为 S(x)，且 S(x) 是 x 的二次函数，则<\/p>\n<p>V=(h/6)[S(顶)+4S(中)+S(底)]<\/p>\n<p>柱、锥、台、球都满足这个条件，所以一条公式通吃。这是全书最漂亮的结果。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：柱像一摞同样大小的纸，锥像同样的纸越往上越小，到顶缩成一点。<\/p>\n<p><strong>失效边界<\/strong>：辛普森公式要求截面积是高度的二次函数；截面形状变化不满足这个条件时不能直接用。<\/p>\n<p><strong>实例<\/strong>：圆柱 r=2、h=5：V=π×4×5=20π。 同底等高的圆锥：V=20π/3。 球 r=3：V=(4/3)π×27=36π。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 锥的体积是柱的一半 —— 实际上 是三分之一；把三个同样的锥拼起来才等于一个柱。\n<\/li><li>\n别以为 球体积公式与表面积无关 —— 实际上 V=(r/3)×S，两者通过半径联系，可以互相校验。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n圆锥底面半径 3、高 4，体积是：\n<\/li><li>\n半径为 3 的球的体积是：\n<p>A. 12π ｜ B. 36π ｜ C. 16π ｜ D. 4π <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：V=(1/3)π×9×4=12π。 A. 12π ｜ B. 36π ｜ C. 27π ｜ D. 9π <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：V=(4/3)π×27=36π。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n柱 S·h，锥 S·h/3，台 (h/3)(S₁+S₂+√(S₁S₂))\n<\/li><li>\n球 V=4πr³/3，S=4πr²\n<\/li><li>\n辛普森公式统一柱锥台球\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：立体图形的体积）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：立体图形的体积<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>体积公式看似很多，其实只有一条主线：把立体切成薄片，累加截面积。柱、锥、台、球都是这条主线的特例。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>体积指立体包含的单位正方体个数；截面积指用平行于底面的平面截立体所得图形的面积。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像叠一摞纸：每张纸面积不同，总厚度就是高度，总体积就是“面积×厚度”的累加。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 柱<\/h3>\n<div class=\"katex-block\">V=S\\cdot h<\/div>\n<p>每层截面积相同，累加即底面积乘高。<\/p>\n<h3>2. 锥<\/h3>\n<div class=\"katex-block\">V=\\frac{1}{3}S\\cdot h<\/div>\n<p>三个全等的锥拼成一个等底等高的柱。<\/p>\n<h3>3. 台<\/h3>\n<div class=\"katex-block\">V=\\frac{h}{3}\\left(S_{1}+S_{2}+\\sqrt{S_{1}S_{2}}\\right)<\/div>\n<p>大锥减小锥，化简得到这个对称形式。<\/p>\n<h3>4. 辛普森<\/h3>\n<div class=\"katex-block\">V=\\frac{h}{6}\\left[S_{\\text{顶}}+4S_{\\text{中}}+S_{\\text{底}}\\right]<\/div>\n<p>截面积为二次函数时的精确公式，柱锥台球都适用。<\/p>\n<h3>5. 球<\/h3>\n<div class=\"katex-block\">V=\\frac{4}{3}\\pi r^{3,\\quad} S=4\\pi r^{2}<\/div>\n<p>体积等于表面积乘以 r/3，可与锥体公式互相印证。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>辛普森公式只在截面积为二次函数时精确；否则只是近似。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《面积与体积》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 3 章：立体图形的体积"}, "c01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：平面图形的面积<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：圆、扇形与曲线形面积<\/a><\/span><\/div><h1>割补与极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>能剪拼的用割补，剪不动的用极限。<\/p>\n<h2>为什么重要<\/h2>\n<p>这两条方法覆盖了从三角形到圆的所有面积推导。<\/p>\n<h2>详解<\/h2>\n<p>割补法：有限次剪拼，面积不变，适用于多边形。极限法：把曲边图形切成无穷多小块，用直边近似，取极限得到精确值，适用于圆、扇形等。两者本质都是“化未知为已知”。<\/p>\n<h2>常见误解<\/h2>\n<p>把极限结果当成有限次切割的结果，或认为曲线图形也能精确剪拼。<\/p>\n<h2>相关概念<\/h2>\n<p>平面面积（ch01）、圆面积（ch02）<\/p>", "kind": "concept", "title": "割补与极限"}, "c02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：立体图形的体积<\/a><\/span><\/div><h1>统一公式<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>柱、锥、台、球看似不同，截面积的变化规律却能让同一条公式成立。<\/p>\n<h2>为什么重要<\/h2>\n<p>理解统一性比记四个公式更省力，也是数学里“找结构”的典型例子。<\/p>\n<h2>详解<\/h2>\n<p>辛普森公式 V=(h/6)(S顶+4S中+S底) 对截面积为二次函数的立体精确成立。柱的截面积恒定，锥的截面积按平方递减，球也满足，因此都能代入。<\/p>\n<h2>常见误解<\/h2>\n<p>对任意立体都套辛普森公式；截面形状变化不规则时会得到近似值而非精确值。<\/p>\n<h2>相关概念<\/h2>\n<p>锥体（ch03）、球（ch03）<\/p>", "kind": "concept", "title": "统一公式"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：平面图形的面积<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：平面图形的面积<\/a><br>检查点：能用割补法求不规则图形面积<\/li><li class='path-step' id='path-02'><strong>步骤 02：圆、扇形与曲线形面积<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：圆、扇形与曲线形面积<\/a><br>检查点：能用极限思想说明圆面积公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：立体图形的体积<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：立体图形的体积<\/a><br>检查点：能用辛普森公式统一求柱锥台球<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__graph__": {"html": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "kind": "graph", "title": "知识图谱"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 圆柱底面半径 2、高 6，体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 24π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 8π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 36π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 用辛普森公式求半径为 r 的球体积，代入 S顶=S底=0、S中=πr²，得到：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> (2/3)πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> (4/3)πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> (1/3)πr³<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：平面图形的面积<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 三角形底为 8、高为 5，面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 40<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 20<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 13<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 10<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 把一个图形按 1:3 放大，面积变为原来的：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 3 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 6 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 9 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 1/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：圆、扇形与曲线形面积<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 半径为 3 的圆，面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 6π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 9π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 3π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 12π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 半径为 4、圆心角为 90° 的扇形面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 4π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 8π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 2π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 16π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：立体图形的体积<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c02' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 圆锥底面半径 3、高 4，体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 36π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 16π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 4π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c02' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 半径为 3 的球的体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 36π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 27π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 9π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='面积'>面积 — 图形包含的单位正方形个数。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='割补法'>割补法 — 剪切重拼求面积的方法。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='等积变形'>等积变形 — 形状改变而面积不变的变形。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='圆周率'>圆周率 — 圆周长与直径之比 π。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='扇形'>扇形 — 两条半径与一段弧围成的图形。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='弓形'>弓形 — 弦与弧围成的图形。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='祖暅原理'>祖暅原理 — 等高处截面积相等的两个立体体积相等。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><li data-term='辛普森公式'>辛普森公式 — V=(h/6)(S顶+4S中+S底)。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><li data-term='台体'>台体 — 锥体被平行于底面的平面截去上部后的部分。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__diagnosis__": {"html": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "kind": "diagnosis", "title": "诊断测试"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：求面积三选一<\/h2>\n<p>规则图形套公式；不规则图形割补；曲边图形用极限或积分。<\/p>\n<h2>框架：求体积四步<\/h2>\n<p>① 认形体（柱/锥/台/球）；② 找底面积与高；③ 选公式；④ 检查单位与量纲（体积是三次方）。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>三角形<\/td><td>S=ah/2<\/td><\/tr><tr><td>梯形<\/td><td>S=(a+b)h/2<\/td><\/tr><tr><td>圆<\/td><td>C=2πr，S=πr²<\/td><\/tr><tr><td>扇形<\/td><td>S=(1/2)lr=(1/2)r²θ<\/td><\/tr><tr><td>柱/锥<\/td><td>V=S·h；V=S·h/3<\/td><\/tr><tr><td>台<\/td><td>V=(h/3)(S₁+S₂+√(S₁S₂))<\/td><\/tr><tr><td>球<\/td><td>V=4πr³/3，S=4πr²<\/td><\/tr><tr><td>辛普森<\/td><td>V=(h/6)(S顶+4S中+S底)<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/14-面积与体积", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "🕸 知识图谱", "href": "#/graph"}, {"label": "🩺 诊断测试", "href": "#/diagnosis"}, {"label": "章节", "children": [{"label": "第 1 章：平面图形的面积", "href": "#/chapter/ch01"}, {"label": "第 2 章：圆、扇形与曲线形面积", "href": "#/chapter/ch02"}, {"label": "第 3 章：立体图形的体积", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "割补与极限", "href": "#/concept/c01"}, {"label": "统一公式", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：平面图形的面积", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：圆、扇形与曲线形面积", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：立体图形的体积", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">长度、相似<\/span><\/div><h1>第 1 章：平面图形的面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：长度、相似\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n由矩形面积推出三角形、平行四边形、梯形公式\n<\/li><li>\n用割补法求组合图形面积\n<\/li><li>\n理解等积变形的原理\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>所有直线图形的面积公式都从“矩形面积＝长×宽”出发，靠割补推出来。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 面积的起点<\/h3>\n<p>规定单位正方形的面积为 1，任何图形的面积就是它包含多少个单位面积。这是度量的定义，不是公式。<\/p>\n<h3>1.2 由矩形推出其他公式<\/h3>\n<ul><li>\n平行四边形：沿高剪下三角形平移到另一侧，拼成矩形，故 S=底×高；\n<\/li><li>\n三角形：两个全等三角形拼成平行四边形，故 S=底×高/2；\n<\/li><li>\n梯形：两个全等梯形拼成平行四边形，底为 (a+b)，故 S=(a+b)h/2。\n<\/ul>\n<p>每个公式都能用“拼”或“剪”验证，不必死记。<\/p>\n<h3>1.3 割补与等积变形<\/h3>\n<p>把不规则图形切成若干块，重新拼成规则图形，面积不变。常见技巧：补形成矩形再减去多余部分；把弓形补成扇形减三角形。<\/p>\n<h3>1.4 相似与面积比<\/h3>\n<p>相似比为 k 的两个图形，面积比为 k²。这条结论在处理“放大缩小”问题时最常用。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：割补像拼七巧板，块数不变、形状变了，总面积不变。<\/p>\n<p><strong>失效边界<\/strong>：割补只适用于能有限次剪拼的图形；曲线围成的图形需要极限思想。<\/p>\n<p><strong>实例<\/strong>：梯形上底 3、下底 7、高 4，面积 (3+7)×4/2=20。 三角形底 6、高 5，面积 15；若把它按 1:2 放大，面积变为 15×4=60。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 面积公式需要背很多条 —— 实际上 除矩形外都能由割补推出，理解一条就够用。\n<\/li><li>\n别以为 周长大的图形面积一定大 —— 实际上 两者没有必然联系，细长的长方形可能周长很大而面积很小。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n三角形底为 8、高为 5，面积是：\n<\/li><li>\n把一个图形按 1:3 放大，面积变为原来的：\n<p>A. 40 ｜ B. 20 ｜ C. 13 ｜ D. 10 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：S=8×5/2=20。 A. 3 倍 ｜ B. 6 倍 ｜ C. 9 倍 ｜ D. 1/3 <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：面积比是相似比的平方，3²=9。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n面积从单位正方形定义出发\n<\/li><li>\n三角形、平行四边形、梯形都由矩形割补而来\n<\/li><li>\n相似比 k ⇒ 面积比 k²\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：平面图形的面积）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：平面图形的面积<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>面积公式不是规定，是“剪一剪、拼一拼”的结果。理解了拼法，公式就不会记错。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>图形的面积指它包含的单位正方形个数；等积变形指形状改变而面积不变的变形。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像拼地砖：同样的砖重新排列，铺满的地面大小不变。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 矩形<\/h3>\n<div class=\"katex-block\">S=ab<\/div>\n<p>单位正方形铺满，长宽相乘即块数。<\/p>\n<h3>2. 三角形<\/h3>\n<div class=\"katex-block\">S=\\frac{1}{2}ah<\/div>\n<p>两个全等三角形拼成平行四边形，面积减半。<\/p>\n<h3>3. 梯形<\/h3>\n<div class=\"katex-block\">S=\\frac{(a+b)h}{2}<\/div>\n<p>两个全等梯形拼成底为 a+b 的平行四边形。<\/p>\n<h3>4. 相似缩放<\/h3>\n<div class=\"katex-block\">\\frac{S_{1}}{S_{2}}=k^{2}<\/div>\n<p>长度按 k 缩放，面积按 k² 缩放。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>割补要求剪拼后不重叠、不遗漏；曲线边界需要取极限才能严格成立。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《面积与体积》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：平面图形的面积<\/a><\/span><\/div><h1>第 2 章：圆、扇形与曲线形面积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch01、圆周率\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明圆面积公式的极限来源\n<\/li><li>\n计算扇形、弓形面积\n<\/li><li>\n区分弧长与面积两类公式\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>圆面积是把圆切成无数个小扇形拼成矩形得到的：S=πr²，周长 C=2πr。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 圆周率与周长<\/h3>\n<p>圆的周长与直径之比是常数 π≈3.1416，故 C=2πr。<\/p>\n<h3>2.2 圆面积的极限推导<\/h3>\n<p>把圆分成 n 个全等的小扇形，交错拼成一个近似平行四边形：底近似为半个圆周（πr），高近似为半径 r。n 越大越接近矩形，故 S=πr·r=πr²。<\/p>\n<p>这就是“化圆为方”的极限思想，也是后面微积分里“以直代曲”的雏形。<\/p>\n<h3>2.3 扇形<\/h3>\n<p>圆心角为 θ（弧度）的扇形：弧长 l=rθ，面积 S=(1/2)lr=(1/2)r²θ。<\/p>\n<p>用角度制时 θ 要换成弧度；360°＝2π 弧度，故整圆面积 (1/2)r²·2π=πr²，与上式一致。<\/p>\n<h3>2.4 弓形<\/h3>\n<p>弓形＝扇形 − 三角形。先算扇形面积，再减去由两条半径与弦围成的三角形面积。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：把圆切成很多细长的扇形，像切西瓜，交错摆放就接近一个长方形。<\/p>\n<p><strong>失效边界<\/strong>：有限次切割只能得到近似值；“等于”要靠 n 趋于无穷的极限。<\/p>\n<p><strong>实例<\/strong>：半径 6、圆心角 60°（π/3 弧度）的扇形：弧长 6×π/3=2π，面积 (1/2)×36×π/3=6π。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 圆面积公式可以直接背，不必理解 —— 实际上 它是极限的结果；不理解来源，遇到扇形、弓形就容易套错系数。\n<\/li><li>\n别以为 扇形面积等于弧长乘半径 —— 实际上 差一个 1/2：S=(1/2)lr，漏掉系数会算成两倍。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n半径为 3 的圆，面积是：\n<\/li><li>\n半径为 4、圆心角为 90° 的扇形面积是：\n<p>A. 6π ｜ B. 9π ｜ C. 3π ｜ D. 12π <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：S=πr²=9π。 A. 4π ｜ B. 8π ｜ C. 2π ｜ D. 16π <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：90°=π/2，S=(1/2)×16×π/2=4π。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nC=2πr，S=πr²\n<\/li><li>\n扇形：l=rθ，S=(1/2)lr\n<\/li><li>\n弓形＝扇形−三角形\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：圆、扇形与曲线形面积）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：圆、扇形与曲线形面积<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>圆面积看起来是“曲线问题”，其实是用无数个小直线图形去逼近——这正是极限思想的第一次登场。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>扇形是由两条半径和一段弧围成的图形；弓形是由一条弦和一段弧围成的图形。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像把披萨切成很多细条再拼成长方形，切得越细越接近矩形。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 周长<\/h3>\n<div class=\"katex-block\">C=2\\pi r<\/div>\n<p>周长与直径之比恒为 π。<\/p>\n<h3>2. 圆面积<\/h3>\n<div class=\"katex-block\">S=\\pi r^{2}<\/div>\n<p>拼成的矩形底为 πr、高为 r。<\/p>\n<h3>3. 扇形<\/h3>\n<div class=\"katex-block\">l=r\\theta,\\quad S=\\frac{1}{2}lr=\\frac{1}{2}r^{2}\\theta<\/div>\n<p>θ 为弧度；整圆 θ=2π 时回到 πr²。<\/p>\n<h3>4. 弓形<\/h3>\n<div class=\"katex-block\">S_{\\text{弓}}=S_{\\text{扇}}-S_{\\triangle}<\/div>\n<p>扇形减去两条半径与弦围成的三角形。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>θ 必须用弧度；用角度直接代入公式会得到错误结果。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《面积与体积》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch03": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：圆、扇形与曲线形面积<\/a><\/span><\/div><h1>第 3 章：立体图形的体积<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n用底面积×高求柱体体积\n<\/li><li>\n说明锥体体积为何有 1/3\n<\/li><li>\n用辛普森公式统一求柱锥台球\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>柱是“底面积乘高”，锥是柱的三分之一，台是两锥相减，球是 4πr³/3；辛普森公式把它们合成一条。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 柱体<\/h3>\n<p>棱柱、圆柱的体积 V=S·h（底面积乘高）。直观来源：把柱体切成无数薄片，每片近似为底面积的薄板，叠加即得。<\/p>\n<h3>3.2 锥体<\/h3>\n<p>棱锥、圆锥的体积 V=(1/3)S·h。<\/p>\n<p>为什么是 1/3：三个全等的锥可以拼成一个等底等高的柱（对三棱锥可以严格拼出；一般锥体用极限或祖暅原理证明）。<\/p>\n<h3>3.3 台体<\/h3>\n<p>台体是“大锥减去小锥”：<\/p>\n<p>V=(h/3)(S₁+S₂+√(S₁S₂))<\/p>\n<p>其中 S₁、S₂ 是上下底面积。这个公式对棱台、圆台都成立。<\/p>\n<h3>3.4 球<\/h3>\n<p>球的体积 V=(4/3)πr³，表面积 S=4πr²。<\/p>\n<p>记忆钩子：表面积是 4πr²，体积是表面积乘以 r/3——与“锥体是柱体的 1/3”同源。<\/p>\n<h3>3.5 辛普森公式<\/h3>\n<p>若一个立体在高度 x 处的截面积为 S(x)，且 S(x) 是 x 的二次函数，则<\/p>\n<p>V=(h/6)[S(顶)+4S(中)+S(底)]<\/p>\n<p>柱、锥、台、球都满足这个条件，所以一条公式通吃。这是全书最漂亮的结果。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：柱像一摞同样大小的纸，锥像同样的纸越往上越小，到顶缩成一点。<\/p>\n<p><strong>失效边界<\/strong>：辛普森公式要求截面积是高度的二次函数；截面形状变化不满足这个条件时不能直接用。<\/p>\n<p><strong>实例<\/strong>：圆柱 r=2、h=5：V=π×4×5=20π。 同底等高的圆锥：V=20π/3。 球 r=3：V=(4/3)π×27=36π。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 锥的体积是柱的一半 —— 实际上 是三分之一；把三个同样的锥拼起来才等于一个柱。\n<\/li><li>\n别以为 球体积公式与表面积无关 —— 实际上 V=(r/3)×S，两者通过半径联系，可以互相校验。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n圆锥底面半径 3、高 4，体积是：\n<\/li><li>\n半径为 3 的球的体积是：\n<p>A. 12π ｜ B. 36π ｜ C. 16π ｜ D. 4π <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：V=(1/3)π×9×4=12π。 A. 12π ｜ B. 36π ｜ C. 27π ｜ D. 9π <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：V=(4/3)π×27=36π。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n柱 S·h，锥 S·h/3，台 (h/3)(S₁+S₂+√(S₁S₂))\n<\/li><li>\n球 V=4πr³/3，S=4πr²\n<\/li><li>\n辛普森公式统一柱锥台球\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：立体图形的体积）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：立体图形的体积<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>体积公式看似很多，其实只有一条主线：把立体切成薄片，累加截面积。柱、锥、台、球都是这条主线的特例。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>体积指立体包含的单位正方体个数；截面积指用平行于底面的平面截立体所得图形的面积。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像叠一摞纸：每张纸面积不同，总厚度就是高度，总体积就是“面积×厚度”的累加。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 柱<\/h3>\n<div class=\"katex-block\">V=S\\cdot h<\/div>\n<p>每层截面积相同，累加即底面积乘高。<\/p>\n<h3>2. 锥<\/h3>\n<div class=\"katex-block\">V=\\frac{1}{3}S\\cdot h<\/div>\n<p>三个全等的锥拼成一个等底等高的柱。<\/p>\n<h3>3. 台<\/h3>\n<div class=\"katex-block\">V=\\frac{h}{3}\\left(S_{1}+S_{2}+\\sqrt{S_{1}S_{2}}\\right)<\/div>\n<p>大锥减小锥，化简得到这个对称形式。<\/p>\n<h3>4. 辛普森<\/h3>\n<div class=\"katex-block\">V=\\frac{h}{6}\\left[S_{\\text{顶}}+4S_{\\text{中}}+S_{\\text{底}}\\right]<\/div>\n<p>截面积为二次函数时的精确公式，柱锥台球都适用。<\/p>\n<h3>5. 球<\/h3>\n<div class=\"katex-block\">V=\\frac{4}{3}\\pi r^{3,\\quad} S=4\\pi r^{2}<\/div>\n<p>体积等于表面积乘以 r/3，可与锥体公式互相印证。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>辛普森公式只在截面积为二次函数时精确；否则只是近似。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《面积与体积》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "c01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：平面图形的面积<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：圆、扇形与曲线形面积<\/a><\/span><\/div><h1>割补与极限<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>能剪拼的用割补，剪不动的用极限。<\/p>\n<h2>为什么重要<\/h2>\n<p>这两条方法覆盖了从三角形到圆的所有面积推导。<\/p>\n<h2>详解<\/h2>\n<p>割补法：有限次剪拼，面积不变，适用于多边形。极限法：把曲边图形切成无穷多小块，用直边近似，取极限得到精确值，适用于圆、扇形等。两者本质都是“化未知为已知”。<\/p>\n<h2>常见误解<\/h2>\n<p>把极限结果当成有限次切割的结果，或认为曲线图形也能精确剪拼。<\/p>\n<h2>相关概念<\/h2>\n<p>平面面积（ch01）、圆面积（ch02）<\/p>", "c02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-14-面积与体积 吕林根.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：立体图形的体积<\/a><\/span><\/div><h1>统一公式<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>柱、锥、台、球看似不同，截面积的变化规律却能让同一条公式成立。<\/p>\n<h2>为什么重要<\/h2>\n<p>理解统一性比记四个公式更省力，也是数学里“找结构”的典型例子。<\/p>\n<h2>详解<\/h2>\n<p>辛普森公式 V=(h/6)(S顶+4S中+S底) 对截面积为二次函数的立体精确成立。柱的截面积恒定，锥的截面积按平方递减，球也满足，因此都能代入。<\/p>\n<h2>常见误解<\/h2>\n<p>对任意立体都套辛普森公式；截面形状变化不规则时会得到近似值而非精确值。<\/p>\n<h2>相关概念<\/h2>\n<p>锥体（ch03）、球（ch03）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：平面图形的面积<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：平面图形的面积<\/a><br>检查点：能用割补法求不规则图形面积<\/li><li class='path-step' id='path-02'><strong>步骤 02：圆、扇形与曲线形面积<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：圆、扇形与曲线形面积<\/a><br>检查点：能用极限思想说明圆面积公式<\/li><li class='path-step' id='path-03'><strong>步骤 03：立体图形的体积<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：立体图形的体积<\/a><br>检查点：能用辛普森公式统一求柱锥台球<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__graph__": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 圆柱底面半径 2、高 6，体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 24π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 8π<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 36π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 用辛普森公式求半径为 r 的球体积，代入 S顶=S底=0、S中=πr²，得到：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> (2/3)πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> (4/3)πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> πr³<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> (1/3)πr³<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：平面图形的面积<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 三角形底为 8、高为 5，面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 40<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 20<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 13<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 10<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 把一个图形按 1:3 放大，面积变为原来的：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 3 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 6 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 9 倍<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 1/3<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：圆、扇形与曲线形面积<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 半径为 3 的圆，面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 6π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 9π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 3π<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 12π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 半径为 4、圆心角为 90° 的扇形面积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> 4π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 8π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 2π<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> 16π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：立体图形的体积<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c02' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 圆锥底面半径 3、高 4，体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> 36π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> 16π<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> 4π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c02' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 半径为 3 的球的体积是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 12π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 36π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> 27π<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 9π<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='面积'>面积 — 图形包含的单位正方形个数。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='割补法'>割补法 — 剪切重拼求面积的方法。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='等积变形'>等积变形 — 形状改变而面积不变的变形。 <span class=glossary-ref>（第 1 章：平面图形的面积）<\/span><\/li><li data-term='圆周率'>圆周率 — 圆周长与直径之比 π。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='扇形'>扇形 — 两条半径与一段弧围成的图形。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='弓形'>弓形 — 弦与弧围成的图形。 <span class=glossary-ref>（第 2 章：圆、扇形与曲线形面积）<\/span><\/li><li data-term='祖暅原理'>祖暅原理 — 等高处截面积相等的两个立体体积相等。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><li data-term='辛普森公式'>辛普森公式 — V=(h/6)(S顶+4S中+S底)。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><li data-term='台体'>台体 — 锥体被平行于底面的平面截去上部后的部分。 <span class=glossary-ref>（第 3 章：立体图形的体积）<\/span><\/li><\/ul>", "__diagnosis__": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：求面积三选一<\/h2>\n<p>规则图形套公式；不规则图形割补；曲边图形用极限或积分。<\/p>\n<h2>框架：求体积四步<\/h2>\n<p>① 认形体（柱/锥/台/球）；② 找底面积与高；③ 选公式；④ 检查单位与量纲（体积是三次方）。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>三角形<\/td><td>S=ah/2<\/td><\/tr><tr><td>梯形<\/td><td>S=(a+b)h/2<\/td><\/tr><tr><td>圆<\/td><td>C=2πr，S=πr²<\/td><\/tr><tr><td>扇形<\/td><td>S=(1/2)lr=(1/2)r²θ<\/td><\/tr><tr><td>柱/锥<\/td><td>V=S·h；V=S·h/3<\/td><\/tr><tr><td>台<\/td><td>V=(h/3)(S₁+S₂+√(S₁S₂))<\/td><\/tr><tr><td>球<\/td><td>V=4πr³/3，S=4πr²<\/td><\/tr><tr><td>辛普森<\/td><td>V=(h/6)(S顶+4S中+S底)<\/td><\/tr><\/tbody><\/table>"}};
 const pages = DATA.rendered;
 const manifest = DATA.manifest;
 const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SLUG = manifest.slug || 'book';
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
   set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
 };
-let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{}, mastery: store.get('mastery')||{} };
 
 /* ---------- 导航 ---------- */
 function renderNav(){
@@ -144,15 +199,27 @@ function routeIdFromHash(){
   let h = location.hash.replace(/^#\//,'');
   if(!h) return 'path';
   if(h==='path') return 'path';
+  if(h==='diagnosis') return 'diagnosis';
   const m = h.match(/^(chapter|concept)\/(.+)$/);
   if(m) return m[1]+'/'+m[2];
-  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+  return h;
 }
 function showPage(rid){
-  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  let id;
+  if(rid==='path') id='__path__';
+  else if(rid==='diagnosis') id='__diagnosis__';
+  else if(rid==='graph') id='__graph__';
+  else if(rid.startsWith('quiz/')) id='__quiz_'+rid.split('/')[1]+'__';
+  else if(rid==='cards') id='__cards__';
+  else if(rid==='glossary') id='__glossary__';
+  else if(rid==='patterns') id='__patterns__';
+  else if(rid==='cheatsheet') id='__cheatsheet__';
+  else if(rid.startsWith('chapter/')) id=rid.split('/')[1];
+  else if(rid.startsWith('concept/')) id=rid.split('/')[1];
+  else id=rid;
   const html = pages[id] || '<div class="empty">页面不存在</div>';
   $('#view').innerHTML = html;
-  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  $$('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
   if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
     state.visited.push(rid); store.set('visited', state.visited); renderNav();
   }
@@ -160,8 +227,66 @@ function showPage(rid){
   if(rid==='cards') initCards();
   if(rid==='glossary') initGlossary();
   if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(rid==='diagnosis') initDiagnosis();
+  if(rid==='graph') initGraph();
   if(id==='__path__') updatePath();
+  renderMath();
   renderMermaid();
+}
+
+/* ---------- KaTeX 渲染（多源回退） ---------- */
+let katexLoading = false, katexReady = false;
+function renderMath(){
+  const hasMath = document.querySelector('.katex-inline, .katex-block');
+  if(!hasMath) return;
+  if(katexReady){ doRenderMath(); return; }
+  if(katexLoading) return;
+  katexLoading = true;
+  const cssUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.css'
+  ];
+  const jsUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.js',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.js'
+  ];
+  let ci = 0, ji = 0;
+  const tryCss = () => {
+    if(ci >= cssUrls.length) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'; link.href = cssUrls[ci++];
+    link.onload = tryJs; link.onerror = () => { link.remove(); tryCss(); };
+    document.head.appendChild(link);
+  };
+  const tryJs = () => {
+    if(ji >= jsUrls.length){ katexLoading = false; return; }
+    const s = document.createElement('script');
+    s.src = jsUrls[ji++];
+    s.onload = () => { katexReady = true; katexLoading = false; doRenderMath(); };
+    s.onerror = () => { s.remove(); tryJs(); };
+    document.head.appendChild(s);
+  };
+  tryCss();
+}
+function doRenderMath(){
+  if(typeof katex === 'undefined') return;
+  // 行内公式：.katex-inline 里的内容
+  $$('.katex-inline').forEach(el=>{
+    try{ katex.render(el.textContent, el, {throwOnError:false}); }catch(e){}
+  });
+  // 块级公式：.katex-block 里的内容
+  $$('.katex-block').forEach(el=>{
+    try{ katex.render(el.textContent, el, {displayMode:true, throwOnError:false}); }catch(e){}
+  });
+}
+// 公式内容预处理：把 < 后跟字母的位置转成 &lt;，避免被 HTML 解析器当标签吃掉
+// （这是 first-principles-derivation 踩过的坑：$m<n$ 会变成残留 $m）
+function sanitizeMathHTML(){
+  $$('.katex-inline, .katex-block').forEach(el=>{
+    el.innerHTML = el.innerHTML.replace(/<([a-zA-Z])/g, '&lt;$1');
+  });
 }
 
 /* ---------- 进度 ---------- */
@@ -173,7 +298,7 @@ function updateProgress(){
   $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
 }
 function updatePath(){
-  document.querySelectorAll('.path-step').forEach(el=>{
+  $$('.path-step').forEach(el=>{
     const step = el.id.replace('path-','');
     const s = (manifest.learningPath||[]).find(x=>x.step===step);
     if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
@@ -183,9 +308,39 @@ function updatePath(){
   });
 }
 
-/* ---------- 测验 ---------- */
+/* ---------- 概念/章节依赖查找（用于诊断倒推） ---------- */
+function findConcept(id){ return (manifest.concepts||[]).find(c=>c.id===id); }
+function findChapter(id){ return (manifest.chapters||[]).find(c=>c.id===id); }
+function getPrereqs(node){
+  if(!node) return [];
+  return node.prerequisites || node.prereqs || [];
+}
+/**
+ * 答错倒推：从错题关联的概念/章节出发，沿 prerequisites 回溯，
+ * 返回一串"你可能需要先补的"节点，带跳转链接。
+ */
+function traceBack(startConceptId, startChapterId){
+  const visited = new Set();
+  const chain = [];
+  const queue = [];
+  if(startConceptId){ const c = findConcept(startConceptId); if(c) queue.push({node:c, kind:'concept'}); }
+  if(startChapterId){ const c = findChapter(startChapterId); if(c) queue.push({node:c, kind:'chapter'}); }
+  while(queue.length && chain.length < 6){
+    const {node, kind} = queue.shift();
+    if(visited.has(node.id)) continue;
+    visited.add(node.id);
+    chain.push({node, kind});
+    (getPrereqs(node)||[]).forEach(pid=>{
+      const cn = findConcept(pid); if(cn){ queue.push({node:cn, kind:'concept'}); return; }
+      const ch = findChapter(pid); if(ch) queue.push({node:ch, kind:'chapter'});
+    });
+  }
+  return chain;
+}
+
+/* ---------- 测验（带倒推） ---------- */
 function initQuizzes(rid){
-  document.querySelectorAll('.quiz-item').forEach(item=>{
+  $$('.quiz-item').forEach(item=>{
     const btn = item.querySelector('.quiz-check');
     if(!btn || item.dataset.inited){ return }
     item.dataset.inited='1';
@@ -211,8 +366,7 @@ function initQuizzes(rid){
       }
       item.querySelectorAll('input:checked').forEach(i=>{
         const val=parseInt(i.value);
-        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
-        else i.parentElement.style.color='var(--bad)';
+        i.parentElement.style.color = (Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) ? 'var(--ok)' : 'var(--bad)';
       });
       const feed = item.querySelector('.quiz-feedback');
       feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
@@ -220,7 +374,34 @@ function initQuizzes(rid){
       let ex = item.querySelector('.quiz-explain');
       if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
       ex.innerHTML = '解析：' + esc(q.explain||'');
-      // 记录成绩（按章聚合）
+      // 答错时：倒推前置 + 误解卡片 + 掌握度更新
+      if(!correct){
+        let remedy = item.querySelector('.quiz-remedy');
+        if(!remedy){ remedy = document.createElement('div'); remedy.className='quiz-remedy'; item.appendChild(remedy); }
+        const chain = traceBack(item.dataset.concept, item.dataset.chapter);
+        if(chain.length > 1){
+          const links = chain.slice(1).map(({node,kind})=>{
+            const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+            return `<a href="${href}">${esc(node.title||node.id)}</a>`;
+          }).join(' → ');
+          remedy.innerHTML = '🔍 可能的根因（沿依赖链回溯）：' + links;
+        }
+        // 误解卡片：如果选错的选项标注了 misconceptionId
+        const checked = item.querySelector('input:checked');
+        const misId = checked ? checked.dataset.misconception : '';
+        if(misId){
+          const mis = (manifest.misconceptions||[]).find(m=>m.id===misId);
+          if(mis){
+            let misCard = item.querySelector('.misconception-card');
+            if(!misCard){ misCard = document.createElement('div'); misCard.className='misconception-card'; item.appendChild(misCard); }
+            misCard.innerHTML = `<b>⚠ 常见误解</b><br>你选了「${esc(mis.wrong)}」——${esc(mis.correction)}`;
+          }
+        }
+        // 掌握度下降
+        updateMastery(item.dataset.concept, -0.15);
+      } else {
+        updateMastery(item.dataset.concept, +0.15);
+      }
       const ch = q.chapterId||'__all__';
       if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
       state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
@@ -230,7 +411,222 @@ function initQuizzes(rid){
   });
 }
 
+/* ---------- 知识图谱（vis-network） ---------- */
+let networkLoaded = false;
+function loadVisNetwork(cb){
+  if(networkLoaded){ cb(); return; }
+  const urls = [
+    'https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.js',
+    'https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js',
+    'https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js'
+  ];
+  let i = 0;
+  const tryNext = () => {
+    if(i >= urls.length) return;
+    const s = document.createElement('script');
+    s.src = urls[i++];
+    s.onload = () => { networkLoaded = true; cb(); };
+    s.onerror = () => { s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
+}
+function initGraph(){
+  const container = document.getElementById('graph-container');
+  if(!container) return;
+  loadVisNetwork(() => {
+    if(typeof vis === 'undefined'){ container.innerHTML = '<p class="empty">图谱库加载失败，请联网后刷新</p>'; return; }
+    const concepts = manifest.concepts || [];
+    const chapters = manifest.chapters || [];
+    const nodes = [];
+    const edges = [];
+    concepts.forEach(c => {
+      const mastery = Math.round(getMastery(c.id)*100);
+      nodes.push({
+        id: 'c_' + c.id,
+        label: c.title || c.id,
+        title: (c.title||c.id) + '（掌握度 ' + mastery + '%）',
+        color: mastery > 70 ? '#86efac' : mastery > 40 ? '#fde68a' : '#fca5a5',
+        shape: 'dot',
+        size: mastery > 70 ? 20 : 14,
+        font: { size: 13 }
+      });
+    });
+    chapters.forEach(ch => {
+      nodes.push({
+        id: 'ch_' + ch.id,
+        label: ch.title || ch.id,
+        shape: 'box',
+        color: '#93c5fd',
+        font: { size: 12 }
+      });
+    });
+    // 前置边
+    concepts.forEach(c => {
+      (c.prerequisites || []).forEach(p => {
+        const pid = typeof p === 'string' ? p : p.id;
+        const ptype = typeof p === 'string' ? 'hard' : (p.type || 'hard');
+        const from = (pid.startsWith('ch') ? 'ch_' : 'c_') + pid;
+        const to = 'c_' + c.id;
+        if(nodes.find(n => n.id === from)){
+          edges.push({
+            from: from, to: to,
+            color: { color: ptype === 'hard' ? '#dc2626' : ptype === 'soft' ? '#9ca3af' : '#3b82f6' },
+            arrows: 'to',
+            width: ptype === 'hard' ? 2 : 1,
+            dashes: ptype !== 'hard'
+          });
+        }
+      });
+    });
+    const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+    const options = {
+      physics: { stabilization: true, barnesHut: { gravitationalConstant: -3000 } },
+      interaction: { hover: true, tooltipDelay: 200 }
+    };
+    const net = new vis.Network(container, data, options);
+    net.on('click', params => {
+      if(params.nodes.length > 0){
+        const nid = params.nodes[0];
+        if(nid.startsWith('c_')) location.hash = '#/concept/' + nid.slice(2);
+        else if(nid.startsWith('ch_')) location.hash = '#/chapter/' + nid.slice(3);
+      }
+    });
+  });
+}
+
+/* ---------- 诊断模式 ---------- */
+let diagQueue = [], diagIdx = 0, diagWrong = [];
+function initDiagnosis(){
+  const startBtn = $('#diag-start');
+  if(!startBtn || startBtn.dataset.inited) return;
+  startBtn.dataset.inited='1';
+  startBtn.addEventListener('click', ()=>{
+    const all = (manifest.quizzes||[]).slice();
+    // 随机抽 5 题（不够就全抽）
+    for(let i = all.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+    diagQueue = all.slice(0, Math.min(5, all.length));
+    diagIdx = 0; diagWrong = [];
+    showDiagQuestion();
+  });
+}
+function showDiagQuestion(){
+  const stage = $('#diag-stage');
+  const result = $('#diag-result');
+  result.innerHTML = '';
+  if(diagIdx >= diagQueue.length){ finishDiagnosis(); return; }
+  const q = diagQueue[diagIdx];
+  $('#diag-progress').textContent = `第 ${diagIdx+1} / ${diagQueue.length} 题`;
+  const fakeItem = document.createElement('div');
+  fakeItem.innerHTML = _renderQuizHTML(q, diagIdx+1);
+  stage.innerHTML = fakeItem.innerHTML;
+  // 绑定检查按钮
+  const item = stage.querySelector('.quiz-item');
+  const btn = item.querySelector('.quiz-check');
+  btn.addEventListener('click', ()=>{
+    const type = item.dataset.type;
+    let user, correct=false;
+    if(type==='single'){
+      const sel = item.querySelector('input:checked');
+      user = sel? parseInt(sel.value) : null;
+      correct = user===q.answer;
+    } else if(type==='multi'){
+      user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+      const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+      correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+    } else if(type==='blank'){
+      const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+      correct = v===String(q.answer).trim().toLowerCase();
+    }
+    if(!correct){
+      diagWrong.push(q);
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      if(chain.length > 1){
+        const links = chain.slice(1).map(({node,kind})=>{
+          const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+          return `<div class="diag-remedy-item">建议先学：<a href="${href}">${esc(node.title||node.id)}</a></div>`;
+        }).join('');
+        $('#diag-result').innerHTML = '<h3>这道题答错了，可能的根因：</h3>' + links +
+          '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      } else {
+        $('#diag-result').innerHTML = '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      }
+    } else {
+      $('#diag-result').innerHTML = '<p>✓ 正确。<button id="diag-next" class="quiz-check">下一题 →</button></p>';
+    }
+    $('#diag-next').addEventListener('click', ()=>{ diagIdx++; showDiagQuestion(); });
+  });
+}
+function _renderQuizHTML(q, idx){
+  // 复用服务端渲染的 quiz HTML 结构
+  const qtype = q.type||'single';
+  const qid = q.id||('diag'+idx);
+  let html = `<div class='quiz-item' data-qid='${qid}' data-type='${qtype}' data-concept='${esc(q.relatedConceptId||"")}' data-chapter='${esc(q.chapterId||"")}'>`;
+  html += `<p class='quiz-q'><b>Q${idx}.</b> ${esc(q.question||"")}</p>`;
+  if(qtype==='single'||qtype==='multi'){
+    const it = qtype==='single'?'radio':'checkbox';
+    html += "<div class='quiz-opts'>";
+    (q.options||[]).forEach((o,i)=>{ html += `<label class='quiz-opt'><input type='${it}' name='${qid}' value='${i}'> ${esc(String(o))}</label>`; });
+    html += '</div>';
+  } else {
+    html += `<input class='quiz-blank' type='text' placeholder='填写答案'>`;
+  }
+  html += `<div class='quiz-actions'><button class='quiz-check'>检查答案</button><span class='quiz-feedback'></span></div></div>`;
+  return html;
+}
+function finishDiagnosis(){
+  const total = diagQueue.length;
+  const wrong = diagWrong.length;
+  const right = total - wrong;
+  let html = `<h2>诊断完成：${right}/${total} 正确</h2>`;
+  if(wrong === 0){
+    html += '<p>🎉 这组题全对，可以继续往下学。</p>';
+  } else {
+    html += `<p>有 ${wrong} 道题答错。下面是按依赖链回溯的补强建议：</p>`;
+    const seen = new Set();
+    diagWrong.forEach(q=>{
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      chain.slice(1).forEach(({node,kind})=>{
+        if(seen.has(node.id)) return;
+        seen.add(node.id);
+        const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+        html += `<div class="diag-remedy-item">📚 <a href="${href}">${esc(node.title||node.id)}</a></div>`;
+      });
+    });
+  }
+  html += '<p><button id="diag-restart" class="quiz-check">重新诊断</button></p>';
+  $('#diag-stage').innerHTML = '';
+  $('#diag-progress').textContent = '';
+  $('#diag-result').innerHTML = html;
+  $('#diag-restart').addEventListener('click', ()=>{
+    $('#diag-start').click();
+  });
+}
+
+/* ---------- 掌握度（简化 BKT） ---------- */
+function getMastery(cid){
+  if(!cid) return 0.5;
+  const m = (state.mastery||{})[cid];
+  return m !== undefined ? m : 0.3;
+}
+function updateMastery(cid, delta){
+  if(!cid) return;
+  if(!state.mastery) state.mastery = {};
+  const cur = state.mastery[cid] !== undefined ? state.mastery[cid] : 0.3;
+  state.mastery[cid] = Math.max(0, Math.min(1, cur + delta));
+  store.set('mastery', state.mastery);
+}
+function masteryBar(cid){
+  const v = Math.round(getMastery(cid)*100);
+  return `<div class="mastery-bar"><div style="width:${v}%"></div></div><span class="mastery-label">掌握度 ${v}%</span>`;
+}
+
 /* ---------- 抽认卡 ---------- */
+function sup(t){
+  return String(t==null?'':t).replace(/[&<>]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))
+    .replace(/\^(?:\{([^{}]+)\}|\(([^()]*)\)|([-+]?[A-Za-z0-9.]+))/g,
+      (m,a,b,c)=>'<sup>'+(a||b||c||'')+'</sup>');
+}
 let cardIdx = 0, cardList = [];
 function initCards(){
   const cards = manifest.flashcards||[];
@@ -251,8 +647,8 @@ function showCard(){
   updateCardCounts();
   if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
   const c = cardList[cardIdx];
-  document.querySelector('.fc-front').textContent = c.front;
-  document.querySelector('.fc-back').textContent = c.back;
+  document.querySelector('.fc-front').innerHTML = sup(c.front);
+  document.querySelector('.fc-back').innerHTML = sup(c.back);
   $('#flashcard').classList.remove('flip');
 }
 function markCard(known){
@@ -279,7 +675,7 @@ function initGlossary(){
   input.dataset.inited='1';
   input.oninput = ()=>{
     const v = input.value.trim().toLowerCase();
-    document.querySelectorAll('#glossary-list li').forEach(li=>{
+    $$('#glossary-list li').forEach(li=>{
       li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
     });
   };
@@ -308,12 +704,10 @@ $('#q').addEventListener('input', e=>{
                  : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
 });
 
-/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+/* ---------- Mermaid 懒加载 ---------- */
 function renderMermaid(){
   if(!document.querySelector('.mermaid')) return;
-  const s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-  s.onload=()=>{ try{
+  const boot=()=>{ try{
     mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
     document.querySelectorAll('.mermaid').forEach(el=>{
       const code=el.textContent;
@@ -322,7 +716,19 @@ function renderMermaid(){
         .catch(()=>{ el.textContent=code; });
     });
   }catch(e){} };
-  document.head.appendChild(s);
+  const urls=['https://registry.npmmirror.com/mermaid/10/files/dist/mermaid.min.js',
+              'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js',
+              'https://unpkg.com/mermaid@10/dist/mermaid.min.js'];
+  let ui=0;
+  const tryNext=()=>{
+    if(ui>=urls.length) return;
+    const s=document.createElement('script');
+    s.src=urls[ui++];
+    s.onload=boot;
+    s.onerror=()=>{ s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
 }
 
 /* ---------- 深色模式 ---------- */

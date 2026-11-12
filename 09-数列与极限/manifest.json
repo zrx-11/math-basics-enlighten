@@ -42,19 +42,44 @@
    "id": "ch01",
    "title": "第 1 章：数列与通项",
    "file": "chapters/ch01-sequence.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-09-数列与极限 周伯堳.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "函数、代数式",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：等差数列与等比数列",
    "file": "chapters/ch02-ap-gp.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-09-数列与极限 周伯堳.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：级数与极限",
    "file": "chapters/ch03-series-limit.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-09-数列与极限 周伯堳.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -65,6 +90,14 @@
    "chapterIds": [
     "ch01",
     "ch02"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-09-数列与极限 周伯堳.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch02"
    ]
   },
   {
@@ -72,6 +105,13 @@
    "title": "极限与收敛",
    "file": "concepts/c02-limit-convergence.md",
    "chapterIds": [
+    "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-09-数列与极限 周伯堳.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch03"
    ]
   }
@@ -142,7 +182,11 @@
     "12"
    ],
    "answer": 0,
-   "explain": "a₅=3×5−2=13。"
+   "explain": "a₅=3×5−2=13。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -156,7 +200,11 @@
     "5"
    ],
    "answer": 1,
-   "explain": "依次得 2,5,8,11，第 4 项为 11。"
+   "explain": "依次得 2,5,8,11，第 4 项为 11。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -170,7 +218,11 @@
     "40"
    ],
    "answer": 0,
-   "explain": "a₁₀=3+9×4=39。"
+   "explain": "a₁₀=3+9×4=39。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -184,7 +236,11 @@
     "26"
    ],
    "answer": 0,
-   "explain": "q=3，S₄=2(1−3⁴)/(1−3)=2(−80)/(−2)=80。"
+   "explain": "q=3，S₄=2(1−3⁴)/(1−3)=2(−80)/(−2)=80。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -198,7 +254,11 @@
     "1"
    ],
    "answer": 0,
-   "explain": "a₁=1，q=1/3，S=1/(1−1/3)=3/2。"
+   "explain": "a₁=1，q=1/3，S=1/(1−1/3)=3/2。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -212,7 +272,11 @@
     "无穷大"
    ],
    "answer": 1,
-   "explain": "n 越大 1/n 越接近 0。"
+   "explain": "n 越大 1/n 越接近 0。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -226,7 +290,11 @@
     "41"
    ],
    "answer": 0,
-   "explain": "a₈=5+7×4=33。"
+   "explain": "a₈=5+7×4=33。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -240,7 +308,11 @@
     "3/2"
    ],
    "answer": 0,
-   "explain": "q=1/4，S=1/(1−1/4)=4/3。"
+   "explain": "q=1/4，S=1/(1−1/4)=4/3。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

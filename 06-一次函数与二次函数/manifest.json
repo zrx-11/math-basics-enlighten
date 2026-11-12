@@ -42,19 +42,44 @@
    "id": "ch01",
    "title": "第 1 章：函数与图象",
    "file": "chapters/ch01-function-image.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-06-一次函数与二次函数 华昌年.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "坐标平面、方程",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：一次函数",
    "file": "chapters/ch02-linear-function.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-06-一次函数与二次函数 华昌年.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：二次函数与变化率",
    "file": "chapters/ch03-quadratic-function.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-06-一次函数与二次函数 华昌年.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "配方",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -64,6 +89,13 @@
    "file": "concepts/c01-three-elements.md",
    "chapterIds": [
     "ch01"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-06-一次函数与二次函数 华昌年.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01"
    ]
   },
   {
@@ -71,6 +103,14 @@
    "title": "变化率",
    "file": "concepts/c02-rate-of-change.md",
    "chapterIds": [
+    "ch02",
+    "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-06-一次函数与二次函数 华昌年.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch02",
     "ch03"
    ]
@@ -142,7 +182,11 @@
     "|y|=x"
    ],
    "answer": 2,
-   "explain": "其余三个都出现一个 x 对应两个 y 的情况，不满足唯一性。"
+   "explain": "其余三个都出现一个 x 对应两个 y 的情况，不满足唯一性。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -156,7 +200,11 @@
     "[−1,4]"
    ],
    "answer": 1,
-   "explain": "x=0 时取到最小值 0，x=2 时取到最大值 4，故值域 [0,4]。"
+   "explain": "x=0 时取到最小值 0，x=2 时取到最大值 4，故值域 [0,4]。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -170,7 +218,11 @@
     "x=3"
    ],
    "answer": 1,
-   "explain": "3x−6=0 得 x=2。"
+   "explain": "3x−6=0 得 x=2。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -184,7 +236,11 @@
     "k>0，b<0"
    ],
    "answer": 1,
-   "explain": "直线下降说明 k<0；与 y 轴交于正半轴说明 b>0。"
+   "explain": "直线下降说明 k<0；与 y 轴交于正半轴说明 b>0。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -198,7 +254,11 @@
     "(3,−5)"
    ],
    "answer": 0,
-   "explain": "配方 y=(x−3)²−4，顶点 (3,−4)。"
+   "explain": "配方 y=(x−3)²−4，顶点 (3,−4)。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -212,7 +272,11 @@
     "2"
    ],
    "answer": 1,
-   "explain": "y=−(x−1)²+4，开口向下，x=1 时取最大值 4。"
+   "explain": "y=−(x−1)²+4，开口向下，x=1 时取最大值 4。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -226,7 +290,11 @@
     "x=1"
    ],
    "answer": 0,
-   "explain": "对称轴 x=−b/2a=8/4=2。"
+   "explain": "对称轴 x=−b/2a=8/4=2。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -240,7 +308,11 @@
     "先增后减"
    ],
    "answer": 1,
-   "explain": "k=−3<0，函数单调递减。"
+   "explain": "k=−3<0，函数单调递减。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

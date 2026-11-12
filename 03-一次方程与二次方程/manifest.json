@@ -50,25 +50,59 @@
    "id": "ch01",
    "title": "第 1 章：一元一次方程",
    "file": "chapters/ch01-linear-equation.md",
-   "difficulty": 1
+   "difficulty": 1,
+   "source": {
+    "file": "数学基础知识丛书-03-一次方程与二次方程 王厚纯 张凤韬.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "等式性质、四则运算",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：一次方程组",
    "file": "chapters/ch02-linear-systems.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-03-一次方程与二次方程 王厚纯 张凤韬.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：一元二次方程",
    "file": "chapters/ch03-quadratic-equation.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-03-一次方程与二次方程 王厚纯 张凤韬.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "配方、开方",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "ch04",
    "title": "第 4 章：二次方程组与可化归方程",
    "file": "chapters/ch04-reducible.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-03-一次方程与二次方程 王厚纯 张凤韬.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch04-depth.md",
+   "prerequisites": [
+    "ch03"
+   ]
   }
  ],
  "concepts": [
@@ -79,6 +113,14 @@
    "chapterIds": [
     "ch01",
     "ch04"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-03-一次方程与二次方程 王厚纯 张凤韬.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch04"
    ]
   },
   {
@@ -86,6 +128,13 @@
    "title": "判别式与韦达定理",
    "file": "concepts/c02-discriminant-vieta.md",
    "chapterIds": [
+    "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-03-一次方程与二次方程 王厚纯 张凤韬.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch03"
    ]
   }
@@ -156,7 +205,11 @@
     "x=−5"
    ],
    "answer": 1,
-   "explain": "展开 2x−2=x+3，移项得 x=5。"
+   "explain": "展开 2x−2=x+3，移项得 x=5。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -170,7 +223,11 @@
     "a=0 且 b≠0 时有无穷多解"
    ],
    "answer": 2,
-   "explain": "a≠0 时唯一解；a=0、b≠0 无解；a=0、b=0 时恒成立，任意解。"
+   "explain": "a≠0 时唯一解；a=0、b≠0 无解；a=0、b=0 时恒成立，任意解。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -184,7 +241,11 @@
     "x=6，y=1"
    ],
    "answer": 0,
-   "explain": "两式相加 2x=8 得 x=4，代回得 y=3。"
+   "explain": "两式相加 2x=8 得 x=4，代回得 y=3。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -198,7 +259,11 @@
     "解为正数"
    ],
    "answer": 2,
-   "explain": "0=5 是矛盾式，说明不存在同时满足所有方程的解，即无解。"
+   "explain": "0=5 是矛盾式，说明不存在同时满足所有方程的解，即无解。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -212,7 +277,11 @@
     "−1 和 −6"
    ],
    "answer": 0,
-   "explain": "因式分解 (x−2)(x−3)=0，或用公式：Δ=1，x=(5±1)/2。"
+   "explain": "因式分解 (x−2)(x−3)=0，或用公式：Δ=1，x=(5±1)/2。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -226,7 +295,11 @@
     "无法判断"
    ],
    "answer": 2,
-   "explain": "Δ=4−20=−16<0，无实根。"
+   "explain": "Δ=4−20=−16<0，无实根。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -240,7 +313,11 @@
     "0"
    ],
    "answer": 2,
-   "explain": "设 t=x²：t²−5t+4=0 得 t=1 或 4，均非负，故 x=±1、±2，共 4 个实根。"
+   "explain": "设 t=x²：t²−5t+4=0 得 t=1 或 4，均非负，故 x=±1、±2，共 4 个实根。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch04"
+   ]
   },
   {
    "id": "q08",
@@ -254,7 +331,11 @@
     "检查是否为整数"
    ],
    "answer": 1,
-   "explain": "去分母时乘了含未知数的式子，可能引入使分母为零的根，必须代回原方程排除。"
+   "explain": "去分母时乘了含未知数的式子，可能引入使分母为零的根，必须代回原方程排除。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch04"
+   ]
   },
   {
    "id": "q09",
@@ -268,7 +349,11 @@
     "−2 和 8"
    ],
    "answer": 0,
-   "explain": "a=1，b=−2，c=−8：和为 −b/a=2，积为 c/a=−8。"
+   "explain": "a=1，b=−2，c=−8：和为 −b/a=2，积为 c/a=−8。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q10",
@@ -282,7 +367,11 @@
     "k≤1"
    ],
    "answer": 1,
-   "explain": "二次方程要求 k≠0；两个不等实根要求 Δ=4−4k>0，即 k<1。合起来 k<1 且 k≠0。"
+   "explain": "二次方程要求 k≠0；两个不等实根要求 Δ=4−4k>0，即 k<1。合起来 k<1 且 k≠0。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

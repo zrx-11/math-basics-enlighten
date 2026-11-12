@@ -42,19 +42,44 @@
    "id": "ch01",
    "title": "第 1 章：平面图形的面积",
    "file": "chapters/ch01-plane-area.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-14-面积与体积 吕林根.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "长度、相似",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：圆、扇形与曲线形面积",
    "file": "chapters/ch02-circle-area.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-14-面积与体积 吕林根.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "圆周率",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：立体图形的体积",
    "file": "chapters/ch03-solid-volume.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-14-面积与体积 吕林根.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -65,6 +90,14 @@
    "chapterIds": [
     "ch01",
     "ch02"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-14-面积与体积 吕林根.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch02"
    ]
   },
   {
@@ -72,6 +105,13 @@
    "title": "统一公式",
    "file": "concepts/c02-unified-formula.md",
    "chapterIds": [
+    "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-14-面积与体积 吕林根.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch03"
    ]
   }
@@ -142,7 +182,11 @@
     "10"
    ],
    "answer": 1,
-   "explain": "S=8×5/2=20。"
+   "explain": "S=8×5/2=20。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -156,7 +200,11 @@
     "1/3"
    ],
    "answer": 2,
-   "explain": "面积比是相似比的平方，3²=9。"
+   "explain": "面积比是相似比的平方，3²=9。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -170,7 +218,11 @@
     "12π"
    ],
    "answer": 1,
-   "explain": "S=πr²=9π。"
+   "explain": "S=πr²=9π。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -184,7 +236,11 @@
     "16π"
    ],
    "answer": 0,
-   "explain": "90°=π/2，S=(1/2)×16×π/2=4π。"
+   "explain": "90°=π/2，S=(1/2)×16×π/2=4π。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -198,7 +254,11 @@
     "4π"
    ],
    "answer": 0,
-   "explain": "V=(1/3)π×9×4=12π。"
+   "explain": "V=(1/3)π×9×4=12π。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -212,7 +272,11 @@
     "9π"
    ],
    "answer": 1,
-   "explain": "V=(4/3)π×27=36π。"
+   "explain": "V=(4/3)π×27=36π。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -226,7 +290,11 @@
     "36π"
    ],
    "answer": 0,
-   "explain": "V=π×4×6=24π。"
+   "explain": "V=π×4×6=24π。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -240,7 +308,11 @@
     "(1/3)πr³"
    ],
    "answer": 1,
-   "explain": "V=(2r/6)(0+4πr²+0)=(4/3)πr³，与球体积公式一致。"
+   "explain": "V=(2r/6)(0+4πr²+0)=(4/3)πr³，与球体积公式一致。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

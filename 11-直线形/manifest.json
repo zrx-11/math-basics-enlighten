@@ -42,19 +42,44 @@
    "id": "ch01",
    "title": "第 1 章：角与平行线",
    "file": "chapters/ch01-angles-parallel.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "基本作图",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：三角形与全等",
    "file": "chapters/ch02-triangle-congruence.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：相似、比例与图形变换",
    "file": "chapters/ch03-similarity-transform.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -66,6 +91,15 @@
     "ch01",
     "ch02",
     "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch02",
+    "ch03"
    ]
   },
   {
@@ -73,6 +107,13 @@
    "title": "不变量",
    "file": "concepts/c02-invariant.md",
    "chapterIds": [
+    "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-11-直线形 毛鸿翔.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch03"
    ]
   }
@@ -143,7 +184,11 @@
     "无法确定"
    ],
    "answer": 1,
-   "explain": "两直线平行时同旁内角之和为 180°，即互补。"
+   "explain": "两直线平行时同旁内角之和为 180°，即互补。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -157,7 +202,11 @@
     "90°"
    ],
    "answer": 1,
-   "explain": "180°−50°−60°=70°。"
+   "explain": "180°−50°−60°=70°。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -171,7 +220,11 @@
     "周长相等"
    ],
    "answer": 2,
-   "explain": "SAS 是标准判定；SSA 与 AAA 都不足以判定全等。"
+   "explain": "SAS 是标准判定；SSA 与 AAA 都不足以判定全等。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -185,7 +238,11 @@
     "x>4"
    ],
    "answer": 1,
-   "explain": "两边之差 4 < x < 两边之和 10。"
+   "explain": "两边之差 4 < x < 两边之和 10。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -199,7 +256,11 @@
     "1:√2"
    ],
    "answer": 1,
-   "explain": "面积比是相似比的平方，即 1:4。"
+   "explain": "面积比是相似比的平方，即 1:4。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -213,7 +274,11 @@
     "位似"
    ],
    "answer": 3,
-   "explain": "位似会按比例改变大小，只保持形状；其余三种保形状也保大小。"
+   "explain": "位似会按比例改变大小，只保持形状；其余三种保形状也保大小。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -227,7 +292,11 @@
     "81:256"
    ],
    "answer": 1,
-   "explain": "相似比是面积比的平方根，√(9/16)=3/4。"
+   "explain": "相似比是面积比的平方根，√(9/16)=3/4。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -241,7 +310,11 @@
     "两边及其夹角对应相等"
    ],
    "answer": 2,
-   "explain": "SSA 存在两种可能图形，不能判定全等。"
+   "explain": "SSA 存在两种可能图形，不能判定全等。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

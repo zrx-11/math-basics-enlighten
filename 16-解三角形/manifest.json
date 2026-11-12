@@ -42,19 +42,44 @@
    "id": "ch01",
    "title": "第 1 章：正弦定理",
    "file": "chapters/ch01-sine-rule.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-16-解三角形 吴新萃.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "三角比、圆",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：余弦定理与形状判断",
    "file": "chapters/ch02-cosine-rule.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-16-解三角形 吴新萃.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：面积公式与应用",
    "file": "chapters/ch03-area-application.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-16-解三角形 吴新萃.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -65,6 +90,14 @@
    "chapterIds": [
     "ch01",
     "ch02"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-16-解三角形 吴新萃.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch02"
    ]
   },
   {
@@ -72,6 +105,13 @@
    "title": "多解",
    "file": "concepts/c02-ambiguous-case.md",
    "chapterIds": [
+    "ch01"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-16-解三角形 吴新萃.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch01"
    ]
   }
@@ -132,7 +172,11 @@
     "三角形周长"
    ],
    "answer": 2,
-   "explain": "a/sinA=2R，即外接圆直径。"
+   "explain": "a/sinA=2R，即外接圆直径。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -146,7 +190,11 @@
     "一定为直角"
    ],
    "answer": 1,
-   "explain": "sinB=b sinA/a=3×0.5/2=0.75<1，B 有锐角与钝角两个候选，需检验，可能两解。"
+   "explain": "sinB=b sinA/a=3×0.5/2=0.75<1，B 有锐角与钝角两个候选，需检验，可能两解。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -160,7 +208,11 @@
     "√7"
    ],
    "answer": 0,
-   "explain": "cosA=0，a²=9+16=25，a=5。"
+   "explain": "cosA=0，a²=9+16=25，a=5。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -174,7 +226,11 @@
     "无法判断"
    ],
    "answer": 2,
-   "explain": "4²=16>2²+3²=13，故最大角为钝角。"
+   "explain": "4²=16>2²+3²=13，故最大角为钝角。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -188,7 +244,11 @@
     "3"
    ],
    "answer": 1,
-   "explain": "S=(1/2)×4×6×0.5=6。"
+   "explain": "S=(1/2)×4×6×0.5=6。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -202,7 +262,11 @@
     "20"
    ],
    "answer": 0,
-   "explain": "p=12，S=√(12×6×4×2)=√576=24。"
+   "explain": "p=12，S=√(12×6×4×2)=√576=24。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -216,7 +280,11 @@
     "1/2"
    ],
    "answer": 0,
-   "explain": "由 a/sinA=b/sinB 得 sinB=b sinA/a=6×(√3/2)/8=3√3/8。"
+   "explain": "由 a/sinA=b/sinB 得 sinB=b sinA/a=6×(√3/2)/8=3√3/8。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -230,7 +298,11 @@
     "60°"
    ],
    "answer": 1,
-   "explain": "13²=169=5²+12²，故为直角三角形，最大角 90°。"
+   "explain": "13²=169=5²+12²，故为直角三角形，最大角 90°。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

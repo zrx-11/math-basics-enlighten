@@ -42,19 +42,44 @@
    "id": "ch01",
    "title": "第 1 章：空间的位置关系与平行",
    "file": "chapters/ch01-parallel.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-13-直线与平面 顾观煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "平面几何",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：垂直关系与三垂线定理",
    "file": "chapters/ch02-perpendicular.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-13-直线与平面 顾观煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：空间角与距离",
    "file": "chapters/ch03-angles-distance.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-13-直线与平面 顾观煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -65,6 +90,14 @@
    "chapterIds": [
     "ch01",
     "ch02"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-13-直线与平面 顾观煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch02"
    ]
   },
   {
@@ -72,6 +105,14 @@
    "title": "射影与三垂线",
    "file": "concepts/c02-projection.md",
    "chapterIds": [
+    "ch02",
+    "ch03"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-13-直线与平面 顾观煦.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch02",
     "ch03"
    ]
@@ -138,7 +179,11 @@
     "1 种"
    ],
    "answer": 1,
-   "explain": "相交、平行、异面三种。"
+   "explain": "相交、平行、异面三种。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -152,7 +197,11 @@
     "两条平行直线"
    ],
    "answer": 1,
-   "explain": "只需与平面内的一条直线平行即可判定线面平行。"
+   "explain": "只需与平面内的一条直线平行即可判定线面平行。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -166,7 +215,11 @@
     "三条直线"
    ],
    "answer": 2,
-   "explain": "两条相交直线确定平面的方向，缺“相交”条件不成立。"
+   "explain": "两条相交直线确定平面的方向，缺“相交”条件不成立。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -180,7 +233,11 @@
     "判断平行"
    ],
    "answer": 1,
-   "explain": "它通过射影把空间中的垂直关系转化为平面内的垂直关系。"
+   "explain": "它通过射影把空间中的垂直关系转化为平面内的垂直关系。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -194,7 +251,11 @@
     "都过棱的中点"
    ],
    "answer": 0,
-   "explain": "在棱上取一点，分别在两个面内作垂直于棱的射线，这两条射线所成的角才是平面角。"
+   "explain": "在棱上取一点，分别在两个面内作垂直于棱的射线，这两条射线所成的角才是平面角。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -208,7 +269,11 @@
     "(0°,180°)"
    ],
    "answer": 1,
-   "explain": "平行时为 0°，垂直时为 90°，故范围是 [0°,90°]。"
+   "explain": "平行时为 0°，垂直时为 90°，故范围是 [0°,90°]。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -222,7 +287,11 @@
     "可能异面"
    ],
    "answer": 1,
-   "explain": "平行的传递性在空间中仍成立，故两直线平行。"
+   "explain": "平行的传递性在空间中仍成立，故两直线平行。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -236,7 +305,11 @@
     "无法判断"
    ],
    "answer": 1,
-   "explain": "这正是线面垂直的判定定理。"
+   "explain": "这正是线面垂直的判定定理。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

@@ -50,25 +50,59 @@
    "id": "ch01",
    "title": "第 1 章：角、弧度与三角比",
    "file": "chapters/ch01-angle-radian.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-17-三角函数 毛毓球.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "相似、坐标",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：同角关系与诱导公式",
    "file": "chapters/ch02-identities.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-17-三角函数 毛毓球.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：加法定理与倍角公式",
    "file": "chapters/ch03-addition.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-17-三角函数 毛毓球.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "ch04",
    "title": "第 4 章：图象、性质与三角方程",
    "file": "chapters/ch04-graphs-equations.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-17-三角函数 毛毓球.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch04-depth.md",
+   "prerequisites": [
+    "ch03"
+   ]
   }
  ],
  "concepts": [
@@ -79,6 +113,14 @@
    "chapterIds": [
     "ch01",
     "ch02"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-17-三角函数 毛毓球.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch02"
    ]
   },
   {
@@ -86,6 +128,13 @@
    "title": "周期与相位",
    "file": "concepts/c02-period-phase.md",
    "chapterIds": [
+    "ch04"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-17-三角函数 毛毓球.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch04"
    ]
   }
@@ -161,7 +210,11 @@
     "150°"
    ],
    "answer": 1,
-   "explain": "−30°+360°=330°。"
+   "explain": "−30°+360°=330°。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -175,7 +228,11 @@
     "7π/6"
    ],
    "answer": 0,
-   "explain": "150°=150×π/180=5π/6。"
+   "explain": "150°=150×π/180=5π/6。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -189,7 +246,11 @@
     "−√3/2"
    ],
    "answer": 1,
-   "explain": "sin210°=sin(180°+30°)=−sin30°=−1/2。"
+   "explain": "sin210°=sin(180°+30°)=−sin30°=−1/2。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -203,7 +264,11 @@
     "−3/5"
    ],
    "answer": 1,
-   "explain": "第三象限正弦为负，sinθ=−√(1−9/25)=−4/5。"
+   "explain": "第三象限正弦为负，sinθ=−√(1−9/25)=−4/5。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -217,7 +282,11 @@
     "sinαcosβ−cosαsinβ"
    ],
    "answer": 1,
-   "explain": "余弦和角公式为 cosαcosβ−sinαsinβ。"
+   "explain": "余弦和角公式为 cosαcosβ−sinαsinβ。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -231,7 +300,11 @@
     "1−2sin²α"
    ],
    "answer": 1,
-   "explain": "二倍角正弦公式为 2sinαcosα。"
+   "explain": "二倍角正弦公式为 2sinαcosα。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -245,7 +318,11 @@
     "π/3"
    ],
    "answer": 1,
-   "explain": "T=2π/|ω|=2π/3。"
+   "explain": "T=2π/|ω|=2π/3。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch04"
+   ]
   },
   {
    "id": "q08",
@@ -259,7 +336,11 @@
     "x=π/4+kπ"
    ],
    "answer": 1,
-   "explain": "余弦为零的角是 π/2 的奇数倍，即 x=π/2+kπ。"
+   "explain": "余弦为零的角是 π/2 的奇数倍，即 x=π/2+kπ。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch04"
+   ]
   },
   {
    "id": "q09",
@@ -273,7 +354,11 @@
     "1"
    ],
    "answer": 0,
-   "explain": "π/6=30°，sin30°=1/2。"
+   "explain": "π/6=30°，sin30°=1/2。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q10",
@@ -287,7 +372,11 @@
     "4π"
    ],
    "answer": 0,
-   "explain": "T=2π/2=π。"
+   "explain": "T=2π/2=π。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

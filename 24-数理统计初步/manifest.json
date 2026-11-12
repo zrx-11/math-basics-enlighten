@@ -42,19 +42,43 @@
    "id": "ch01",
    "title": "第 1 章：数据的整理与描述",
    "file": "chapters/ch01-descriptive.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-24-数理统计初步 胡宣达.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "平均数、平方",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：概率与计数",
    "file": "chapters/ch02-probability.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-24-数理统计初步 胡宣达.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "排列组合",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch03",
    "title": "第 3 章：抽样与推断入门",
    "file": "chapters/ch03-inference.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-24-数理统计初步 胡宣达.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch01",
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -64,6 +88,13 @@
    "file": "concepts/c01-center-spread.md",
    "chapterIds": [
     "ch01"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-24-数理统计初步 胡宣达.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01"
    ]
   },
   {
@@ -71,6 +102,13 @@
    "title": "互斥与独立",
    "file": "concepts/c02-mutually-exclusive-independent.md",
    "chapterIds": [
+    "ch02"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-24-数理统计初步 胡宣达.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch02"
    ]
   }
@@ -146,7 +184,11 @@
     "5.5"
    ],
    "answer": 1,
-   "explain": "(3+5+5+7+10)/5=30/5=6。"
+   "explain": "(3+5+5+7+10)/5=30/5=6。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -160,7 +202,11 @@
     "避免除以零"
    ],
    "answer": 1,
-   "explain": "除以 n−1 是自由度修正，使样本方差成为总体方差的无偏估计。"
+   "explain": "除以 n−1 是自由度修正，使样本方差成为总体方差的无偏估计。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -174,7 +220,11 @@
     "2/3"
    ],
    "answer": 2,
-   "explain": "偶数有 2、4、6 共 3 个，P=3/6=1/2。"
+   "explain": "偶数有 2、4、6 共 3 个，P=3/6=1/2。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -188,7 +238,11 @@
     "P(A)−P(B)"
    ],
    "answer": 1,
-   "explain": "独立的定义就是乘法公式成立：P(A∩B)=P(A)P(B)。"
+   "explain": "独立的定义就是乘法公式成立：P(A∩B)=P(A)P(B)。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -202,7 +256,11 @@
     "先增后减"
    ],
    "answer": 1,
-   "explain": "标准误约 s/√n，n 增大则减小。"
+   "explain": "标准误约 s/√n，n 增大则减小。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -216,7 +274,11 @@
     "总体不存在"
    ],
    "answer": 1,
-   "explain": "拒绝的依据是数据在原假设下的罕见程度，并非直接证明原假设为假。"
+   "explain": "拒绝的依据是数据在原假设下的罕见程度，并非直接证明原假设为假。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -230,7 +292,11 @@
     "9"
    ],
    "answer": 1,
-   "explain": "(4+6+8+10)/4=28/4=7。"
+   "explain": "(4+6+8+10)/4=28/4=7。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -244,7 +310,11 @@
     "5"
    ],
    "answer": 0,
-   "explain": "C(5,2)=10，组合不计顺序。"
+   "explain": "C(5,2)=10，组合不计顺序。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

@@ -58,31 +58,74 @@
    "id": "ch01",
    "title": "第 1 章：有理数的概念与数轴",
    "file": "chapters/ch01-rational-number-axis.md",
-   "difficulty": 1
+   "difficulty": 1,
+   "source": {
+    "file": "数学基础知识丛书-01-有理数与无理数.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "四则运算、分数、数数",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：有理数的四则运算",
    "file": "chapters/ch02-arithmetic.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-01-有理数与无理数.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "分数运算",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：乘方与开方",
    "file": "chapters/ch03-power-root.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-01-有理数与无理数.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "ch04",
    "title": "第 4 章：无理数与实数",
    "file": "chapters/ch04-irrational-real.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-01-有理数与无理数.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch04-depth.md",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "ch05",
    "title": "第 5 章：逼近、代数数与超越数",
    "file": "chapters/ch05-approximation-transcendental.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-01-有理数与无理数.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch05-depth.md",
+   "prerequisites": [
+    "ch04"
+   ]
   }
  ],
  "concepts": [
@@ -91,6 +134,14 @@
    "title": "有理数与无理数的分界",
    "file": "concepts/c01-rational-vs-irrational.md",
    "chapterIds": [
+    "ch01",
+    "ch04"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-01-有理数与无理数.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch01",
     "ch04"
    ]
@@ -102,6 +153,14 @@
    "chapterIds": [
     "ch01",
     "ch04"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-01-有理数与无理数.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01",
+    "ch04"
    ]
   },
   {
@@ -109,6 +168,13 @@
    "title": "用有理数逼近无理数",
    "file": "concepts/c03-approximation.md",
    "chapterIds": [
+    "ch05"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-01-有理数与无理数.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch05"
    ]
   }
@@ -194,7 +260,11 @@
     "−(−5)"
    ],
    "answer": 0,
-   "explain": "−3/4 是负分数，属有理数。0 不是负数；|−2|=2 是正数；−(−5)=5 是正数。"
+   "explain": "−3/4 是负分数，属有理数。0 不是负数；|−2|=2 是正数；−(−5)=5 是正数。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -208,7 +278,11 @@
     "无法比较"
    ],
    "answer": 1,
-   "explain": "通分得 −49/56 与 −48/56。两负数比较，绝对值大的反而小，49>48，所以 −7/8 < −6/7。"
+   "explain": "通分得 −49/56 与 −48/56。两负数比较，绝对值大的反而小，49>48，所以 −7/8 < −6/7。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -222,7 +296,11 @@
     "−2"
    ],
    "answer": 1,
-   "explain": "(−2)(−3)=6（同号得正），再加 −4 得 2。"
+   "explain": "(−2)(−3)=6（同号得正），再加 −4 得 2。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -236,7 +314,11 @@
     "0÷7=0"
    ],
    "answer": 2,
-   "explain": "封闭要求“任意两个元素运算后仍在集合内”。5÷0 因为除数没有倒数而不成立，说明除法必须把 0 排除在外。"
+   "explain": "封闭要求“任意两个元素运算后仍在集合内”。5÷0 因为除数没有倒数而不成立，说明除法必须把 0 排除在外。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -250,7 +332,11 @@
     "2^4"
    ],
    "answer": 1,
-   "explain": "−2^4 表示 2 的四次幂取相反数，等于 −16；(−2)^4=16，(−4)^2=16，2^4=16。"
+   "explain": "−2^4 表示 2 的四次幂取相反数，等于 −16；(−2)^4=16，(−4)^2=16，2^4=16。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -264,7 +350,11 @@
     "√0.25"
    ],
    "answer": 2,
-   "explain": "√49=7；∛(−27)=−3；√0.25=0.5；而 2 不是任何有理数的平方，√2 不是有理数。"
+   "explain": "√49=7；∛(−27)=−3；√0.25=0.5；而 2 不是任何有理数的平方，√2 不是有理数。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -278,7 +368,11 @@
     "2 不是平方数"
    ],
    "answer": 1,
-   "explain": "由 m²=2n² 推出 m 偶，再由 m=2k 推出 n 偶，于是 m、n 有公因数 2，与“最简分数”矛盾。"
+   "explain": "由 m²=2n² 推出 m 偶，再由 m=2k 推出 n 偶，于是 m、n 有公因数 2，与“最简分数”矛盾。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch04"
+   ]
   },
   {
    "id": "q08",
@@ -292,7 +386,11 @@
     "22/7"
    ],
    "answer": 2,
-   "explain": "循环小数是有理数；√16=4；22/7 是分数；π 不是任何整系数多项式方程的根，是无理数（超越数）。"
+   "explain": "循环小数是有理数；√16=4；22/7 是分数；π 不是任何整系数多项式方程的根，是无理数（超越数）。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch04"
+   ]
   },
   {
    "id": "q09",
@@ -306,7 +404,11 @@
     "6"
    ],
    "answer": 2,
-   "explain": "误差上界是 10^-n，要求 10^-n<10^-5，需 n≥5，故取 x_5=1.41421。"
+   "explain": "误差上界是 10^-n，要求 10^-n<10^-5，需 n≥5，故取 x_5=1.41421。",
+   "relatedConceptId": "c03",
+   "prerequisites": [
+    "ch05"
+   ]
   },
   {
    "id": "q10",
@@ -320,7 +422,11 @@
     "22/7"
    ],
    "answer": 2,
-   "explain": "√2 是 x²−2=0 的根；黄金比是 x²−x−1=0 的根；22/7 是有理数；π 不是任何整系数多项式方程的根，是超越数。"
+   "explain": "√2 是 x²−2=0 的根；黄金比是 x²−x−1=0 的根；22/7 是有理数；π 不是任何整系数多项式方程的根，是超越数。",
+   "relatedConceptId": "c03",
+   "prerequisites": [
+    "ch05"
+   ]
   },
   {
    "id": "q11",
@@ -334,7 +440,11 @@
     "两个无理数的和一定是无理数"
    ],
    "answer": 2,
-   "explain": "无限循环小数是有理数；√9=3；√2+(−√2)=0 是有理数，故 D 错；有理数稠密但数轴上有缝，C 正确。"
+   "explain": "无限循环小数是有理数；√9=3；√2+(−√2)=0 是有理数，故 D 错；有理数稠密但数轴上有缝，C 正确。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q12",
@@ -348,7 +458,11 @@
     "无法判断"
    ],
    "answer": 1,
-   "explain": "截断到两位小数，砍掉的尾部小于 0.01，故 0≤π−3.14<0.01。"
+   "explain": "截断到两位小数，砍掉的尾部小于 0.01，故 0≤π−3.14<0.01。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q13",
@@ -362,7 +476,11 @@
     "π 是有理数"
    ],
    "answer": 1,
-   "explain": "可数集合无法覆盖不可数集合，所以必有非代数数的实数，即超越数；而且余下的数量远多于代数数。"
+   "explain": "可数集合无法覆盖不可数集合，所以必有非代数数的实数，即超越数；而且余下的数量远多于代数数。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [

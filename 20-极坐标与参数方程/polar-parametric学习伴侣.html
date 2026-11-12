@@ -3,17 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
 <title>极坐标与参数方程</title>
+<link rel="stylesheet" href="https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/picocss/2.0.6/dist/css/pico.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.css">
 <style>
 :root{
   --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
   --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
   --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+  --depth-bg:#fef9c3; --depth-border:#ca8a04;
 }
 [data-theme="dark"]{
   --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
   --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
   --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+  --depth-bg:#2a2410; --depth-border:#a16207;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -33,7 +39,7 @@ a:hover{text-decoration:underline}
 .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .nav-item .done{float:right;color:var(--ok);font-size:12px}
 #nav-toggle{display:none}
-.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px;margin:0 auto}
 .page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
 .page h2{font-size:20px;margin-top:26px}
 .page h3{font-size:17px;margin-top:22px}
@@ -49,6 +55,37 @@ a:hover{text-decoration:underline}
 .mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
 .mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
 svg{max-width:100%;height:auto}
+/* 出处脚注 */
+.source-badge{font-size:12px;color:var(--muted);background:var(--code-bg);padding:4px 10px;border-radius:6px;margin:0 0 12px;display:inline-block}
+/* 前置知识条 */
+.prereq-bar{font-size:13px;color:var(--muted);border-left:3px solid var(--accent);padding:4px 10px;margin:0 0 12px;background:var(--accent-soft)}
+.prereq-hard a{color:var(--bad);font-weight:600}
+.prereq-soft a{color:var(--muted)}
+.prereq-rec a{color:var(--accent)}
+.prereq-tag{display:inline-block;font-size:10px;padding:0 4px;border-radius:3px;margin-right:2px;vertical-align:middle}
+.prereq-hard .prereq-tag{background:var(--bad);color:#fff}
+.prereq-soft .prereq-tag{background:var(--muted);color:#fff}
+.prereq-rec .prereq-tag{background:var(--accent);color:#fff}
+/* 误解卡片 */
+.misconception-card{margin-top:10px;padding:10px 14px;border-left:4px solid var(--bad);background:#fef2f2;border-radius:0 8px 8px 0;font-size:13px}
+.misconception-card b{color:var(--bad)}
+[data-theme="dark"] .misconception-card{background:#2a1215}
+/* 掌握度条 */
+.mastery-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:4px 0}
+.mastery-bar>div{height:100%;background:var(--ok);transition:width .3s}
+.mastery-label{font-size:11px;color:var(--muted)}
+/* 深度推导片段 */
+.depth-fragment{margin:18px 0;border:1px solid var(--depth-border);border-radius:10px;background:var(--depth-bg);overflow:hidden}
+.depth-fragment>summary{padding:10px 14px;cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+.depth-fragment>summary:hover{filter:brightness(.95)}
+.depth-body{padding:14px 18px;border-top:1px dashed var(--depth-border);background:var(--panel)}
+.depth-missing{color:var(--bad);font-size:13px;padding:8px;background:var(--code-bg);border-radius:6px}
+/* KaTeX */
+sup{font-size:.72em;line-height:0;vertical-align:super}
+.katex-inline{font-size:1.05em}
+.katex-block{overflow-x:auto;padding:8px 0;text-align:center}
+.katex-block .katex{font-size:1.1em}
+/* 测验 */
 .quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
 .quiz-q{margin:0 0 8px;font-weight:500}
 .quiz-opts label{display:block;padding:4px 0;cursor:pointer}
@@ -57,6 +94,8 @@ svg{max-width:100%;height:auto}
 .quiz-feedback{margin-left:12px;font-size:13px}
 .fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
 .quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.quiz-remedy{margin-top:8px;padding:8px 12px;background:var(--accent-soft);border-radius:6px;font-size:13px}
+/* 抽认卡 */
 .flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
 .fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
 .flashcard.flip .fc-inner{transform:rotateY(180deg)}
@@ -80,11 +119,26 @@ svg{max-width:100%;height:auto}
 #progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
 #progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
 .empty{color:var(--muted);padding:20px 0}
-@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+/* 诊断 */
+.diag-controls{margin:14px 0;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+#diag-start{padding:8px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer;font-size:14px}
+#diag-progress{margin-left:12px;color:var(--muted);font-size:13px}
+#diag-stage .quiz-item{margin:10px 0}
+#diag-result{margin-top:16px;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+.diag-remedy-item{padding:10px;margin:8px 0;background:var(--accent-soft);border-radius:8px;font-size:14px}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls,.diag-controls{display:none!important}.main{max-width:none;padding:0}}
 @media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
-  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav{display:none;max-height:46vh;overflow-y:auto;overscroll-behavior:contain}.sidebar.open #nav{display:block}
+  .nav-item{padding:9px 10px}
+  #q,#glossary-filter{font-size:16px}
+  .quiz-opts label{padding:8px 0;min-height:30px}
+  .quiz-check{padding:10px 18px;min-height:40px}
+  #diag-start{min-height:40px}
+  .card-actions button{min-height:40px}
   #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
-  .layout{flex-direction:column}.main{padding:16px}}
+  .layout{flex-direction:column}.main{padding:20px 18px 64px;max-width:none;width:100%}
+  .page{overflow-wrap:anywhere}.page table{display:block;overflow-x:auto;max-width:100%}
+  .page h1,.page h2,.page h3{line-height:1.35}}
 </style>
 </head>
 <body>
@@ -103,17 +157,18 @@ svg{max-width:100%;height:auto}
   </main>
 </div>
 <script>
-const DATA = {"manifest": {"slug": "polar-parametric", "title": "极坐标与参数方程", "subtitle": "换个坐标看曲线：从直角到极坐标、从隐式到参数", "book": {"title": "极坐标与参数方程", "author": "赵霖", "source": ["数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf"]}, "audience": "零基础", "goal": "掌握极坐标与直角坐标的互化，会写直线、圆、圆锥曲线的极坐标方程，掌握常见曲线的参数方程与消参方法。", "learningPath": [{"step": "01", "title": "极坐标", "chapterIds": ["ch01"], "checkpoint": "能把极坐标方程与直角坐标方程互化"}, {"step": "02", "title": "参数方程", "chapterIds": ["ch02"], "checkpoint": "能写出常见曲线的参数方程并消参"}, {"step": "03", "title": "互化与范围检查", "chapterIds": ["ch03"], "checkpoint": "能指出消参后丢失的点"}], "chapters": [{"id": "ch01", "title": "第 1 章：极坐标", "file": "chapters/ch01-polar.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：参数方程", "file": "chapters/ch02-parametric.md", "difficulty": 2}, {"id": "ch03", "title": "第 3 章：互化、范围与最值", "file": "chapters/ch03-conversion-extremum.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "表示与不变量", "file": "concepts/c01-representation.md", "chapterIds": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "范围限制", "file": "concepts/c02-domain-restriction.md", "chapterIds": ["ch02", "ch03"]}], "glossary": [{"term": "极坐标", "def": "用距离与极角表示点的坐标。", "chapterId": "ch01"}, {"term": "极点", "def": "极坐标的定点。", "chapterId": "ch01"}, {"term": "极轴", "def": "极坐标的基准射线。", "chapterId": "ch01"}, {"term": "互化", "def": "极坐标与直角坐标之间的转换。", "chapterId": "ch01"}, {"term": "参数方程", "def": "用参数 t 表示 x、y 的方程。", "chapterId": "ch02"}, {"term": "消参", "def": "从参数方程消去参数得到普通方程。", "chapterId": "ch02"}, {"term": "离心角", "def": "椭圆参数方程中的 θ。", "chapterId": "ch02"}, {"term": "增点", "def": "互化或消参后多出来的、不属于原曲线的点。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "极坐标 (2, π/2) 对应的直角坐标是：", "options": ["(2,0)", "(0,2)", "(0,−2)", "(−2,0)"], "answer": 1, "explain": "x=2cos90°=0，y=2sin90°=2。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "圆心在极点、半径为 3 的圆的极坐标方程是：", "options": ["ρ=3", "ρ=6cosθ", "θ=3", "ρ=3cosθ"], "answer": 0, "explain": "到极点距离恒为 3，即 ρ=3。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "圆 x²+y²=9 的一个参数方程是：", "options": ["x=3cosθ，y=3sinθ", "x=9cosθ，y=9sinθ", "x=3θ，y=3θ", "x=cosθ，y=sinθ"], "answer": 0, "explain": "半径 3 的圆，参数方程 x=3cosθ、y=3sinθ。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "参数方程 x=t²，y=t（t≥0）化为普通方程是：", "options": ["y²=x（x≥0）", "y²=x（x∈R）", "y=x²", "x=y²"], "answer": 0, "explain": "t=√x≥0，y=√x，平方得 y²=x，且 x≥0。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "把 x=cosθ、y=sinθ 消参后得到：", "options": ["x²+y²=1", "x+y=1", "y=x", "x²−y²=1"], "answer": 0, "explain": "由 cos²θ+sin²θ=1 得 x²+y²=1。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：", "options": ["3", "2", "√13", "5"], "answer": 0, "explain": "距离平方 9cos²+4sin²=4+5cos²，最大 9，距离最大 3。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "极坐标 (4, π) 对应的直角坐标是：", "options": ["(4,0)", "(−4,0)", "(0,4)", "(0,−4)"], "answer": 1, "explain": "x=4cos180°=−4，y=4sin180°=0。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "参数方程 x=2t，y=t²（t∈R）化为普通方程是：", "options": ["y=x²/4", "y=4x²", "y=x²", "x=y²/4"], "answer": 0, "explain": "t=x/2，y=(x/2)²=x²/4。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：极坐标」的一句话核心是什么？", "back": "极坐标用一个距离和一个角定位；同一个点有无穷多组极坐标。", "tags": ["polar-parametric", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：参数方程」的一句话核心是什么？", "back": "参数方程用第三个变量 t（或 θ）同时表示 x 与 y，把曲线变成“随参数运动的一条轨迹”。", "tags": ["polar-parametric", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：互化、范围与最值」的一句话核心是什么？", "back": "换表示是为了好算，不是为了好看；每次换完都要核对范围。", "tags": ["polar-parametric", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「极坐标」？", "back": "用距离与极角表示点的坐标。", "tags": ["polar-parametric", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「极点」？", "back": "极坐标的定点。", "tags": ["polar-parametric", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「极轴」？", "back": "极坐标的基准射线。", "tags": ["polar-parametric", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「互化」？", "back": "极坐标与直角坐标之间的转换。", "tags": ["polar-parametric", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「参数方程」？", "back": "用参数 t 表示 x、y 的方程。", "tags": ["polar-parametric", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「消参」？", "back": "从参数方程消去参数得到普通方程。", "tags": ["polar-parametric", "术语"]}, {"id": "f10", "chapterId": "ch02", "front": "什么是「离心角」？", "back": "椭圆参数方程中的 θ。", "tags": ["polar-parametric", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「增点」？", "back": "互化或消参后多出来的、不属于原曲线的点。", "tags": ["polar-parametric", "术语"]}], "companion": "polar-parametric学习伴侣.html", "deriv": "polar-parametric从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：极坐标<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：坐标、三角比\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把点写成极坐标并互化\n<\/li><li>\n写出圆与直线的极坐标方程\n<\/li><li>\n理解 ρ 可为负的含义\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>极坐标用一个距离和一个角定位；同一个点有无穷多组极坐标。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 极坐标的建立<\/h3>\n<p>在平面上取定点 O（极点）与一条射线（极轴），点 P 由距离 ρ=|OP| 与极角 θ（极轴到 OP 的角）确定，记 P(ρ,θ)。<\/p>\n<p>同一个点可以写成 (ρ,θ+2kπ)，也可以写成 (−ρ,θ+π)。所以极坐标不唯一——这是与直角坐标最大的不同。<\/p>\n<h3>1.2 与直角坐标互化<\/h3>\n<p>以极点为原点、极轴为 x 轴正方向：<\/p>\n<p>x=ρcosθ，y=ρsinθ ρ²=x²+y²，tanθ=y/x（x≠0）<\/p>\n<p>互化时要注意象限：仅由 tanθ 定不出 θ，还要看 x、y 的符号。<\/p>\n<h3>1.3 常见曲线的极坐标方程<\/h3>\n<ul><li>\n过极点、倾斜角为 α 的直线：θ=α；\n<\/li><li>\n圆心在极点、半径 r 的圆：ρ=r；\n<\/li><li>\n圆心在 (a,0)、半径 a 的圆：ρ=2a cosθ；\n<\/li><li>\n水平直线 x=a：ρcosθ=a。\n<\/ul>\n<h3>1.4 圆锥曲线的统一方程<\/h3>\n<p>以焦点为极点、对称轴为极轴：<\/p>\n<p>ρ=ep/(1−e cosθ)<\/p>\n<p>e&lt;1 为椭圆，e=1 为抛物线，e&gt;1 为双曲线。同一条公式，三种曲线，这在极坐标下最简洁。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：极坐标像雷达：报“距离多少、方位多少度”，比报“东西多少米、南北多少米”更直观。<\/p>\n<p><strong>失效边界<\/strong>：极点处 θ 任意，极坐标表示不唯一，写方程时要说明 θ 的范围。<\/p>\n<p><strong>实例<\/strong>：点 (2, π/3) 的直角坐标：x=2cos60°=1，y=2sin60°=√3，即 (1,√3)。 直角坐标 (0,3) 的极坐标：ρ=3，θ=π/2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 ρ 必须为正 —— 实际上 ρ 可以为负，此时点在实际方向的相反侧，角度加 π。\n<\/li><li>\n别以为 极坐标与直角坐标一一对应 —— 实际上 极坐标不唯一，一个点有无穷多组表示。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n极坐标 (2, π/2) 对应的直角坐标是：\n<\/li><li>\n圆心在极点、半径为 3 的圆的极坐标方程是：\n<p>A. (2,0) ｜ B. (0,2) ｜ C. (0,−2) ｜ D. (−2,0) <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：x=2cos90°=0，y=2sin90°=2。 A. ρ=3 ｜ B. ρ=6cosθ ｜ C. θ=3 ｜ D. ρ=3cosθ <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：到极点距离恒为 3，即 ρ=3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nx=ρcosθ，y=ρsinθ；ρ²=x²+y²\n<\/li><li>\n极坐标不唯一，ρ 可为负\n<\/li><li>\n圆锥曲线：ρ=ep/(1−e cosθ)\n<\/ul>", "kind": "chapter", "title": "第 1 章：极坐标"}, "ch02": {"html": "<h1>第 2 章：参数方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n写出直线、圆、椭圆的参数方程\n<\/li><li>\n用参数表示运动与位置\n<\/li><li>\n把参数方程化为普通方程\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>参数方程用第三个变量 t（或 θ）同时表示 x 与 y，把曲线变成“随参数运动的一条轨迹”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 直线的参数方程<\/h3>\n<p>过点 (x₀,y₀)、方向向量 (a,b) 的直线：<\/p>\n<p>x=x₀+at，y=y₀+bt<\/p>\n<p>t 是参数，表示沿方向走了多少“份”。若 (a,b) 取单位向量，|t| 就是距离。<\/p>\n<h3>2.2 圆与椭圆<\/h3>\n<p>圆心原点、半径 r 的圆：x=r cosθ，y=r sinθ。<\/p>\n<p>椭圆 x²/a²+y²/b²=1：x=a cosθ，y=b sinθ。<\/p>\n<p>这两个参数方程本质就是三角函数的定义，θ 有明确的几何意义（离心角）。<\/p>\n<h3>2.3 消参<\/h3>\n<p>由 x(t)、y(t) 消去 t 得到普通方程，常用办法：代入消元、用三角恒等式（cos²+sin²=1）、用 t 表示再平方。<\/p>\n<p>消参后必须检查范围：参数 t 的取值限制会变成 x、y 的范围限制，丢掉就会多出曲线的一部分。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：参数方程像给摄像机装了时间轴：每个时刻 t 对应画面上的一个位置。<\/p>\n<p><strong>失效边界<\/strong>：消参可能改变定义域；原来 t≥0 只画半条线，消参后容易画成整条。<\/p>\n<p><strong>实例<\/strong>：x=1+2t，y=3+t。由 t=(x−1)/2 代入得 y=3+(x−1)/2，即 x−2y+5=0。 若限定 t≥0，则只能取 x≥1 的那条射线。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 参数方程与普通方程完全等价 —— 实际上 消参后常扩大定义域，必须补上范围限制。\n<\/li><li>\n别以为 参数 t 就是 x —— 实际上 t 是独立参数，与 x、y 都没有必然相等关系。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n圆 x²+y²=9 的一个参数方程是：\n<\/li><li>\n参数方程 x=t²，y=t（t≥0）化为普通方程是：\n<p>A. x=3cosθ，y=3sinθ ｜ B. x=9cosθ，y=9sinθ ｜ C. x=3θ，y=3θ ｜ D. x=cosθ，y=sinθ <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：半径 3 的圆，参数方程 x=3cosθ、y=3sinθ。 A. y²=x（x≥0） ｜ B. y²=x（x∈R） ｜ C. y=x² ｜ D. x=y² <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：t=√x≥0，y=√x，平方得 y²=x，且 x≥0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n直线 x=x₀+at，y=y₀+bt\n<\/li><li>\n圆 x=r cosθ，y=r sinθ；椭圆 x=a cosθ，y=b sinθ\n<\/li><li>\n消参后补范围\n<\/ul>", "kind": "chapter", "title": "第 2 章：参数方程"}, "ch03": {"html": "<h1>第 3 章：互化、范围与最值<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n在三种表示之间自由转换\n<\/li><li>\n用参数方程求最值\n<\/li><li>\n检查互化中的增点与漏点\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>换表示是为了好算，不是为了好看；每次换完都要核对范围。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 三种表示的取舍<\/h3>\n<ul><li>\n直角坐标方程：适合判断形状、求交点、算距离；\n<\/li><li>\n极坐标方程：适合旋转对称、过极点的图形、圆锥曲线统一式；\n<\/li><li>\n参数方程：适合求最值、描述运动、算弧长。\n<\/ul>\n<h3>3.2 用参数求最值<\/h3>\n<p>把曲线上的点写成参数形式，将目标量化为参数的一元函数，再用配方、三角有界性（|sinθ|≤1）求最值。<\/p>\n<p>例：椭圆 x=3cosθ、y=2sinθ 上点到原点距离的平方为 9cos²θ+4sin²θ=4+5cos²θ，最大 9、最小 4。<\/p>\n<h3>3.3 常见增点与漏点<\/h3>\n<ul><li>\n消参时平方：可能把 x&lt;0 的部分也画进来；\n<\/li><li>\n极坐标化直角坐标时两边乘 ρ：ρ=0 的点可能被重复计算；\n<\/li><li>\n直角坐标化极坐标时用 tanθ：可能丢掉第二、三象限的点。\n<\/ul>\n<h3>3.4 检查清单<\/h3>\n<p>换完表示后问三句：定义域变了吗？有没有多出点？有没有漏掉点？<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：三种表示像三种语言描述同一件事，翻译时最容易丢的是“限定条件”。<\/p>\n<p><strong>失效边界<\/strong>：参数方程求最值只在参数范围内有效，超出范围的最值点取不到。<\/p>\n<p><strong>实例<\/strong>：圆 x²+y²=4 上点到直线 x+y−6=0 的距离： 点写成 (2cosθ,2sinθ)，距离 |2cosθ+2sinθ−6|/√2=|2√2 sin(θ+45°)−6|/√2，最大 (6+2√2)/√2≈5.41。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 互化一定等价 —— 实际上 乘 ρ、平方、取正切都可能改变解集，必须检查。\n<\/li><li>\n别以为 参数方程不能求最值 —— 实际上 恰恰相反，参数化后最值问题变成一元函数问题，更好算。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n把 x=cosθ、y=sinθ 消参后得到：\n<\/li><li>\n椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：\n<p>A. x²+y²=1 ｜ B. x+y=1 ｜ C. y=x ｜ D. x²−y²=1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：由 cos²θ+sin²θ=1 得 x²+y²=1。 A. 3 ｜ B. 2 ｜ C. √13 ｜ D. 5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：距离平方 9cos²+4sin²=4+5cos²，最大 9，距离最大 3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n三种表示各有适用场景\n<\/li><li>\n参数化后最值化为一元函数\n<\/li><li>\n互化后查定义域与增减点\n<\/ul>", "kind": "chapter", "title": "第 3 章：互化、范围与最值"}, "c01": {"html": "<h1>表示与不变量<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>坐标可以换，曲线本身不变；变的是写法，不变的是形状。<\/p>\n<h2>为什么重要<\/h2>\n<p>理解这一点，就不会在互化时把“换了写法”误当成“换了曲线”。<\/p>\n<h2>详解<\/h2>\n<p>直角坐标、极坐标、参数方程描述的是同一批点。互化时保持点集不变才算正确；范围、符号、象限是保持点集不变的关键。<\/p>\n<h2>常见误解<\/h2>\n<p>只看方程形式像不像，不检查点集是否一致。<\/p>\n<h2>相关概念<\/h2>\n<p>极坐标（ch01）、参数方程（ch02）<\/p>", "kind": "concept", "title": "表示与不变量"}, "c02": {"html": "<h1>范围限制<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>参数有范围，消参后就必须把这个范围搬到 x、y 上。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是互化题最常见的失分点，也是解析几何“严谨性”的体现。<\/p>\n<h2>详解<\/h2>\n<p>t≥0 只画半条射线；θ∈[0,π] 只画上半圆；平方消参可能引入负半轴。检查办法：取参数范围的端点代入，看对应的 x、y 是否被保留。<\/p>\n<h2>常见误解<\/h2>\n<p>消参后写一个漂亮的整条曲线方程，把范围丢掉了。<\/p>\n<h2>相关概念<\/h2>\n<p>消参（ch02）、增点（ch03）<\/p>", "kind": "concept", "title": "范围限制"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：极坐标<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：极坐标<\/a><br>检查点：能把极坐标方程与直角坐标方程互化<\/li><li class='path-step' id='path-02'><strong>步骤 02：参数方程<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><br>检查点：能写出常见曲线的参数方程并消参<\/li><li class='path-step' id='path-03'><strong>步骤 03：互化与范围检查<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：互化、范围与最值<\/a><br>检查点：能指出消参后丢失的点<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 极坐标 (4, π) 对应的直角坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> (4,0)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> (−4,0)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> (0,4)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> (0,−4)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 参数方程 x=2t，y=t²（t∈R）化为普通方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> y=x²/4<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> y=4x²<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> y=x²<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> x=y²/4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：极坐标<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 极坐标 (2, π/2) 对应的直角坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> (2,0)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> (0,2)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> (0,−2)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> (−2,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 圆心在极点、半径为 3 的圆的极坐标方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> ρ=3<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> ρ=6cosθ<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> θ=3<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> ρ=3cosθ<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：参数方程<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 圆 x²+y²=9 的一个参数方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> x=3cosθ，y=3sinθ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x=9cosθ，y=9sinθ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> x=3θ，y=3θ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x=cosθ，y=sinθ<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 参数方程 x=t²，y=t（t≥0）化为普通方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> y²=x（x≥0）<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> y²=x（x∈R）<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> y=x²<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> x=y²<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：互化、范围与最值<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 把 x=cosθ、y=sinθ 消参后得到：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> x²+y²=1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> x+y=1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> y=x<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> x²−y²=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> √13<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='极坐标'>极坐标 — 用距离与极角表示点的坐标。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='极点'>极点 — 极坐标的定点。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='极轴'>极轴 — 极坐标的基准射线。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='互化'>互化 — 极坐标与直角坐标之间的转换。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='参数方程'>参数方程 — 用参数 t 表示 x、y 的方程。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='消参'>消参 — 从参数方程消去参数得到普通方程。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='离心角'>离心角 — 椭圆参数方程中的 θ。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='增点'>增点 — 互化或消参后多出来的、不属于原曲线的点。 <span class=glossary-ref>（第 3 章：互化、范围与最值）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：选表示三问<\/h2>\n<p>① 图形是否绕极点旋转对称（用极坐标）；② 是否需要求最值或描述运动（用参数）；③ 是否需要判断形状与交点（用直角坐标）。<\/p>\n<h2>框架：互化两步<\/h2>\n<p>① 代公式转换；② 检查点集是否一致（范围、符号、象限）。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>互化<\/td><td>x=ρcosθ，y=ρsinθ；ρ²=x²+y²<\/td><\/tr><tr><td>圆<\/td><td>ρ=r（圆心极点）；ρ=2a cosθ（过极点）<\/td><\/tr><tr><td>圆锥曲线<\/td><td>ρ=ep/(1−e cosθ)<\/td><\/tr><tr><td>直线参数<\/td><td>x=x₀+at，y=y₀+bt<\/td><\/tr><tr><td>圆参数<\/td><td>x=r cosθ，y=r sinθ<\/td><\/tr><tr><td>椭圆参数<\/td><td>x=a cosθ，y=b sinθ<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/20-极坐标与参数方程", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：极坐标", "href": "#/chapter/ch01"}, {"label": "第 2 章：参数方程", "href": "#/chapter/ch02"}, {"label": "第 3 章：互化、范围与最值", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "表示与不变量", "href": "#/concept/c01"}, {"label": "范围限制", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：极坐标", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：参数方程", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：互化、范围与最值", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：极坐标<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：坐标、三角比\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把点写成极坐标并互化\n<\/li><li>\n写出圆与直线的极坐标方程\n<\/li><li>\n理解 ρ 可为负的含义\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>极坐标用一个距离和一个角定位；同一个点有无穷多组极坐标。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 极坐标的建立<\/h3>\n<p>在平面上取定点 O（极点）与一条射线（极轴），点 P 由距离 ρ=|OP| 与极角 θ（极轴到 OP 的角）确定，记 P(ρ,θ)。<\/p>\n<p>同一个点可以写成 (ρ,θ+2kπ)，也可以写成 (−ρ,θ+π)。所以极坐标不唯一——这是与直角坐标最大的不同。<\/p>\n<h3>1.2 与直角坐标互化<\/h3>\n<p>以极点为原点、极轴为 x 轴正方向：<\/p>\n<p>x=ρcosθ，y=ρsinθ ρ²=x²+y²，tanθ=y/x（x≠0）<\/p>\n<p>互化时要注意象限：仅由 tanθ 定不出 θ，还要看 x、y 的符号。<\/p>\n<h3>1.3 常见曲线的极坐标方程<\/h3>\n<ul><li>\n过极点、倾斜角为 α 的直线：θ=α；\n<\/li><li>\n圆心在极点、半径 r 的圆：ρ=r；\n<\/li><li>\n圆心在 (a,0)、半径 a 的圆：ρ=2a cosθ；\n<\/li><li>\n水平直线 x=a：ρcosθ=a。\n<\/ul>\n<h3>1.4 圆锥曲线的统一方程<\/h3>\n<p>以焦点为极点、对称轴为极轴：<\/p>\n<p>ρ=ep/(1−e cosθ)<\/p>\n<p>e&lt;1 为椭圆，e=1 为抛物线，e&gt;1 为双曲线。同一条公式，三种曲线，这在极坐标下最简洁。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：极坐标像雷达：报“距离多少、方位多少度”，比报“东西多少米、南北多少米”更直观。<\/p>\n<p><strong>失效边界<\/strong>：极点处 θ 任意，极坐标表示不唯一，写方程时要说明 θ 的范围。<\/p>\n<p><strong>实例<\/strong>：点 (2, π/3) 的直角坐标：x=2cos60°=1，y=2sin60°=√3，即 (1,√3)。 直角坐标 (0,3) 的极坐标：ρ=3，θ=π/2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 ρ 必须为正 —— 实际上 ρ 可以为负，此时点在实际方向的相反侧，角度加 π。\n<\/li><li>\n别以为 极坐标与直角坐标一一对应 —— 实际上 极坐标不唯一，一个点有无穷多组表示。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n极坐标 (2, π/2) 对应的直角坐标是：\n<\/li><li>\n圆心在极点、半径为 3 的圆的极坐标方程是：\n<p>A. (2,0) ｜ B. (0,2) ｜ C. (0,−2) ｜ D. (−2,0) <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：x=2cos90°=0，y=2sin90°=2。 A. ρ=3 ｜ B. ρ=6cosθ ｜ C. θ=3 ｜ D. ρ=3cosθ <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：到极点距离恒为 3，即 ρ=3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nx=ρcosθ，y=ρsinθ；ρ²=x²+y²\n<\/li><li>\n极坐标不唯一，ρ 可为负\n<\/li><li>\n圆锥曲线：ρ=ep/(1−e cosθ)\n<\/ul>", "ch02": "<h1>第 2 章：参数方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n写出直线、圆、椭圆的参数方程\n<\/li><li>\n用参数表示运动与位置\n<\/li><li>\n把参数方程化为普通方程\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>参数方程用第三个变量 t（或 θ）同时表示 x 与 y，把曲线变成“随参数运动的一条轨迹”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 直线的参数方程<\/h3>\n<p>过点 (x₀,y₀)、方向向量 (a,b) 的直线：<\/p>\n<p>x=x₀+at，y=y₀+bt<\/p>\n<p>t 是参数，表示沿方向走了多少“份”。若 (a,b) 取单位向量，|t| 就是距离。<\/p>\n<h3>2.2 圆与椭圆<\/h3>\n<p>圆心原点、半径 r 的圆：x=r cosθ，y=r sinθ。<\/p>\n<p>椭圆 x²/a²+y²/b²=1：x=a cosθ，y=b sinθ。<\/p>\n<p>这两个参数方程本质就是三角函数的定义，θ 有明确的几何意义（离心角）。<\/p>\n<h3>2.3 消参<\/h3>\n<p>由 x(t)、y(t) 消去 t 得到普通方程，常用办法：代入消元、用三角恒等式（cos²+sin²=1）、用 t 表示再平方。<\/p>\n<p>消参后必须检查范围：参数 t 的取值限制会变成 x、y 的范围限制，丢掉就会多出曲线的一部分。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：参数方程像给摄像机装了时间轴：每个时刻 t 对应画面上的一个位置。<\/p>\n<p><strong>失效边界<\/strong>：消参可能改变定义域；原来 t≥0 只画半条线，消参后容易画成整条。<\/p>\n<p><strong>实例<\/strong>：x=1+2t，y=3+t。由 t=(x−1)/2 代入得 y=3+(x−1)/2，即 x−2y+5=0。 若限定 t≥0，则只能取 x≥1 的那条射线。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 参数方程与普通方程完全等价 —— 实际上 消参后常扩大定义域，必须补上范围限制。\n<\/li><li>\n别以为 参数 t 就是 x —— 实际上 t 是独立参数，与 x、y 都没有必然相等关系。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n圆 x²+y²=9 的一个参数方程是：\n<\/li><li>\n参数方程 x=t²，y=t（t≥0）化为普通方程是：\n<p>A. x=3cosθ，y=3sinθ ｜ B. x=9cosθ，y=9sinθ ｜ C. x=3θ，y=3θ ｜ D. x=cosθ，y=sinθ <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：半径 3 的圆，参数方程 x=3cosθ、y=3sinθ。 A. y²=x（x≥0） ｜ B. y²=x（x∈R） ｜ C. y=x² ｜ D. x=y² <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：t=√x≥0，y=√x，平方得 y²=x，且 x≥0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n直线 x=x₀+at，y=y₀+bt\n<\/li><li>\n圆 x=r cosθ，y=r sinθ；椭圆 x=a cosθ，y=b sinθ\n<\/li><li>\n消参后补范围\n<\/ul>", "ch03": "<h1>第 3 章：互化、范围与最值<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n在三种表示之间自由转换\n<\/li><li>\n用参数方程求最值\n<\/li><li>\n检查互化中的增点与漏点\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>换表示是为了好算，不是为了好看；每次换完都要核对范围。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 三种表示的取舍<\/h3>\n<ul><li>\n直角坐标方程：适合判断形状、求交点、算距离；\n<\/li><li>\n极坐标方程：适合旋转对称、过极点的图形、圆锥曲线统一式；\n<\/li><li>\n参数方程：适合求最值、描述运动、算弧长。\n<\/ul>\n<h3>3.2 用参数求最值<\/h3>\n<p>把曲线上的点写成参数形式，将目标量化为参数的一元函数，再用配方、三角有界性（|sinθ|≤1）求最值。<\/p>\n<p>例：椭圆 x=3cosθ、y=2sinθ 上点到原点距离的平方为 9cos²θ+4sin²θ=4+5cos²θ，最大 9、最小 4。<\/p>\n<h3>3.3 常见增点与漏点<\/h3>\n<ul><li>\n消参时平方：可能把 x&lt;0 的部分也画进来；\n<\/li><li>\n极坐标化直角坐标时两边乘 ρ：ρ=0 的点可能被重复计算；\n<\/li><li>\n直角坐标化极坐标时用 tanθ：可能丢掉第二、三象限的点。\n<\/ul>\n<h3>3.4 检查清单<\/h3>\n<p>换完表示后问三句：定义域变了吗？有没有多出点？有没有漏掉点？<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：三种表示像三种语言描述同一件事，翻译时最容易丢的是“限定条件”。<\/p>\n<p><strong>失效边界<\/strong>：参数方程求最值只在参数范围内有效，超出范围的最值点取不到。<\/p>\n<p><strong>实例<\/strong>：圆 x²+y²=4 上点到直线 x+y−6=0 的距离： 点写成 (2cosθ,2sinθ)，距离 |2cosθ+2sinθ−6|/√2=|2√2 sin(θ+45°)−6|/√2，最大 (6+2√2)/√2≈5.41。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 互化一定等价 —— 实际上 乘 ρ、平方、取正切都可能改变解集，必须检查。\n<\/li><li>\n别以为 参数方程不能求最值 —— 实际上 恰恰相反，参数化后最值问题变成一元函数问题，更好算。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n把 x=cosθ、y=sinθ 消参后得到：\n<\/li><li>\n椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：\n<p>A. x²+y²=1 ｜ B. x+y=1 ｜ C. y=x ｜ D. x²−y²=1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：由 cos²θ+sin²θ=1 得 x²+y²=1。 A. 3 ｜ B. 2 ｜ C. √13 ｜ D. 5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：距离平方 9cos²+4sin²=4+5cos²，最大 9，距离最大 3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n三种表示各有适用场景\n<\/li><li>\n参数化后最值化为一元函数\n<\/li><li>\n互化后查定义域与增减点\n<\/ul>", "c01": "<h1>表示与不变量<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>坐标可以换，曲线本身不变；变的是写法，不变的是形状。<\/p>\n<h2>为什么重要<\/h2>\n<p>理解这一点，就不会在互化时把“换了写法”误当成“换了曲线”。<\/p>\n<h2>详解<\/h2>\n<p>直角坐标、极坐标、参数方程描述的是同一批点。互化时保持点集不变才算正确；范围、符号、象限是保持点集不变的关键。<\/p>\n<h2>常见误解<\/h2>\n<p>只看方程形式像不像，不检查点集是否一致。<\/p>\n<h2>相关概念<\/h2>\n<p>极坐标（ch01）、参数方程（ch02）<\/p>", "c02": "<h1>范围限制<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>参数有范围，消参后就必须把这个范围搬到 x、y 上。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是互化题最常见的失分点，也是解析几何“严谨性”的体现。<\/p>\n<h2>详解<\/h2>\n<p>t≥0 只画半条射线；θ∈[0,π] 只画上半圆；平方消参可能引入负半轴。检查办法：取参数范围的端点代入，看对应的 x、y 是否被保留。<\/p>\n<h2>常见误解<\/h2>\n<p>消参后写一个漂亮的整条曲线方程，把范围丢掉了。<\/p>\n<h2>相关概念<\/h2>\n<p>消参（ch02）、增点（ch03）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：极坐标<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：极坐标<\/a><br>检查点：能把极坐标方程与直角坐标方程互化<\/li><li class='path-step' id='path-02'><strong>步骤 02：参数方程<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><br>检查点：能写出常见曲线的参数方程并消参<\/li><li class='path-step' id='path-03'><strong>步骤 03：互化与范围检查<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：互化、范围与最值<\/a><br>检查点：能指出消参后丢失的点<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 极坐标 (4, π) 对应的直角坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> (4,0)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> (−4,0)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> (0,4)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> (0,−4)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 参数方程 x=2t，y=t²（t∈R）化为普通方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> y=x²/4<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> y=4x²<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> y=x²<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> x=y²/4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：极坐标<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 极坐标 (2, π/2) 对应的直角坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> (2,0)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> (0,2)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> (0,−2)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> (−2,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 圆心在极点、半径为 3 的圆的极坐标方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> ρ=3<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> ρ=6cosθ<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> θ=3<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> ρ=3cosθ<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：参数方程<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 圆 x²+y²=9 的一个参数方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> x=3cosθ，y=3sinθ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x=9cosθ，y=9sinθ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> x=3θ，y=3θ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x=cosθ，y=sinθ<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 参数方程 x=t²，y=t（t≥0）化为普通方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> y²=x（x≥0）<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> y²=x（x∈R）<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> y=x²<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> x=y²<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：互化、范围与最值<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 把 x=cosθ、y=sinθ 消参后得到：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> x²+y²=1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> x+y=1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> y=x<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> x²−y²=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> √13<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='极坐标'>极坐标 — 用距离与极角表示点的坐标。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='极点'>极点 — 极坐标的定点。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='极轴'>极轴 — 极坐标的基准射线。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='互化'>互化 — 极坐标与直角坐标之间的转换。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='参数方程'>参数方程 — 用参数 t 表示 x、y 的方程。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='消参'>消参 — 从参数方程消去参数得到普通方程。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='离心角'>离心角 — 椭圆参数方程中的 θ。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='增点'>增点 — 互化或消参后多出来的、不属于原曲线的点。 <span class=glossary-ref>（第 3 章：互化、范围与最值）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：选表示三问<\/h2>\n<p>① 图形是否绕极点旋转对称（用极坐标）；② 是否需要求最值或描述运动（用参数）；③ 是否需要判断形状与交点（用直角坐标）。<\/p>\n<h2>框架：互化两步<\/h2>\n<p>① 代公式转换；② 检查点集是否一致（范围、符号、象限）。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>互化<\/td><td>x=ρcosθ，y=ρsinθ；ρ²=x²+y²<\/td><\/tr><tr><td>圆<\/td><td>ρ=r（圆心极点）；ρ=2a cosθ（过极点）<\/td><\/tr><tr><td>圆锥曲线<\/td><td>ρ=ep/(1−e cosθ)<\/td><\/tr><tr><td>直线参数<\/td><td>x=x₀+at，y=y₀+bt<\/td><\/tr><tr><td>圆参数<\/td><td>x=r cosθ，y=r sinθ<\/td><\/tr><tr><td>椭圆参数<\/td><td>x=a cosθ，y=b sinθ<\/td><\/tr><\/tbody><\/table>"}};
+const DATA = {"manifest": {"slug": "polar-parametric", "title": "极坐标与参数方程", "subtitle": "换个坐标看曲线：从直角到极坐标、从隐式到参数", "book": {"title": "极坐标与参数方程", "author": "赵霖", "source": ["数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf"]}, "audience": "零基础", "goal": "掌握极坐标与直角坐标的互化，会写直线、圆、圆锥曲线的极坐标方程，掌握常见曲线的参数方程与消参方法。", "learningPath": [{"step": "01", "title": "极坐标", "chapterIds": ["ch01"], "checkpoint": "能把极坐标方程与直角坐标方程互化"}, {"step": "02", "title": "参数方程", "chapterIds": ["ch02"], "checkpoint": "能写出常见曲线的参数方程并消参"}, {"step": "03", "title": "互化与范围检查", "chapterIds": ["ch03"], "checkpoint": "能指出消参后丢失的点"}], "chapters": [{"id": "ch01", "title": "第 1 章：极坐标", "file": "chapters/ch01-polar.md", "difficulty": 2, "source": {"file": "数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf", "kind": "原书 PDF"}, "prereqNote": "坐标、三角比", "depthFragment": "chapters/ch01-depth.md", "prerequisites": []}, {"id": "ch02", "title": "第 2 章：参数方程", "file": "chapters/ch02-parametric.md", "difficulty": 2, "source": {"file": "数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch02-depth.md", "prerequisites": ["ch01"]}, {"id": "ch03", "title": "第 3 章：互化、范围与最值", "file": "chapters/ch03-conversion-extremum.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch03-depth.md", "prerequisites": ["ch02"]}], "concepts": [{"id": "c01", "title": "表示与不变量", "file": "concepts/c01-representation.md", "chapterIds": ["ch01", "ch02", "ch03"], "source": {"file": "数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "范围限制", "file": "concepts/c02-domain-restriction.md", "chapterIds": ["ch02", "ch03"], "source": {"file": "数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch02", "ch03"]}], "glossary": [{"term": "极坐标", "def": "用距离与极角表示点的坐标。", "chapterId": "ch01"}, {"term": "极点", "def": "极坐标的定点。", "chapterId": "ch01"}, {"term": "极轴", "def": "极坐标的基准射线。", "chapterId": "ch01"}, {"term": "互化", "def": "极坐标与直角坐标之间的转换。", "chapterId": "ch01"}, {"term": "参数方程", "def": "用参数 t 表示 x、y 的方程。", "chapterId": "ch02"}, {"term": "消参", "def": "从参数方程消去参数得到普通方程。", "chapterId": "ch02"}, {"term": "离心角", "def": "椭圆参数方程中的 θ。", "chapterId": "ch02"}, {"term": "增点", "def": "互化或消参后多出来的、不属于原曲线的点。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "极坐标 (2, π/2) 对应的直角坐标是：", "options": ["(2,0)", "(0,2)", "(0,−2)", "(−2,0)"], "answer": 1, "explain": "x=2cos90°=0，y=2sin90°=2。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "圆心在极点、半径为 3 的圆的极坐标方程是：", "options": ["ρ=3", "ρ=6cosθ", "θ=3", "ρ=3cosθ"], "answer": 0, "explain": "到极点距离恒为 3，即 ρ=3。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "圆 x²+y²=9 的一个参数方程是：", "options": ["x=3cosθ，y=3sinθ", "x=9cosθ，y=9sinθ", "x=3θ，y=3θ", "x=cosθ，y=sinθ"], "answer": 0, "explain": "半径 3 的圆，参数方程 x=3cosθ、y=3sinθ。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "参数方程 x=t²，y=t（t≥0）化为普通方程是：", "options": ["y²=x（x≥0）", "y²=x（x∈R）", "y=x²", "x=y²"], "answer": 0, "explain": "t=√x≥0，y=√x，平方得 y²=x，且 x≥0。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "把 x=cosθ、y=sinθ 消参后得到：", "options": ["x²+y²=1", "x+y=1", "y=x", "x²−y²=1"], "answer": 0, "explain": "由 cos²θ+sin²θ=1 得 x²+y²=1。", "relatedConceptId": "c01", "prerequisites": ["ch03"]}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：", "options": ["3", "2", "√13", "5"], "answer": 0, "explain": "距离平方 9cos²+4sin²=4+5cos²，最大 9，距离最大 3。", "relatedConceptId": "c01", "prerequisites": ["ch03"]}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "极坐标 (4, π) 对应的直角坐标是：", "options": ["(4,0)", "(−4,0)", "(0,4)", "(0,−4)"], "answer": 1, "explain": "x=4cos180°=−4，y=4sin180°=0。", "relatedConceptId": "", "prerequisites": ["__all__"]}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "参数方程 x=2t，y=t²（t∈R）化为普通方程是：", "options": ["y=x²/4", "y=4x²", "y=x²", "x=y²/4"], "answer": 0, "explain": "t=x/2，y=(x/2)²=x²/4。", "relatedConceptId": "", "prerequisites": ["__all__"]}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：极坐标」的一句话核心是什么？", "back": "极坐标用一个距离和一个角定位；同一个点有无穷多组极坐标。", "tags": ["polar-parametric", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：参数方程」的一句话核心是什么？", "back": "参数方程用第三个变量 t（或 θ）同时表示 x 与 y，把曲线变成“随参数运动的一条轨迹”。", "tags": ["polar-parametric", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：互化、范围与最值」的一句话核心是什么？", "back": "换表示是为了好算，不是为了好看；每次换完都要核对范围。", "tags": ["polar-parametric", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「极坐标」？", "back": "用距离与极角表示点的坐标。", "tags": ["polar-parametric", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「极点」？", "back": "极坐标的定点。", "tags": ["polar-parametric", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「极轴」？", "back": "极坐标的基准射线。", "tags": ["polar-parametric", "术语"]}, {"id": "f07", "chapterId": "ch01", "front": "什么是「互化」？", "back": "极坐标与直角坐标之间的转换。", "tags": ["polar-parametric", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「参数方程」？", "back": "用参数 t 表示 x、y 的方程。", "tags": ["polar-parametric", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「消参」？", "back": "从参数方程消去参数得到普通方程。", "tags": ["polar-parametric", "术语"]}, {"id": "f10", "chapterId": "ch02", "front": "什么是「离心角」？", "back": "椭圆参数方程中的 θ。", "tags": ["polar-parametric", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「增点」？", "back": "互化或消参后多出来的、不属于原曲线的点。", "tags": ["polar-parametric", "术语"]}], "companion": "polar-parametric学习伴侣.html", "deriv": "polar-parametric从零推导.html"}, "pages": {"ch01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">坐标、三角比<\/span><\/div><h1>第 1 章：极坐标<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：坐标、三角比\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把点写成极坐标并互化\n<\/li><li>\n写出圆与直线的极坐标方程\n<\/li><li>\n理解 ρ 可为负的含义\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>极坐标用一个距离和一个角定位；同一个点有无穷多组极坐标。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 极坐标的建立<\/h3>\n<p>在平面上取定点 O（极点）与一条射线（极轴），点 P 由距离 ρ=|OP| 与极角 θ（极轴到 OP 的角）确定，记 P(ρ,θ)。<\/p>\n<p>同一个点可以写成 (ρ,θ+2kπ)，也可以写成 (−ρ,θ+π)。所以极坐标不唯一——这是与直角坐标最大的不同。<\/p>\n<h3>1.2 与直角坐标互化<\/h3>\n<p>以极点为原点、极轴为 x 轴正方向：<\/p>\n<p>x=ρcosθ，y=ρsinθ ρ²=x²+y²，tanθ=y/x（x≠0）<\/p>\n<p>互化时要注意象限：仅由 tanθ 定不出 θ，还要看 x、y 的符号。<\/p>\n<h3>1.3 常见曲线的极坐标方程<\/h3>\n<ul><li>\n过极点、倾斜角为 α 的直线：θ=α；\n<\/li><li>\n圆心在极点、半径 r 的圆：ρ=r；\n<\/li><li>\n圆心在 (a,0)、半径 a 的圆：ρ=2a cosθ；\n<\/li><li>\n水平直线 x=a：ρcosθ=a。\n<\/ul>\n<h3>1.4 圆锥曲线的统一方程<\/h3>\n<p>以焦点为极点、对称轴为极轴：<\/p>\n<p>ρ=ep/(1−e cosθ)<\/p>\n<p>e&lt;1 为椭圆，e=1 为抛物线，e&gt;1 为双曲线。同一条公式，三种曲线，这在极坐标下最简洁。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：极坐标像雷达：报“距离多少、方位多少度”，比报“东西多少米、南北多少米”更直观。<\/p>\n<p><strong>失效边界<\/strong>：极点处 θ 任意，极坐标表示不唯一，写方程时要说明 θ 的范围。<\/p>\n<p><strong>实例<\/strong>：点 (2, π/3) 的直角坐标：x=2cos60°=1，y=2sin60°=√3，即 (1,√3)。 直角坐标 (0,3) 的极坐标：ρ=3，θ=π/2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 ρ 必须为正 —— 实际上 ρ 可以为负，此时点在实际方向的相反侧，角度加 π。\n<\/li><li>\n别以为 极坐标与直角坐标一一对应 —— 实际上 极坐标不唯一，一个点有无穷多组表示。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n极坐标 (2, π/2) 对应的直角坐标是：\n<\/li><li>\n圆心在极点、半径为 3 的圆的极坐标方程是：\n<p>A. (2,0) ｜ B. (0,2) ｜ C. (0,−2) ｜ D. (−2,0) <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：x=2cos90°=0，y=2sin90°=2。 A. ρ=3 ｜ B. ρ=6cosθ ｜ C. θ=3 ｜ D. ρ=3cosθ <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：到极点距离恒为 3，即 ρ=3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nx=ρcosθ，y=ρsinθ；ρ²=x²+y²\n<\/li><li>\n极坐标不唯一，ρ 可为负\n<\/li><li>\n圆锥曲线：ρ=ep/(1−e cosθ)\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：极坐标）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：极坐标<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>极坐标只是换了一套“定位语言”：不用横纵两个距离，而用距离加角度。换算公式就是直角三角形里的三角比。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>极坐标用 (ρ,θ) 表示点，ρ 是到极点的距离，θ 是极轴到该点的角。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像用指南针报位置：往东北方向走 3 公里，比说“向东 2.1 公里、向北 2.1 公里”更自然。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 互化<\/h3>\n<div class=\"katex-block\">x=\\rho\\cos\\theta,\\quad y=\\rho\\sin\\theta<\/div>\n<p>由直角三角形直接得到。<\/p>\n<h3>2. 反解<\/h3>\n<div class=\"katex-block\">\\rho^{2}=x^{2}+y^{2},\\quad \\tan\\theta=\\frac{y}{x}<\/div>\n<p>距离用勾股，角度用正切，注意象限。<\/p>\n<h3>3. 圆的极坐标<\/h3>\n<div class=\"katex-block\">\\rho=2a\\cos\\theta<\/div>\n<p>圆心 (a,0)、半径 a 的圆，过极点。<\/p>\n<h3>4. 圆锥曲线<\/h3>\n<div class=\"katex-block\">\\rho=\\frac{ep}{1-e\\cos\\theta}<\/div>\n<p>以焦点为极点时，三条曲线共用一条公式。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>极点处角度无定义；ρ 为负时要理解成反向延长。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《极坐标与参数方程》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 1 章：极坐标"}, "ch02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：极坐标<\/a><\/span><\/div><h1>第 2 章：参数方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n写出直线、圆、椭圆的参数方程\n<\/li><li>\n用参数表示运动与位置\n<\/li><li>\n把参数方程化为普通方程\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>参数方程用第三个变量 t（或 θ）同时表示 x 与 y，把曲线变成“随参数运动的一条轨迹”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 直线的参数方程<\/h3>\n<p>过点 (x₀,y₀)、方向向量 (a,b) 的直线：<\/p>\n<p>x=x₀+at，y=y₀+bt<\/p>\n<p>t 是参数，表示沿方向走了多少“份”。若 (a,b) 取单位向量，|t| 就是距离。<\/p>\n<h3>2.2 圆与椭圆<\/h3>\n<p>圆心原点、半径 r 的圆：x=r cosθ，y=r sinθ。<\/p>\n<p>椭圆 x²/a²+y²/b²=1：x=a cosθ，y=b sinθ。<\/p>\n<p>这两个参数方程本质就是三角函数的定义，θ 有明确的几何意义（离心角）。<\/p>\n<h3>2.3 消参<\/h3>\n<p>由 x(t)、y(t) 消去 t 得到普通方程，常用办法：代入消元、用三角恒等式（cos²+sin²=1）、用 t 表示再平方。<\/p>\n<p>消参后必须检查范围：参数 t 的取值限制会变成 x、y 的范围限制，丢掉就会多出曲线的一部分。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：参数方程像给摄像机装了时间轴：每个时刻 t 对应画面上的一个位置。<\/p>\n<p><strong>失效边界<\/strong>：消参可能改变定义域；原来 t≥0 只画半条线，消参后容易画成整条。<\/p>\n<p><strong>实例<\/strong>：x=1+2t，y=3+t。由 t=(x−1)/2 代入得 y=3+(x−1)/2，即 x−2y+5=0。 若限定 t≥0，则只能取 x≥1 的那条射线。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 参数方程与普通方程完全等价 —— 实际上 消参后常扩大定义域，必须补上范围限制。\n<\/li><li>\n别以为 参数 t 就是 x —— 实际上 t 是独立参数，与 x、y 都没有必然相等关系。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n圆 x²+y²=9 的一个参数方程是：\n<\/li><li>\n参数方程 x=t²，y=t（t≥0）化为普通方程是：\n<p>A. x=3cosθ，y=3sinθ ｜ B. x=9cosθ，y=9sinθ ｜ C. x=3θ，y=3θ ｜ D. x=cosθ，y=sinθ <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：半径 3 的圆，参数方程 x=3cosθ、y=3sinθ。 A. y²=x（x≥0） ｜ B. y²=x（x∈R） ｜ C. y=x² ｜ D. x=y² <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：t=√x≥0，y=√x，平方得 y²=x，且 x≥0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n直线 x=x₀+at，y=y₀+bt\n<\/li><li>\n圆 x=r cosθ，y=r sinθ；椭圆 x=a cosθ，y=b sinθ\n<\/li><li>\n消参后补范围\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：参数方程）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：参数方程<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>参数方程不是新曲线，只是换一种“描述运动”的方式：给每个时刻 t 一个位置。消参就是把时间轴抹掉。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>用参数 t 表示 x 与 y 的方程叫参数方程，t 的取值范围叫参数范围。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像电影逐帧播放：每一帧（每个 t）对应一个画面位置，连起来就是轨迹。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 直线<\/h3>\n<div class=\"katex-block\">\\begin{cases}x=x_{0}+at\\\\ y=y_{0}+bt\\end{cases}<\/div>\n<p>t 表示沿方向向量走了多少份。<\/p>\n<h3>2. 圆<\/h3>\n<div class=\"katex-block\">\\begin{cases}x=r\\cos\\theta\\\\ y=r\\sin\\theta\\end{cases}<\/div>\n<p>由 cos²+sin²=1 消参即得 x²+y²=r²。<\/p>\n<h3>3. 椭圆<\/h3>\n<div class=\"katex-block\">\\begin{cases}x=a\\cos\\theta\\\\ y=b\\sin\\theta\\end{cases}<\/div>\n<p>消参得 x²/a²+y²/b²=1。<\/p>\n<h3>4. 消参<\/h3>\n<div class=\"katex-block\">\\cos^{2}\\theta+\\sin^{2}\\theta=1<\/div>\n<p>三角参数最常用的消参依据。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>消参后若参数有范围，普通方程必须附带相应的 x、y 限制。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《极坐标与参数方程》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 2 章：参数方程"}, "ch03": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><\/span><\/div><h1>第 3 章：互化、范围与最值<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n在三种表示之间自由转换\n<\/li><li>\n用参数方程求最值\n<\/li><li>\n检查互化中的增点与漏点\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>换表示是为了好算，不是为了好看；每次换完都要核对范围。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 三种表示的取舍<\/h3>\n<ul><li>\n直角坐标方程：适合判断形状、求交点、算距离；\n<\/li><li>\n极坐标方程：适合旋转对称、过极点的图形、圆锥曲线统一式；\n<\/li><li>\n参数方程：适合求最值、描述运动、算弧长。\n<\/ul>\n<h3>3.2 用参数求最值<\/h3>\n<p>把曲线上的点写成参数形式，将目标量化为参数的一元函数，再用配方、三角有界性（|sinθ|≤1）求最值。<\/p>\n<p>例：椭圆 x=3cosθ、y=2sinθ 上点到原点距离的平方为 9cos²θ+4sin²θ=4+5cos²θ，最大 9、最小 4。<\/p>\n<h3>3.3 常见增点与漏点<\/h3>\n<ul><li>\n消参时平方：可能把 x&lt;0 的部分也画进来；\n<\/li><li>\n极坐标化直角坐标时两边乘 ρ：ρ=0 的点可能被重复计算；\n<\/li><li>\n直角坐标化极坐标时用 tanθ：可能丢掉第二、三象限的点。\n<\/ul>\n<h3>3.4 检查清单<\/h3>\n<p>换完表示后问三句：定义域变了吗？有没有多出点？有没有漏掉点？<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：三种表示像三种语言描述同一件事，翻译时最容易丢的是“限定条件”。<\/p>\n<p><strong>失效边界<\/strong>：参数方程求最值只在参数范围内有效，超出范围的最值点取不到。<\/p>\n<p><strong>实例<\/strong>：圆 x²+y²=4 上点到直线 x+y−6=0 的距离： 点写成 (2cosθ,2sinθ)，距离 |2cosθ+2sinθ−6|/√2=|2√2 sin(θ+45°)−6|/√2，最大 (6+2√2)/√2≈5.41。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 互化一定等价 —— 实际上 乘 ρ、平方、取正切都可能改变解集，必须检查。\n<\/li><li>\n别以为 参数方程不能求最值 —— 实际上 恰恰相反，参数化后最值问题变成一元函数问题，更好算。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n把 x=cosθ、y=sinθ 消参后得到：\n<\/li><li>\n椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：\n<p>A. x²+y²=1 ｜ B. x+y=1 ｜ C. y=x ｜ D. x²−y²=1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：由 cos²θ+sin²θ=1 得 x²+y²=1。 A. 3 ｜ B. 2 ｜ C. √13 ｜ D. 5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：距离平方 9cos²+4sin²=4+5cos²，最大 9，距离最大 3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n三种表示各有适用场景\n<\/li><li>\n参数化后最值化为一元函数\n<\/li><li>\n互化后查定义域与增减点\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：互化、范围与最值）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：互化、范围与最值<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>换坐标与换参数都只是“换个角度看同一条曲线”。判断换得对不对，只看一件事：点的集合有没有变。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>互化指同一条曲线在不同坐标系或不同表示形式之间的转换。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像同一段路用公里或用英里描述，数值变了，路没变；换算错了就走到别处。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 参数求最值<\/h3>\n<div class=\"katex-block\">d^{2}(\\theta)=x^{2}(\\theta)+y^{2}(\\theta)<\/div>\n<p>把几何最值变成三角函数的最值。<\/p>\n<h3>2. 有界性<\/h3>\n<div class=\"katex-block\">|\\sin\\theta|\\le 1,\\quad |\\cos\\theta|\\le 1<\/div>\n<p>三角参数最值的上界来源。<\/p>\n<h3>3. 极坐标限制<\/h3>\n<div class=\"katex-block\">\\rho\\ge 0,\\ 0\\le\\theta<2\\pi<\/div>\n<p>约定范围后表示才唯一，便于判断增漏点。<\/p>\n<h3>4. 等价条件<\/h3>\n<div class=\"katex-block\">\\text{两表示等价}\\iff\\text{点集相同}<\/div>\n<p>互化是否成功的唯一标准。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>含 ρ、tanθ 的变换不是一一映射，需要按象限或符号分类补齐。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《极坐标与参数方程》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 3 章：互化、范围与最值"}, "c01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：极坐标<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：互化、范围与最值<\/a><\/span><\/div><h1>表示与不变量<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>坐标可以换，曲线本身不变；变的是写法，不变的是形状。<\/p>\n<h2>为什么重要<\/h2>\n<p>理解这一点，就不会在互化时把“换了写法”误当成“换了曲线”。<\/p>\n<h2>详解<\/h2>\n<p>直角坐标、极坐标、参数方程描述的是同一批点。互化时保持点集不变才算正确；范围、符号、象限是保持点集不变的关键。<\/p>\n<h2>常见误解<\/h2>\n<p>只看方程形式像不像，不检查点集是否一致。<\/p>\n<h2>相关概念<\/h2>\n<p>极坐标（ch01）、参数方程（ch02）<\/p>", "kind": "concept", "title": "表示与不变量"}, "c02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：互化、范围与最值<\/a><\/span><\/div><h1>范围限制<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>参数有范围，消参后就必须把这个范围搬到 x、y 上。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是互化题最常见的失分点，也是解析几何“严谨性”的体现。<\/p>\n<h2>详解<\/h2>\n<p>t≥0 只画半条射线；θ∈[0,π] 只画上半圆；平方消参可能引入负半轴。检查办法：取参数范围的端点代入，看对应的 x、y 是否被保留。<\/p>\n<h2>常见误解<\/h2>\n<p>消参后写一个漂亮的整条曲线方程，把范围丢掉了。<\/p>\n<h2>相关概念<\/h2>\n<p>消参（ch02）、增点（ch03）<\/p>", "kind": "concept", "title": "范围限制"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：极坐标<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：极坐标<\/a><br>检查点：能把极坐标方程与直角坐标方程互化<\/li><li class='path-step' id='path-02'><strong>步骤 02：参数方程<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><br>检查点：能写出常见曲线的参数方程并消参<\/li><li class='path-step' id='path-03'><strong>步骤 03：互化与范围检查<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：互化、范围与最值<\/a><br>检查点：能指出消参后丢失的点<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__graph__": {"html": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "kind": "graph", "title": "知识图谱"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 极坐标 (4, π) 对应的直角坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> (4,0)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> (−4,0)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> (0,4)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> (0,−4)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 参数方程 x=2t，y=t²（t∈R）化为普通方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> y=x²/4<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> y=4x²<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> y=x²<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> x=y²/4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：极坐标<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 极坐标 (2, π/2) 对应的直角坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> (2,0)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> (0,2)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> (0,−2)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> (−2,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 圆心在极点、半径为 3 的圆的极坐标方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> ρ=3<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> ρ=6cosθ<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> θ=3<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> ρ=3cosθ<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：参数方程<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 圆 x²+y²=9 的一个参数方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> x=3cosθ，y=3sinθ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x=9cosθ，y=9sinθ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> x=3θ，y=3θ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x=cosθ，y=sinθ<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 参数方程 x=t²，y=t（t≥0）化为普通方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> y²=x（x≥0）<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> y²=x（x∈R）<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> y=x²<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> x=y²<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：互化、范围与最值<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 把 x=cosθ、y=sinθ 消参后得到：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> x²+y²=1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> x+y=1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> y=x<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> x²−y²=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> √13<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='极坐标'>极坐标 — 用距离与极角表示点的坐标。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='极点'>极点 — 极坐标的定点。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='极轴'>极轴 — 极坐标的基准射线。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='互化'>互化 — 极坐标与直角坐标之间的转换。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='参数方程'>参数方程 — 用参数 t 表示 x、y 的方程。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='消参'>消参 — 从参数方程消去参数得到普通方程。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='离心角'>离心角 — 椭圆参数方程中的 θ。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='增点'>增点 — 互化或消参后多出来的、不属于原曲线的点。 <span class=glossary-ref>（第 3 章：互化、范围与最值）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__diagnosis__": {"html": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "kind": "diagnosis", "title": "诊断测试"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：选表示三问<\/h2>\n<p>① 图形是否绕极点旋转对称（用极坐标）；② 是否需要求最值或描述运动（用参数）；③ 是否需要判断形状与交点（用直角坐标）。<\/p>\n<h2>框架：互化两步<\/h2>\n<p>① 代公式转换；② 检查点集是否一致（范围、符号、象限）。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>互化<\/td><td>x=ρcosθ，y=ρsinθ；ρ²=x²+y²<\/td><\/tr><tr><td>圆<\/td><td>ρ=r（圆心极点）；ρ=2a cosθ（过极点）<\/td><\/tr><tr><td>圆锥曲线<\/td><td>ρ=ep/(1−e cosθ)<\/td><\/tr><tr><td>直线参数<\/td><td>x=x₀+at，y=y₀+bt<\/td><\/tr><tr><td>圆参数<\/td><td>x=r cosθ，y=r sinθ<\/td><\/tr><tr><td>椭圆参数<\/td><td>x=a cosθ，y=b sinθ<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/20-极坐标与参数方程", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "🕸 知识图谱", "href": "#/graph"}, {"label": "🩺 诊断测试", "href": "#/diagnosis"}, {"label": "章节", "children": [{"label": "第 1 章：极坐标", "href": "#/chapter/ch01"}, {"label": "第 2 章：参数方程", "href": "#/chapter/ch02"}, {"label": "第 3 章：互化、范围与最值", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "表示与不变量", "href": "#/concept/c01"}, {"label": "范围限制", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：极坐标", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：参数方程", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：互化、范围与最值", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">坐标、三角比<\/span><\/div><h1>第 1 章：极坐标<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：坐标、三角比\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把点写成极坐标并互化\n<\/li><li>\n写出圆与直线的极坐标方程\n<\/li><li>\n理解 ρ 可为负的含义\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>极坐标用一个距离和一个角定位；同一个点有无穷多组极坐标。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 极坐标的建立<\/h3>\n<p>在平面上取定点 O（极点）与一条射线（极轴），点 P 由距离 ρ=|OP| 与极角 θ（极轴到 OP 的角）确定，记 P(ρ,θ)。<\/p>\n<p>同一个点可以写成 (ρ,θ+2kπ)，也可以写成 (−ρ,θ+π)。所以极坐标不唯一——这是与直角坐标最大的不同。<\/p>\n<h3>1.2 与直角坐标互化<\/h3>\n<p>以极点为原点、极轴为 x 轴正方向：<\/p>\n<p>x=ρcosθ，y=ρsinθ ρ²=x²+y²，tanθ=y/x（x≠0）<\/p>\n<p>互化时要注意象限：仅由 tanθ 定不出 θ，还要看 x、y 的符号。<\/p>\n<h3>1.3 常见曲线的极坐标方程<\/h3>\n<ul><li>\n过极点、倾斜角为 α 的直线：θ=α；\n<\/li><li>\n圆心在极点、半径 r 的圆：ρ=r；\n<\/li><li>\n圆心在 (a,0)、半径 a 的圆：ρ=2a cosθ；\n<\/li><li>\n水平直线 x=a：ρcosθ=a。\n<\/ul>\n<h3>1.4 圆锥曲线的统一方程<\/h3>\n<p>以焦点为极点、对称轴为极轴：<\/p>\n<p>ρ=ep/(1−e cosθ)<\/p>\n<p>e&lt;1 为椭圆，e=1 为抛物线，e&gt;1 为双曲线。同一条公式，三种曲线，这在极坐标下最简洁。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：极坐标像雷达：报“距离多少、方位多少度”，比报“东西多少米、南北多少米”更直观。<\/p>\n<p><strong>失效边界<\/strong>：极点处 θ 任意，极坐标表示不唯一，写方程时要说明 θ 的范围。<\/p>\n<p><strong>实例<\/strong>：点 (2, π/3) 的直角坐标：x=2cos60°=1，y=2sin60°=√3，即 (1,√3)。 直角坐标 (0,3) 的极坐标：ρ=3，θ=π/2。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 ρ 必须为正 —— 实际上 ρ 可以为负，此时点在实际方向的相反侧，角度加 π。\n<\/li><li>\n别以为 极坐标与直角坐标一一对应 —— 实际上 极坐标不唯一，一个点有无穷多组表示。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n极坐标 (2, π/2) 对应的直角坐标是：\n<\/li><li>\n圆心在极点、半径为 3 的圆的极坐标方程是：\n<p>A. (2,0) ｜ B. (0,2) ｜ C. (0,−2) ｜ D. (−2,0) <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：x=2cos90°=0，y=2sin90°=2。 A. ρ=3 ｜ B. ρ=6cosθ ｜ C. θ=3 ｜ D. ρ=3cosθ <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：到极点距离恒为 3，即 ρ=3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nx=ρcosθ，y=ρsinθ；ρ²=x²+y²\n<\/li><li>\n极坐标不唯一，ρ 可为负\n<\/li><li>\n圆锥曲线：ρ=ep/(1−e cosθ)\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：极坐标）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：极坐标<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>极坐标只是换了一套“定位语言”：不用横纵两个距离，而用距离加角度。换算公式就是直角三角形里的三角比。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>极坐标用 (ρ,θ) 表示点，ρ 是到极点的距离，θ 是极轴到该点的角。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像用指南针报位置：往东北方向走 3 公里，比说“向东 2.1 公里、向北 2.1 公里”更自然。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 互化<\/h3>\n<div class=\"katex-block\">x=\\rho\\cos\\theta,\\quad y=\\rho\\sin\\theta<\/div>\n<p>由直角三角形直接得到。<\/p>\n<h3>2. 反解<\/h3>\n<div class=\"katex-block\">\\rho^{2}=x^{2}+y^{2},\\quad \\tan\\theta=\\frac{y}{x}<\/div>\n<p>距离用勾股，角度用正切，注意象限。<\/p>\n<h3>3. 圆的极坐标<\/h3>\n<div class=\"katex-block\">\\rho=2a\\cos\\theta<\/div>\n<p>圆心 (a,0)、半径 a 的圆，过极点。<\/p>\n<h3>4. 圆锥曲线<\/h3>\n<div class=\"katex-block\">\\rho=\\frac{ep}{1-e\\cos\\theta}<\/div>\n<p>以焦点为极点时，三条曲线共用一条公式。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>极点处角度无定义；ρ 为负时要理解成反向延长。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《极坐标与参数方程》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：极坐标<\/a><\/span><\/div><h1>第 2 章：参数方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n写出直线、圆、椭圆的参数方程\n<\/li><li>\n用参数表示运动与位置\n<\/li><li>\n把参数方程化为普通方程\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>参数方程用第三个变量 t（或 θ）同时表示 x 与 y，把曲线变成“随参数运动的一条轨迹”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 直线的参数方程<\/h3>\n<p>过点 (x₀,y₀)、方向向量 (a,b) 的直线：<\/p>\n<p>x=x₀+at，y=y₀+bt<\/p>\n<p>t 是参数，表示沿方向走了多少“份”。若 (a,b) 取单位向量，|t| 就是距离。<\/p>\n<h3>2.2 圆与椭圆<\/h3>\n<p>圆心原点、半径 r 的圆：x=r cosθ，y=r sinθ。<\/p>\n<p>椭圆 x²/a²+y²/b²=1：x=a cosθ，y=b sinθ。<\/p>\n<p>这两个参数方程本质就是三角函数的定义，θ 有明确的几何意义（离心角）。<\/p>\n<h3>2.3 消参<\/h3>\n<p>由 x(t)、y(t) 消去 t 得到普通方程，常用办法：代入消元、用三角恒等式（cos²+sin²=1）、用 t 表示再平方。<\/p>\n<p>消参后必须检查范围：参数 t 的取值限制会变成 x、y 的范围限制，丢掉就会多出曲线的一部分。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：参数方程像给摄像机装了时间轴：每个时刻 t 对应画面上的一个位置。<\/p>\n<p><strong>失效边界<\/strong>：消参可能改变定义域；原来 t≥0 只画半条线，消参后容易画成整条。<\/p>\n<p><strong>实例<\/strong>：x=1+2t，y=3+t。由 t=(x−1)/2 代入得 y=3+(x−1)/2，即 x−2y+5=0。 若限定 t≥0，则只能取 x≥1 的那条射线。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 参数方程与普通方程完全等价 —— 实际上 消参后常扩大定义域，必须补上范围限制。\n<\/li><li>\n别以为 参数 t 就是 x —— 实际上 t 是独立参数，与 x、y 都没有必然相等关系。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n圆 x²+y²=9 的一个参数方程是：\n<\/li><li>\n参数方程 x=t²，y=t（t≥0）化为普通方程是：\n<p>A. x=3cosθ，y=3sinθ ｜ B. x=9cosθ，y=9sinθ ｜ C. x=3θ，y=3θ ｜ D. x=cosθ，y=sinθ <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：半径 3 的圆，参数方程 x=3cosθ、y=3sinθ。 A. y²=x（x≥0） ｜ B. y²=x（x∈R） ｜ C. y=x² ｜ D. x=y² <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：t=√x≥0，y=√x，平方得 y²=x，且 x≥0。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n直线 x=x₀+at，y=y₀+bt\n<\/li><li>\n圆 x=r cosθ，y=r sinθ；椭圆 x=a cosθ，y=b sinθ\n<\/li><li>\n消参后补范围\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：参数方程）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：参数方程<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>参数方程不是新曲线，只是换一种“描述运动”的方式：给每个时刻 t 一个位置。消参就是把时间轴抹掉。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>用参数 t 表示 x 与 y 的方程叫参数方程，t 的取值范围叫参数范围。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像电影逐帧播放：每一帧（每个 t）对应一个画面位置，连起来就是轨迹。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 直线<\/h3>\n<div class=\"katex-block\">\\begin{cases}x=x_{0}+at\\\\ y=y_{0}+bt\\end{cases}<\/div>\n<p>t 表示沿方向向量走了多少份。<\/p>\n<h3>2. 圆<\/h3>\n<div class=\"katex-block\">\\begin{cases}x=r\\cos\\theta\\\\ y=r\\sin\\theta\\end{cases}<\/div>\n<p>由 cos²+sin²=1 消参即得 x²+y²=r²。<\/p>\n<h3>3. 椭圆<\/h3>\n<div class=\"katex-block\">\\begin{cases}x=a\\cos\\theta\\\\ y=b\\sin\\theta\\end{cases}<\/div>\n<p>消参得 x²/a²+y²/b²=1。<\/p>\n<h3>4. 消参<\/h3>\n<div class=\"katex-block\">\\cos^{2}\\theta+\\sin^{2}\\theta=1<\/div>\n<p>三角参数最常用的消参依据。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>消参后若参数有范围，普通方程必须附带相应的 x、y 限制。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《极坐标与参数方程》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch03": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><\/span><\/div><h1>第 3 章：互化、范围与最值<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：2 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n在三种表示之间自由转换\n<\/li><li>\n用参数方程求最值\n<\/li><li>\n检查互化中的增点与漏点\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>换表示是为了好算，不是为了好看；每次换完都要核对范围。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 三种表示的取舍<\/h3>\n<ul><li>\n直角坐标方程：适合判断形状、求交点、算距离；\n<\/li><li>\n极坐标方程：适合旋转对称、过极点的图形、圆锥曲线统一式；\n<\/li><li>\n参数方程：适合求最值、描述运动、算弧长。\n<\/ul>\n<h3>3.2 用参数求最值<\/h3>\n<p>把曲线上的点写成参数形式，将目标量化为参数的一元函数，再用配方、三角有界性（|sinθ|≤1）求最值。<\/p>\n<p>例：椭圆 x=3cosθ、y=2sinθ 上点到原点距离的平方为 9cos²θ+4sin²θ=4+5cos²θ，最大 9、最小 4。<\/p>\n<h3>3.3 常见增点与漏点<\/h3>\n<ul><li>\n消参时平方：可能把 x&lt;0 的部分也画进来；\n<\/li><li>\n极坐标化直角坐标时两边乘 ρ：ρ=0 的点可能被重复计算；\n<\/li><li>\n直角坐标化极坐标时用 tanθ：可能丢掉第二、三象限的点。\n<\/ul>\n<h3>3.4 检查清单<\/h3>\n<p>换完表示后问三句：定义域变了吗？有没有多出点？有没有漏掉点？<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：三种表示像三种语言描述同一件事，翻译时最容易丢的是“限定条件”。<\/p>\n<p><strong>失效边界<\/strong>：参数方程求最值只在参数范围内有效，超出范围的最值点取不到。<\/p>\n<p><strong>实例<\/strong>：圆 x²+y²=4 上点到直线 x+y−6=0 的距离： 点写成 (2cosθ,2sinθ)，距离 |2cosθ+2sinθ−6|/√2=|2√2 sin(θ+45°)−6|/√2，最大 (6+2√2)/√2≈5.41。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 互化一定等价 —— 实际上 乘 ρ、平方、取正切都可能改变解集，必须检查。\n<\/li><li>\n别以为 参数方程不能求最值 —— 实际上 恰恰相反，参数化后最值问题变成一元函数问题，更好算。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n把 x=cosθ、y=sinθ 消参后得到：\n<\/li><li>\n椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：\n<p>A. x²+y²=1 ｜ B. x+y=1 ｜ C. y=x ｜ D. x²−y²=1 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：由 cos²θ+sin²θ=1 得 x²+y²=1。 A. 3 ｜ B. 2 ｜ C. √13 ｜ D. 5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：距离平方 9cos²+4sin²=4+5cos²，最大 9，距离最大 3。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\n三种表示各有适用场景\n<\/li><li>\n参数化后最值化为一元函数\n<\/li><li>\n互化后查定义域与增减点\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：互化、范围与最值）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：互化、范围与最值<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>换坐标与换参数都只是“换个角度看同一条曲线”。判断换得对不对，只看一件事：点的集合有没有变。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>互化指同一条曲线在不同坐标系或不同表示形式之间的转换。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像同一段路用公里或用英里描述，数值变了，路没变；换算错了就走到别处。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 参数求最值<\/h3>\n<div class=\"katex-block\">d^{2}(\\theta)=x^{2}(\\theta)+y^{2}(\\theta)<\/div>\n<p>把几何最值变成三角函数的最值。<\/p>\n<h3>2. 有界性<\/h3>\n<div class=\"katex-block\">|\\sin\\theta|\\le 1,\\quad |\\cos\\theta|\\le 1<\/div>\n<p>三角参数最值的上界来源。<\/p>\n<h3>3. 极坐标限制<\/h3>\n<div class=\"katex-block\">\\rho\\ge 0,\\ 0\\le\\theta<2\\pi<\/div>\n<p>约定范围后表示才唯一，便于判断增漏点。<\/p>\n<h3>4. 等价条件<\/h3>\n<div class=\"katex-block\">\\text{两表示等价}\\iff\\text{点集相同}<\/div>\n<p>互化是否成功的唯一标准。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>含 ρ、tanθ 的变换不是一一映射，需要按象限或符号分类补齐。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《极坐标与参数方程》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "c01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：极坐标<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：互化、范围与最值<\/a><\/span><\/div><h1>表示与不变量<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>坐标可以换，曲线本身不变；变的是写法，不变的是形状。<\/p>\n<h2>为什么重要<\/h2>\n<p>理解这一点，就不会在互化时把“换了写法”误当成“换了曲线”。<\/p>\n<h2>详解<\/h2>\n<p>直角坐标、极坐标、参数方程描述的是同一批点。互化时保持点集不变才算正确；范围、符号、象限是保持点集不变的关键。<\/p>\n<h2>常见误解<\/h2>\n<p>只看方程形式像不像，不检查点集是否一致。<\/p>\n<h2>相关概念<\/h2>\n<p>极坐标（ch01）、参数方程（ch02）<\/p>", "c02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-20-极坐标与参数方程 赵霖.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：互化、范围与最值<\/a><\/span><\/div><h1>范围限制<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>参数有范围，消参后就必须把这个范围搬到 x、y 上。<\/p>\n<h2>为什么重要<\/h2>\n<p>这是互化题最常见的失分点，也是解析几何“严谨性”的体现。<\/p>\n<h2>详解<\/h2>\n<p>t≥0 只画半条射线；θ∈[0,π] 只画上半圆；平方消参可能引入负半轴。检查办法：取参数范围的端点代入，看对应的 x、y 是否被保留。<\/p>\n<h2>常见误解<\/h2>\n<p>消参后写一个漂亮的整条曲线方程，把范围丢掉了。<\/p>\n<h2>相关概念<\/h2>\n<p>消参（ch02）、增点（ch03）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：极坐标<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：极坐标<\/a><br>检查点：能把极坐标方程与直角坐标方程互化<\/li><li class='path-step' id='path-02'><strong>步骤 02：参数方程<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：参数方程<\/a><br>检查点：能写出常见曲线的参数方程并消参<\/li><li class='path-step' id='path-03'><strong>步骤 03：互化与范围检查<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：互化、范围与最值<\/a><br>检查点：能指出消参后丢失的点<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__graph__": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 极坐标 (4, π) 对应的直角坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> (4,0)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> (−4,0)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> (0,4)<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> (0,−4)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 参数方程 x=2t，y=t²（t∈R）化为普通方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> y=x²/4<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> y=4x²<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> y=x²<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> x=y²/4<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：极坐标<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 极坐标 (2, π/2) 对应的直角坐标是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> (2,0)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> (0,2)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> (0,−2)<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> (−2,0)<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 圆心在极点、半径为 3 的圆的极坐标方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> ρ=3<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> ρ=6cosθ<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> θ=3<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> ρ=3cosθ<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：参数方程<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> 圆 x²+y²=9 的一个参数方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> x=3cosθ，y=3sinθ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> x=9cosθ，y=9sinθ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> x=3θ，y=3θ<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> x=cosθ，y=sinθ<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 参数方程 x=t²，y=t（t≥0）化为普通方程是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> y²=x（x≥0）<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> y²=x（x∈R）<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> y=x²<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> x=y²<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：互化、范围与最值<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 把 x=cosθ、y=sinθ 消参后得到：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> x²+y²=1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> x+y=1<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> y=x<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> x²−y²=1<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 椭圆 x=3cosθ、y=2sinθ 上点到原点距离的最大值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> 3<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> 2<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> √13<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> 5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='极坐标'>极坐标 — 用距离与极角表示点的坐标。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='极点'>极点 — 极坐标的定点。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='极轴'>极轴 — 极坐标的基准射线。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='互化'>互化 — 极坐标与直角坐标之间的转换。 <span class=glossary-ref>（第 1 章：极坐标）<\/span><\/li><li data-term='参数方程'>参数方程 — 用参数 t 表示 x、y 的方程。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='消参'>消参 — 从参数方程消去参数得到普通方程。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='离心角'>离心角 — 椭圆参数方程中的 θ。 <span class=glossary-ref>（第 2 章：参数方程）<\/span><\/li><li data-term='增点'>增点 — 互化或消参后多出来的、不属于原曲线的点。 <span class=glossary-ref>（第 3 章：互化、范围与最值）<\/span><\/li><\/ul>", "__diagnosis__": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：选表示三问<\/h2>\n<p>① 图形是否绕极点旋转对称（用极坐标）；② 是否需要求最值或描述运动（用参数）；③ 是否需要判断形状与交点（用直角坐标）。<\/p>\n<h2>框架：互化两步<\/h2>\n<p>① 代公式转换；② 检查点集是否一致（范围、符号、象限）。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>互化<\/td><td>x=ρcosθ，y=ρsinθ；ρ²=x²+y²<\/td><\/tr><tr><td>圆<\/td><td>ρ=r（圆心极点）；ρ=2a cosθ（过极点）<\/td><\/tr><tr><td>圆锥曲线<\/td><td>ρ=ep/(1−e cosθ)<\/td><\/tr><tr><td>直线参数<\/td><td>x=x₀+at，y=y₀+bt<\/td><\/tr><tr><td>圆参数<\/td><td>x=r cosθ，y=r sinθ<\/td><\/tr><tr><td>椭圆参数<\/td><td>x=a cosθ，y=b sinθ<\/td><\/tr><\/tbody><\/table>"}};
 const pages = DATA.rendered;
 const manifest = DATA.manifest;
 const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SLUG = manifest.slug || 'book';
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
   set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
 };
-let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{}, mastery: store.get('mastery')||{} };
 
 /* ---------- 导航 ---------- */
 function renderNav(){
@@ -144,15 +199,27 @@ function routeIdFromHash(){
   let h = location.hash.replace(/^#\//,'');
   if(!h) return 'path';
   if(h==='path') return 'path';
+  if(h==='diagnosis') return 'diagnosis';
   const m = h.match(/^(chapter|concept)\/(.+)$/);
   if(m) return m[1]+'/'+m[2];
-  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+  return h;
 }
 function showPage(rid){
-  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  let id;
+  if(rid==='path') id='__path__';
+  else if(rid==='diagnosis') id='__diagnosis__';
+  else if(rid==='graph') id='__graph__';
+  else if(rid.startsWith('quiz/')) id='__quiz_'+rid.split('/')[1]+'__';
+  else if(rid==='cards') id='__cards__';
+  else if(rid==='glossary') id='__glossary__';
+  else if(rid==='patterns') id='__patterns__';
+  else if(rid==='cheatsheet') id='__cheatsheet__';
+  else if(rid.startsWith('chapter/')) id=rid.split('/')[1];
+  else if(rid.startsWith('concept/')) id=rid.split('/')[1];
+  else id=rid;
   const html = pages[id] || '<div class="empty">页面不存在</div>';
   $('#view').innerHTML = html;
-  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  $$('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
   if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
     state.visited.push(rid); store.set('visited', state.visited); renderNav();
   }
@@ -160,8 +227,66 @@ function showPage(rid){
   if(rid==='cards') initCards();
   if(rid==='glossary') initGlossary();
   if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(rid==='diagnosis') initDiagnosis();
+  if(rid==='graph') initGraph();
   if(id==='__path__') updatePath();
+  renderMath();
   renderMermaid();
+}
+
+/* ---------- KaTeX 渲染（多源回退） ---------- */
+let katexLoading = false, katexReady = false;
+function renderMath(){
+  const hasMath = document.querySelector('.katex-inline, .katex-block');
+  if(!hasMath) return;
+  if(katexReady){ doRenderMath(); return; }
+  if(katexLoading) return;
+  katexLoading = true;
+  const cssUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.css'
+  ];
+  const jsUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.js',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.js'
+  ];
+  let ci = 0, ji = 0;
+  const tryCss = () => {
+    if(ci >= cssUrls.length) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'; link.href = cssUrls[ci++];
+    link.onload = tryJs; link.onerror = () => { link.remove(); tryCss(); };
+    document.head.appendChild(link);
+  };
+  const tryJs = () => {
+    if(ji >= jsUrls.length){ katexLoading = false; return; }
+    const s = document.createElement('script');
+    s.src = jsUrls[ji++];
+    s.onload = () => { katexReady = true; katexLoading = false; doRenderMath(); };
+    s.onerror = () => { s.remove(); tryJs(); };
+    document.head.appendChild(s);
+  };
+  tryCss();
+}
+function doRenderMath(){
+  if(typeof katex === 'undefined') return;
+  // 行内公式：.katex-inline 里的内容
+  $$('.katex-inline').forEach(el=>{
+    try{ katex.render(el.textContent, el, {throwOnError:false}); }catch(e){}
+  });
+  // 块级公式：.katex-block 里的内容
+  $$('.katex-block').forEach(el=>{
+    try{ katex.render(el.textContent, el, {displayMode:true, throwOnError:false}); }catch(e){}
+  });
+}
+// 公式内容预处理：把 < 后跟字母的位置转成 &lt;，避免被 HTML 解析器当标签吃掉
+// （这是 first-principles-derivation 踩过的坑：$m<n$ 会变成残留 $m）
+function sanitizeMathHTML(){
+  $$('.katex-inline, .katex-block').forEach(el=>{
+    el.innerHTML = el.innerHTML.replace(/<([a-zA-Z])/g, '&lt;$1');
+  });
 }
 
 /* ---------- 进度 ---------- */
@@ -173,7 +298,7 @@ function updateProgress(){
   $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
 }
 function updatePath(){
-  document.querySelectorAll('.path-step').forEach(el=>{
+  $$('.path-step').forEach(el=>{
     const step = el.id.replace('path-','');
     const s = (manifest.learningPath||[]).find(x=>x.step===step);
     if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
@@ -183,9 +308,39 @@ function updatePath(){
   });
 }
 
-/* ---------- 测验 ---------- */
+/* ---------- 概念/章节依赖查找（用于诊断倒推） ---------- */
+function findConcept(id){ return (manifest.concepts||[]).find(c=>c.id===id); }
+function findChapter(id){ return (manifest.chapters||[]).find(c=>c.id===id); }
+function getPrereqs(node){
+  if(!node) return [];
+  return node.prerequisites || node.prereqs || [];
+}
+/**
+ * 答错倒推：从错题关联的概念/章节出发，沿 prerequisites 回溯，
+ * 返回一串"你可能需要先补的"节点，带跳转链接。
+ */
+function traceBack(startConceptId, startChapterId){
+  const visited = new Set();
+  const chain = [];
+  const queue = [];
+  if(startConceptId){ const c = findConcept(startConceptId); if(c) queue.push({node:c, kind:'concept'}); }
+  if(startChapterId){ const c = findChapter(startChapterId); if(c) queue.push({node:c, kind:'chapter'}); }
+  while(queue.length && chain.length < 6){
+    const {node, kind} = queue.shift();
+    if(visited.has(node.id)) continue;
+    visited.add(node.id);
+    chain.push({node, kind});
+    (getPrereqs(node)||[]).forEach(pid=>{
+      const cn = findConcept(pid); if(cn){ queue.push({node:cn, kind:'concept'}); return; }
+      const ch = findChapter(pid); if(ch) queue.push({node:ch, kind:'chapter'});
+    });
+  }
+  return chain;
+}
+
+/* ---------- 测验（带倒推） ---------- */
 function initQuizzes(rid){
-  document.querySelectorAll('.quiz-item').forEach(item=>{
+  $$('.quiz-item').forEach(item=>{
     const btn = item.querySelector('.quiz-check');
     if(!btn || item.dataset.inited){ return }
     item.dataset.inited='1';
@@ -211,8 +366,7 @@ function initQuizzes(rid){
       }
       item.querySelectorAll('input:checked').forEach(i=>{
         const val=parseInt(i.value);
-        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
-        else i.parentElement.style.color='var(--bad)';
+        i.parentElement.style.color = (Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) ? 'var(--ok)' : 'var(--bad)';
       });
       const feed = item.querySelector('.quiz-feedback');
       feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
@@ -220,7 +374,34 @@ function initQuizzes(rid){
       let ex = item.querySelector('.quiz-explain');
       if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
       ex.innerHTML = '解析：' + esc(q.explain||'');
-      // 记录成绩（按章聚合）
+      // 答错时：倒推前置 + 误解卡片 + 掌握度更新
+      if(!correct){
+        let remedy = item.querySelector('.quiz-remedy');
+        if(!remedy){ remedy = document.createElement('div'); remedy.className='quiz-remedy'; item.appendChild(remedy); }
+        const chain = traceBack(item.dataset.concept, item.dataset.chapter);
+        if(chain.length > 1){
+          const links = chain.slice(1).map(({node,kind})=>{
+            const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+            return `<a href="${href}">${esc(node.title||node.id)}</a>`;
+          }).join(' → ');
+          remedy.innerHTML = '🔍 可能的根因（沿依赖链回溯）：' + links;
+        }
+        // 误解卡片：如果选错的选项标注了 misconceptionId
+        const checked = item.querySelector('input:checked');
+        const misId = checked ? checked.dataset.misconception : '';
+        if(misId){
+          const mis = (manifest.misconceptions||[]).find(m=>m.id===misId);
+          if(mis){
+            let misCard = item.querySelector('.misconception-card');
+            if(!misCard){ misCard = document.createElement('div'); misCard.className='misconception-card'; item.appendChild(misCard); }
+            misCard.innerHTML = `<b>⚠ 常见误解</b><br>你选了「${esc(mis.wrong)}」——${esc(mis.correction)}`;
+          }
+        }
+        // 掌握度下降
+        updateMastery(item.dataset.concept, -0.15);
+      } else {
+        updateMastery(item.dataset.concept, +0.15);
+      }
       const ch = q.chapterId||'__all__';
       if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
       state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
@@ -230,7 +411,222 @@ function initQuizzes(rid){
   });
 }
 
+/* ---------- 知识图谱（vis-network） ---------- */
+let networkLoaded = false;
+function loadVisNetwork(cb){
+  if(networkLoaded){ cb(); return; }
+  const urls = [
+    'https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.js',
+    'https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js',
+    'https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js'
+  ];
+  let i = 0;
+  const tryNext = () => {
+    if(i >= urls.length) return;
+    const s = document.createElement('script');
+    s.src = urls[i++];
+    s.onload = () => { networkLoaded = true; cb(); };
+    s.onerror = () => { s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
+}
+function initGraph(){
+  const container = document.getElementById('graph-container');
+  if(!container) return;
+  loadVisNetwork(() => {
+    if(typeof vis === 'undefined'){ container.innerHTML = '<p class="empty">图谱库加载失败，请联网后刷新</p>'; return; }
+    const concepts = manifest.concepts || [];
+    const chapters = manifest.chapters || [];
+    const nodes = [];
+    const edges = [];
+    concepts.forEach(c => {
+      const mastery = Math.round(getMastery(c.id)*100);
+      nodes.push({
+        id: 'c_' + c.id,
+        label: c.title || c.id,
+        title: (c.title||c.id) + '（掌握度 ' + mastery + '%）',
+        color: mastery > 70 ? '#86efac' : mastery > 40 ? '#fde68a' : '#fca5a5',
+        shape: 'dot',
+        size: mastery > 70 ? 20 : 14,
+        font: { size: 13 }
+      });
+    });
+    chapters.forEach(ch => {
+      nodes.push({
+        id: 'ch_' + ch.id,
+        label: ch.title || ch.id,
+        shape: 'box',
+        color: '#93c5fd',
+        font: { size: 12 }
+      });
+    });
+    // 前置边
+    concepts.forEach(c => {
+      (c.prerequisites || []).forEach(p => {
+        const pid = typeof p === 'string' ? p : p.id;
+        const ptype = typeof p === 'string' ? 'hard' : (p.type || 'hard');
+        const from = (pid.startsWith('ch') ? 'ch_' : 'c_') + pid;
+        const to = 'c_' + c.id;
+        if(nodes.find(n => n.id === from)){
+          edges.push({
+            from: from, to: to,
+            color: { color: ptype === 'hard' ? '#dc2626' : ptype === 'soft' ? '#9ca3af' : '#3b82f6' },
+            arrows: 'to',
+            width: ptype === 'hard' ? 2 : 1,
+            dashes: ptype !== 'hard'
+          });
+        }
+      });
+    });
+    const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+    const options = {
+      physics: { stabilization: true, barnesHut: { gravitationalConstant: -3000 } },
+      interaction: { hover: true, tooltipDelay: 200 }
+    };
+    const net = new vis.Network(container, data, options);
+    net.on('click', params => {
+      if(params.nodes.length > 0){
+        const nid = params.nodes[0];
+        if(nid.startsWith('c_')) location.hash = '#/concept/' + nid.slice(2);
+        else if(nid.startsWith('ch_')) location.hash = '#/chapter/' + nid.slice(3);
+      }
+    });
+  });
+}
+
+/* ---------- 诊断模式 ---------- */
+let diagQueue = [], diagIdx = 0, diagWrong = [];
+function initDiagnosis(){
+  const startBtn = $('#diag-start');
+  if(!startBtn || startBtn.dataset.inited) return;
+  startBtn.dataset.inited='1';
+  startBtn.addEventListener('click', ()=>{
+    const all = (manifest.quizzes||[]).slice();
+    // 随机抽 5 题（不够就全抽）
+    for(let i = all.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+    diagQueue = all.slice(0, Math.min(5, all.length));
+    diagIdx = 0; diagWrong = [];
+    showDiagQuestion();
+  });
+}
+function showDiagQuestion(){
+  const stage = $('#diag-stage');
+  const result = $('#diag-result');
+  result.innerHTML = '';
+  if(diagIdx >= diagQueue.length){ finishDiagnosis(); return; }
+  const q = diagQueue[diagIdx];
+  $('#diag-progress').textContent = `第 ${diagIdx+1} / ${diagQueue.length} 题`;
+  const fakeItem = document.createElement('div');
+  fakeItem.innerHTML = _renderQuizHTML(q, diagIdx+1);
+  stage.innerHTML = fakeItem.innerHTML;
+  // 绑定检查按钮
+  const item = stage.querySelector('.quiz-item');
+  const btn = item.querySelector('.quiz-check');
+  btn.addEventListener('click', ()=>{
+    const type = item.dataset.type;
+    let user, correct=false;
+    if(type==='single'){
+      const sel = item.querySelector('input:checked');
+      user = sel? parseInt(sel.value) : null;
+      correct = user===q.answer;
+    } else if(type==='multi'){
+      user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+      const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+      correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+    } else if(type==='blank'){
+      const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+      correct = v===String(q.answer).trim().toLowerCase();
+    }
+    if(!correct){
+      diagWrong.push(q);
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      if(chain.length > 1){
+        const links = chain.slice(1).map(({node,kind})=>{
+          const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+          return `<div class="diag-remedy-item">建议先学：<a href="${href}">${esc(node.title||node.id)}</a></div>`;
+        }).join('');
+        $('#diag-result').innerHTML = '<h3>这道题答错了，可能的根因：</h3>' + links +
+          '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      } else {
+        $('#diag-result').innerHTML = '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      }
+    } else {
+      $('#diag-result').innerHTML = '<p>✓ 正确。<button id="diag-next" class="quiz-check">下一题 →</button></p>';
+    }
+    $('#diag-next').addEventListener('click', ()=>{ diagIdx++; showDiagQuestion(); });
+  });
+}
+function _renderQuizHTML(q, idx){
+  // 复用服务端渲染的 quiz HTML 结构
+  const qtype = q.type||'single';
+  const qid = q.id||('diag'+idx);
+  let html = `<div class='quiz-item' data-qid='${qid}' data-type='${qtype}' data-concept='${esc(q.relatedConceptId||"")}' data-chapter='${esc(q.chapterId||"")}'>`;
+  html += `<p class='quiz-q'><b>Q${idx}.</b> ${esc(q.question||"")}</p>`;
+  if(qtype==='single'||qtype==='multi'){
+    const it = qtype==='single'?'radio':'checkbox';
+    html += "<div class='quiz-opts'>";
+    (q.options||[]).forEach((o,i)=>{ html += `<label class='quiz-opt'><input type='${it}' name='${qid}' value='${i}'> ${esc(String(o))}</label>`; });
+    html += '</div>';
+  } else {
+    html += `<input class='quiz-blank' type='text' placeholder='填写答案'>`;
+  }
+  html += `<div class='quiz-actions'><button class='quiz-check'>检查答案</button><span class='quiz-feedback'></span></div></div>`;
+  return html;
+}
+function finishDiagnosis(){
+  const total = diagQueue.length;
+  const wrong = diagWrong.length;
+  const right = total - wrong;
+  let html = `<h2>诊断完成：${right}/${total} 正确</h2>`;
+  if(wrong === 0){
+    html += '<p>🎉 这组题全对，可以继续往下学。</p>';
+  } else {
+    html += `<p>有 ${wrong} 道题答错。下面是按依赖链回溯的补强建议：</p>`;
+    const seen = new Set();
+    diagWrong.forEach(q=>{
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      chain.slice(1).forEach(({node,kind})=>{
+        if(seen.has(node.id)) return;
+        seen.add(node.id);
+        const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+        html += `<div class="diag-remedy-item">📚 <a href="${href}">${esc(node.title||node.id)}</a></div>`;
+      });
+    });
+  }
+  html += '<p><button id="diag-restart" class="quiz-check">重新诊断</button></p>';
+  $('#diag-stage').innerHTML = '';
+  $('#diag-progress').textContent = '';
+  $('#diag-result').innerHTML = html;
+  $('#diag-restart').addEventListener('click', ()=>{
+    $('#diag-start').click();
+  });
+}
+
+/* ---------- 掌握度（简化 BKT） ---------- */
+function getMastery(cid){
+  if(!cid) return 0.5;
+  const m = (state.mastery||{})[cid];
+  return m !== undefined ? m : 0.3;
+}
+function updateMastery(cid, delta){
+  if(!cid) return;
+  if(!state.mastery) state.mastery = {};
+  const cur = state.mastery[cid] !== undefined ? state.mastery[cid] : 0.3;
+  state.mastery[cid] = Math.max(0, Math.min(1, cur + delta));
+  store.set('mastery', state.mastery);
+}
+function masteryBar(cid){
+  const v = Math.round(getMastery(cid)*100);
+  return `<div class="mastery-bar"><div style="width:${v}%"></div></div><span class="mastery-label">掌握度 ${v}%</span>`;
+}
+
 /* ---------- 抽认卡 ---------- */
+function sup(t){
+  return String(t==null?'':t).replace(/[&<>]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))
+    .replace(/\^(?:\{([^{}]+)\}|\(([^()]*)\)|([-+]?[A-Za-z0-9.]+))/g,
+      (m,a,b,c)=>'<sup>'+(a||b||c||'')+'</sup>');
+}
 let cardIdx = 0, cardList = [];
 function initCards(){
   const cards = manifest.flashcards||[];
@@ -251,8 +647,8 @@ function showCard(){
   updateCardCounts();
   if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
   const c = cardList[cardIdx];
-  document.querySelector('.fc-front').textContent = c.front;
-  document.querySelector('.fc-back').textContent = c.back;
+  document.querySelector('.fc-front').innerHTML = sup(c.front);
+  document.querySelector('.fc-back').innerHTML = sup(c.back);
   $('#flashcard').classList.remove('flip');
 }
 function markCard(known){
@@ -279,7 +675,7 @@ function initGlossary(){
   input.dataset.inited='1';
   input.oninput = ()=>{
     const v = input.value.trim().toLowerCase();
-    document.querySelectorAll('#glossary-list li').forEach(li=>{
+    $$('#glossary-list li').forEach(li=>{
       li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
     });
   };
@@ -308,12 +704,10 @@ $('#q').addEventListener('input', e=>{
                  : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
 });
 
-/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+/* ---------- Mermaid 懒加载 ---------- */
 function renderMermaid(){
   if(!document.querySelector('.mermaid')) return;
-  const s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-  s.onload=()=>{ try{
+  const boot=()=>{ try{
     mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
     document.querySelectorAll('.mermaid').forEach(el=>{
       const code=el.textContent;
@@ -322,7 +716,19 @@ function renderMermaid(){
         .catch(()=>{ el.textContent=code; });
     });
   }catch(e){} };
-  document.head.appendChild(s);
+  const urls=['https://registry.npmmirror.com/mermaid/10/files/dist/mermaid.min.js',
+              'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js',
+              'https://unpkg.com/mermaid@10/dist/mermaid.min.js'];
+  let ui=0;
+  const tryNext=()=>{
+    if(ui>=urls.length) return;
+    const s=document.createElement('script');
+    s.src=urls[ui++];
+    s.onload=boot;
+    s.onerror=()=>{ s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
 }
 
 /* ---------- 深色模式 ---------- */

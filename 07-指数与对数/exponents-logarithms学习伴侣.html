@@ -3,17 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
 <title>指数与对数</title>
+<link rel="stylesheet" href="https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/picocss/2.0.6/dist/css/pico.min.css">
+<link rel="stylesheet" href="https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.css">
 <style>
 :root{
   --bg:#f7f7f8; --panel:#ffffff; --text:#1f2328; --muted:#6b7280;
   --accent:#2563eb; --accent-soft:#dbeafe; --border:#e5e7eb;
   --ok:#16a34a; --bad:#dc2626; --code-bg:#f3f4f6;
+  --depth-bg:#fef9c3; --depth-border:#ca8a04;
 }
 [data-theme="dark"]{
   --bg:#111318; --panel:#1a1d24; --text:#e5e7eb; --muted:#9ca3af;
   --accent:#60a5fa; --accent-soft:#1e3a5f; --border:#2d333d;
   --ok:#4ade80; --bad:#f87171; --code-bg:#20242c;
+  --depth-bg:#2a2410; --depth-border:#a16207;
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -33,7 +39,7 @@ a:hover{text-decoration:underline}
 .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .nav-item .done{float:right;color:var(--ok);font-size:12px}
 #nav-toggle{display:none}
-.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px}
+.main{flex:1;min-width:0;padding:28px 40px 80px;max-width:920px;margin:0 auto}
 .page h1{font-size:26px;border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:0}
 .page h2{font-size:20px;margin-top:26px}
 .page h3{font-size:17px;margin-top:22px}
@@ -49,6 +55,37 @@ a:hover{text-decoration:underline}
 .mermaid{background:var(--code-bg);padding:14px;border-radius:8px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;white-space:pre;color:var(--muted)}
 .mermaid-hint{font-size:12px;color:var(--muted);margin:4px 0 14px}
 svg{max-width:100%;height:auto}
+/* 出处脚注 */
+.source-badge{font-size:12px;color:var(--muted);background:var(--code-bg);padding:4px 10px;border-radius:6px;margin:0 0 12px;display:inline-block}
+/* 前置知识条 */
+.prereq-bar{font-size:13px;color:var(--muted);border-left:3px solid var(--accent);padding:4px 10px;margin:0 0 12px;background:var(--accent-soft)}
+.prereq-hard a{color:var(--bad);font-weight:600}
+.prereq-soft a{color:var(--muted)}
+.prereq-rec a{color:var(--accent)}
+.prereq-tag{display:inline-block;font-size:10px;padding:0 4px;border-radius:3px;margin-right:2px;vertical-align:middle}
+.prereq-hard .prereq-tag{background:var(--bad);color:#fff}
+.prereq-soft .prereq-tag{background:var(--muted);color:#fff}
+.prereq-rec .prereq-tag{background:var(--accent);color:#fff}
+/* 误解卡片 */
+.misconception-card{margin-top:10px;padding:10px 14px;border-left:4px solid var(--bad);background:#fef2f2;border-radius:0 8px 8px 0;font-size:13px}
+.misconception-card b{color:var(--bad)}
+[data-theme="dark"] .misconception-card{background:#2a1215}
+/* 掌握度条 */
+.mastery-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin:4px 0}
+.mastery-bar>div{height:100%;background:var(--ok);transition:width .3s}
+.mastery-label{font-size:11px;color:var(--muted)}
+/* 深度推导片段 */
+.depth-fragment{margin:18px 0;border:1px solid var(--depth-border);border-radius:10px;background:var(--depth-bg);overflow:hidden}
+.depth-fragment>summary{padding:10px 14px;cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+.depth-fragment>summary:hover{filter:brightness(.95)}
+.depth-body{padding:14px 18px;border-top:1px dashed var(--depth-border);background:var(--panel)}
+.depth-missing{color:var(--bad);font-size:13px;padding:8px;background:var(--code-bg);border-radius:6px}
+/* KaTeX */
+sup{font-size:.72em;line-height:0;vertical-align:super}
+.katex-inline{font-size:1.05em}
+.katex-block{overflow-x:auto;padding:8px 0;text-align:center}
+.katex-block .katex{font-size:1.1em}
+/* 测验 */
 .quiz-item{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:14px 0;background:var(--panel)}
 .quiz-q{margin:0 0 8px;font-weight:500}
 .quiz-opts label{display:block;padding:4px 0;cursor:pointer}
@@ -57,6 +94,8 @@ svg{max-width:100%;height:auto}
 .quiz-feedback{margin-left:12px;font-size:13px}
 .fb-ok{color:var(--ok)}.fb-bad{color:var(--bad)}
 .quiz-explain{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px dashed var(--border);padding-top:6px}
+.quiz-remedy{margin-top:8px;padding:8px 12px;background:var(--accent-soft);border-radius:6px;font-size:13px}
+/* 抽认卡 */
 .flashcard{perspective:1200px;margin:24px auto;max-width:520px;cursor:pointer;user-select:none}
 .fc-inner{position:relative;width:100%;height:240px;transform-style:preserve-3d;transition:transform .5s}
 .flashcard.flip .fc-inner{transform:rotateY(180deg)}
@@ -80,11 +119,26 @@ svg{max-width:100%;height:auto}
 #progress-bar{height:5px;background:var(--border);border-radius:3px;margin:8px 0;overflow:hidden}
 #progress-bar>div{height:100%;width:0;background:var(--accent);transition:width .3s}
 .empty{color:var(--muted);padding:20px 0}
-@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls{display:none!important}.main{max-width:none;padding:0}}
+/* 诊断 */
+.diag-controls{margin:14px 0;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+#diag-start{padding:8px 20px;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer;font-size:14px}
+#diag-progress{margin-left:12px;color:var(--muted);font-size:13px}
+#diag-stage .quiz-item{margin:10px 0}
+#diag-result{margin-top:16px;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+.diag-remedy-item{padding:10px;margin:8px 0;background:var(--accent-soft);border-radius:8px;font-size:14px}
+@media print{.sidebar,.topbar,.quiz-actions,.card-actions,.card-controls,.diag-controls{display:none!important}.main{max-width:none;padding:0}}
 @media (max-width:760px){.sidebar{width:100%;height:auto;position:static;padding:10px 14px}
-  #nav{display:none}.sidebar.open #nav{display:block}
+  #nav{display:none;max-height:46vh;overflow-y:auto;overscroll-behavior:contain}.sidebar.open #nav{display:block}
+  .nav-item{padding:9px 10px}
+  #q,#glossary-filter{font-size:16px}
+  .quiz-opts label{padding:8px 0;min-height:30px}
+  .quiz-check{padding:10px 18px;min-height:40px}
+  #diag-start{min-height:40px}
+  .card-actions button{min-height:40px}
   #nav-toggle{display:block;width:100%;padding:8px 10px;margin:4px 0;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;text-align:left;cursor:pointer}
-  .layout{flex-direction:column}.main{padding:16px}}
+  .layout{flex-direction:column}.main{padding:20px 18px 64px;max-width:none;width:100%}
+  .page{overflow-wrap:anywhere}.page table{display:block;overflow-x:auto;max-width:100%}
+  .page h1,.page h2,.page h3{line-height:1.35}}
 </style>
 </head>
 <body>
@@ -103,17 +157,18 @@ svg{max-width:100%;height:auto}
   </main>
 </div>
 <script>
-const DATA = {"manifest": {"slug": "exponents-logarithms", "title": "指数与对数", "subtitle": "同一件事的两种说法：指数增长与对数刻度", "book": {"title": "指数与对数", "author": "沈超", "source": ["数学基础知识丛书-07-指数与对数 沈超.pdf"]}, "audience": "零基础", "goal": "把指数从整数推广到实数，掌握指数函数、对数与对数函数的性质与图象，会解指数方程与对数方程。", "learningPath": [{"step": "01", "title": "指数的推广与指数函数", "chapterIds": ["ch01"], "checkpoint": "能说明 a⁰=1 为什么成立"}, {"step": "02", "title": "对数与对数运算", "chapterIds": ["ch02"], "checkpoint": "能把指数式与对数式互化并用法则化简"}, {"step": "03", "title": "对数函数、幂函数与指对方程", "chapterIds": ["ch03"], "checkpoint": "能解指数方程并验根"}], "chapters": [{"id": "ch01", "title": "第 1 章：指数的推广与指数函数", "file": "chapters/ch01-exponent.md", "difficulty": 2}, {"id": "ch02", "title": "第 2 章：对数与对数运算", "file": "chapters/ch02-logarithm.md", "difficulty": 3}, {"id": "ch03", "title": "第 3 章：对数函数、幂函数与指对方程", "file": "chapters/ch03-log-function-equations.md", "difficulty": 3}], "concepts": [{"id": "c01", "title": "互为逆运算", "file": "concepts/c01-inverse-operation.md", "chapterIds": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "底数与单调性", "file": "concepts/c02-base-monotonicity.md", "chapterIds": ["ch01", "ch03"]}], "glossary": [{"term": "指数函数", "def": "y=aˣ（a>0，a≠1），值域 (0,+∞)。", "chapterId": "ch01"}, {"term": "零指数", "def": "a⁰=1（a≠0）。", "chapterId": "ch01"}, {"term": "分数指数", "def": "a^(m/n)=ⁿ√(aᵐ)，把根式写成指数。", "chapterId": "ch01"}, {"term": "对数", "def": "log_a N=b 表示 aᵇ=N。", "chapterId": "ch02"}, {"term": "真数", "def": "对数记号中的 N，必须大于 0。", "chapterId": "ch02"}, {"term": "换底公式", "def": "log_a N=log_b N/log_b a。", "chapterId": "ch02"}, {"term": "对数函数", "def": "y=log_a x，与指数函数互为反函数。", "chapterId": "ch03"}, {"term": "幂函数", "def": "y=x^α，底是变量、指数是常数。", "chapterId": "ch03"}, {"term": "增根", "def": "解对数方程时使真数非正的解。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "计算 27^(2/3) 的值：", "options": ["9", "18", "3", "6"], "answer": 0, "explain": "27^(2/3)=(³√27)²=3²=9。"}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "函数 y=(1/2)ˣ 的单调性是：", "options": ["在 R 上递增", "在 R 上递减", "先增后减", "不单调"], "answer": 1, "explain": "底数 0<1/2<1，指数函数单调递减。"}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "log₄16 的值是：", "options": ["2", "4", "8", "1/2"], "answer": 0, "explain": "4²=16，故 log₄16=2。"}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "化简 log₂6−log₂3：", "options": ["log₂3", "1", "2", "log₂9"], "answer": 1, "explain": "log₂6−log₂3=log₂(6/3)=log₂2=1。"}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：", "options": ["y 轴", "x 轴", "y=x", "y=−x"], "answer": 2, "explain": "互为反函数的图象关于直线 y=x 对称。"}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "方程 log₂(x−3)=2 的解是：", "options": ["x=7", "x=1", "x=4", "x=5"], "answer": 0, "explain": "x−3=2²=4，得 x=7；真数 4>0，成立。"}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "计算 lg2+lg5 的值：", "options": ["1", "lg7", "10", "0"], "answer": 0, "explain": "lg2+lg5=lg10=1。"}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "若 3ˣ=7，则 x 等于：", "options": ["log₇3", "log₃7", "7/3", "3/7"], "answer": 1, "explain": "由定义 3ˣ=7 即 x=log₃7。"}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：指数的推广与指数函数」的一句话核心是什么？", "back": "指数每推广一步，都要求原来的运算法则继续成立；指数函数的值域恒为正。", "tags": ["exponents-logarithms", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：对数与对数运算」的一句话核心是什么？", "back": "对数就是“问指数”：log_a N 是“a 的几次方等于 N”。", "tags": ["exponents-logarithms", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：对数函数、幂函数与指对方程」的一句话核心是什么？", "back": "对数函数与指数函数关于 y=x 对称；解指对方程靠“化同底”或“取对数”。", "tags": ["exponents-logarithms", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「指数函数」？", "back": "y=aˣ（a>0，a≠1），值域 (0,+∞)。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「零指数」？", "back": "a⁰=1（a≠0）。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「分数指数」？", "back": "a^(m/n)=ⁿ√(aᵐ)，把根式写成指数。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f07", "chapterId": "ch02", "front": "什么是「对数」？", "back": "log_a N=b 表示 aᵇ=N。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「真数」？", "back": "对数记号中的 N，必须大于 0。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「换底公式」？", "back": "log_a N=log_b N/log_b a。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「对数函数」？", "back": "y=log_a x，与指数函数互为反函数。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「幂函数」？", "back": "y=x^α，底是变量、指数是常数。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「增根」？", "back": "解对数方程时使真数非正的解。", "tags": ["exponents-logarithms", "术语"]}], "companion": "exponents-logarithms学习伴侣.html", "deriv": "exponents-logarithms从零推导.html"}, "pages": {"ch01": {"html": "<h1>第 1 章：指数的推广与指数函数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：乘方、根式\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明零指数、负指数的来源\n<\/li><li>\n把分数指数与根式互化\n<\/li><li>\n画出指数函数图象并说出单调性\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>指数每推广一步，都要求原来的运算法则继续成立；指数函数的值域恒为正。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 从正整数到整数<\/h3>\n<p>aⁿ 原本表示 n 个 a 相乘。要让 aᵐ·aⁿ=a^(m+n) 在 m&lt;n 时也成立，就必须定义 a⁰ 与负指数：<\/p>\n<ul><li>\na⁰=1（a≠0），因为 aⁿ/aⁿ=1=a^(n−n)；\n<\/li><li>\na⁻ⁿ=1/aⁿ，因为 a⁻ⁿ·aⁿ=a⁰=1。\n<\/ul>\n<h3>1.2 分数指数<\/h3>\n<p>要让 (aᵐ)^(1/n)=a^(m/n) 成立，就得把 a^(m/n) 定义为 ⁿ√(aᵐ)。例如 8^(2/3)=³√64=4。<\/p>\n<p>底数为负时分数指数会出问题（如 (−8)^(1/2) 不是实数），所以指数函数的底数规定 a&gt;0 且 a≠1。<\/p>\n<h3>1.3 实数指数与指数函数<\/h3>\n<p>无理指数用有理指数逼近定义。函数 y=aˣ（a&gt;0，a≠1）叫<strong>指数函数<\/strong>：<\/p>\n<ul><li>\n定义域是全体实数，值域是 (0,+∞)，图象恒在 x 轴上方；\n<\/li><li>\na&gt;1 时单调递增，0&lt;a&lt;1 时单调递减；\n<\/li><li>\n图象都过点 (0,1)。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：指数增长像细胞分裂，每一代翻一倍；底数就是“每代翻几倍”。<\/p>\n<p><strong>失效边界<\/strong>：翻倍模型不考虑资源限制，真实种群会在后期放缓，不是纯指数。<\/p>\n<p><strong>实例<\/strong>：2^(−3)=1/8；16^(3/4)=(⁴√16)³=2³=8；比较 2^0.3 与 2^0.4，底数 2&gt;1 单调增，故前者小。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 a⁰=0 —— 实际上 任何非零数的零次幂都是 1，来自 aⁿ/aⁿ=1。\n<\/li><li>\n别以为 指数函数的值域是全体实数 —— 实际上 aˣ 恒为正，值域是 (0,+∞)，永远取不到 0 和负数。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n计算 27^(2/3) 的值：\n<\/li><li>\n函数 y=(1/2)ˣ 的单调性是：\n<p>A. 9 ｜ B. 18 ｜ C. 3 ｜ D. 6 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：27^(2/3)=(³√27)²=3²=9。 A. 在 R 上递增 ｜ B. 在 R 上递减 ｜ C. 先增后减 ｜ D. 不单调 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：底数 0&lt;1/2&lt;1，指数函数单调递减。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\na⁰=1（a≠0）；a⁻ⁿ=1/aⁿ；a^(m/n)=ⁿ√(aᵐ)\n<\/li><li>\n指数函数值域 (0,+∞)，过 (0,1)\n<\/li><li>\na&gt;1 增，0&lt;a&lt;1 减\n<\/ul>", "kind": "chapter", "title": "第 1 章：指数的推广与指数函数"}, "ch02": {"html": "<h1>第 2 章：对数与对数运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把指数式与对数式互化\n<\/li><li>\n用三条法则化简对数式\n<\/li><li>\n用换底公式计算不同底的对数\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>对数就是“问指数”：log_a N 是“a 的几次方等于 N”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 定义<\/h3>\n<p>若 aᵇ=N（a&gt;0，a≠1，N&gt;0），则 b=log_a N。这是指数式的等价改写，不是新运算。<\/p>\n<p>由此立得：a^(log_a N)=N，log_a aᵇ=b，log_a 1=0，log_a a=1。<\/p>\n<h3>2.2 三条法则<\/h3>\n<ul><li>\nlog_a(MN)=log_a M+log_a N（乘变加）；\n<\/li><li>\nlog_a(M/N)=log_a M−log_a N（除变减）；\n<\/li><li>\nlog_a Mⁿ=n log_a M（幂变乘）。\n<\/ul>\n<p>法则只对乘、除、幂成立。log_a(M+N) 没有化简公式——这是最常见的错误。<\/p>\n<h3>2.3 换底公式<\/h3>\n<p>log_a N=log_b N / log_b a。常用底是 10（常用对数 lg）与 e（自然对数 ln）。换底把不同底的对数统一，便于计算与比较。<\/p>\n<h3>2.4 定义域<\/h3>\n<p>对数的真数必须为正：log_a N 要求 N&gt;0。解对数方程时，所有解都要满足这一条。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：对数像问“要叠多少层才够高”，指数是“叠 n 层有多高”。<\/p>\n<p><strong>失效边界<\/strong>：真数为负或为零时对数没有定义，不能靠公式硬算。<\/p>\n<p><strong>实例<\/strong>：log₂8=3，因为 2³=8；log₁₀1000=3；log₃(1/9)=−2，因为 3⁻²=1/9。 化简 lg2+lg5=lg10=1。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 log(M+N)=logM+logN —— 实际上 法则只管乘法。取 M=N=1：左边 lg2≈0.301，右边 0+0=0，明显不等。\n<\/li><li>\n别以为 真数可以为负 —— 实际上 负数的对数在实数范围内没有定义，方程解出负真数必须舍去。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nlog₄16 的值是：\n<\/li><li>\n化简 log₂6−log₂3：\n<p>A. 2 ｜ B. 4 ｜ C. 8 ｜ D. 1/2 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：4²=16，故 log₄16=2。 A. log₂3 ｜ B. 1 ｜ C. 2 ｜ D. log₂9 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：log₂6−log₂3=log₂(6/3)=log₂2=1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nlog_a N=b ⇔ aᵇ=N\n<\/li><li>\n乘变加、除变减、幂变乘；加法不能合并\n<\/li><li>\n换底：log_a N=log_b N/log_b a\n<\/ul>", "kind": "chapter", "title": "第 2 章：对数与对数运算"}, "ch03": {"html": "<h1>第 3 章：对数函数、幂函数与指对方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出对数函数与指数函数的对称关系\n<\/li><li>\n区分幂函数与指数函数\n<\/li><li>\n解指数方程与对数方程并验根\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>对数函数与指数函数关于 y=x 对称；解指对方程靠“化同底”或“取对数”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 对数函数<\/h3>\n<p>y=log_a x（a&gt;0，a≠1）的定义域是 (0,+∞)，值域是全体实数，图象过 (1,0)。<\/p>\n<p>a&gt;1 时递增，0&lt;a&lt;1 时递减。它与 y=aˣ 互为反函数，图象关于直线 y=x 对称。<\/p>\n<h3>3.2 幂函数<\/h3>\n<p>y=x^α（α 为常数）叫幂函数。它与指数函数的区别在于：幂函数的底是变量、指数是常数；指数函数反过来。<\/p>\n<p>常见幂函数 x、x²、x³、x^(1/2)、x⁻¹ 的图象形状随 α 变化，但都过 (1,1)。<\/p>\n<h3>3.3 指数方程<\/h3>\n<ul><li>\n同底法：a^(f(x))=a^(g(x)) ⇒ f(x)=g(x)（a≠1）；\n<\/li><li>\n换元法：把 aˣ 设为 t，化成二次方程，注意 t&gt;0；\n<\/li><li>\n取对数：a^(f(x))=b^(g(x)) 两边取对数。\n<\/ul>\n<h3>3.4 对数方程<\/h3>\n<p>先用法则合并成 log_a F(x)=log_a G(x)，再化为 F(x)=G(x)，最后必须检验 F(x)&gt;0 且 G(x)&gt;0。<\/p>\n<p>增根几乎都来自“真数为负”这一步，验根不能省。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：指数与对数像两张对照表：一张给“层数→高度”，一张给“高度→层数”。<\/p>\n<p><strong>失效边界<\/strong>：两函数只在 a&gt;0、a≠1 时互为反函数；a=1 时退化为常数，没有反函数。<\/p>\n<p><strong>实例<\/strong>：解 2^(x+1)=8。8=2³，故 x+1=3，x=2。 解 log₂(x−1)=3。化为 x−1=2³=8，得 x=9；检验真数 8&gt;0，成立。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 幂函数与指数函数是同一类 —— 实际上 幂函数底是变量，指数函数指数是变量；两者增长方式完全不同。\n<\/li><li>\n别以为 对数方程解出即可 —— 实际上 必须检验真数为正，否则会把增根写进答案。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：\n<\/li><li>\n方程 log₂(x−3)=2 的解是：\n<p>A. y 轴 ｜ B. x 轴 ｜ C. y=x ｜ D. y=−x <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：互为反函数的图象关于直线 y=x 对称。 A. x=7 ｜ B. x=1 ｜ C. x=4 ｜ D. x=5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：x−3=2²=4，得 x=7；真数 4&gt;0，成立。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\ny=log_a x 与 y=aˣ 关于 y=x 对称\n<\/li><li>\n幂函数底变、指数函数指数变\n<\/li><li>\n对数方程必须检验真数为正\n<\/ul>", "kind": "chapter", "title": "第 3 章：对数函数、幂函数与指对方程"}, "c01": {"html": "<h1>互为逆运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>指数问“乘几次”，对数问“几次才够”，两句话说的是同一件事。<\/p>\n<h2>为什么重要<\/h2>\n<p>抓住互逆关系，指对互化、图象对称、方程解法都能自然推出，不必死记。<\/p>\n<h2>详解<\/h2>\n<p>aᵇ=N 与 b=log_a N 是同一关系的两种写法。由此得 a^(log_a N)=N 与 log_a aᵇ=b。图象上，把点 (x,y) 换成 (y,x)，指数曲线就变成对数曲线。<\/p>\n<h2>常见误解<\/h2>\n<p>把对数当成一种全新的运算去背法则，割裂了两者的联系。<\/p>\n<h2>相关概念<\/h2>\n<p>指数函数（ch01）、对数函数（ch03）<\/p>", "kind": "concept", "title": "互为逆运算"}, "c02": {"html": "<h1>底数与单调性<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch01、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>底数大于 1 就增，介于 0 与 1 之间就减；同一类函数，两条相反的走势。<\/p>\n<h2>为什么重要<\/h2>\n<p>比较大小时不必算值，看底数就能定方向。<\/p>\n<h2>详解<\/h2>\n<p>aˣ 与 log_a x 的单调性都由 a 决定：a&gt;1 递增，0&lt;a&lt;1 递减。因此比较大小时，先统一底数，再看指数（或真数）大小；底不同则用换底或取中间值 1 比较。<\/p>\n<h2>常见误解<\/h2>\n<p>不同底直接比指数大小，忽略底数方向可能相反。<\/p>\n<h2>相关概念<\/h2>\n<p>指数函数（ch01）、换底公式（ch02）<\/p>", "kind": "concept", "title": "底数与单调性"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：指数的推广与指数函数<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><br>检查点：能说明 a⁰=1 为什么成立<\/li><li class='path-step' id='path-02'><strong>步骤 02：对数与对数运算<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：对数与对数运算<\/a><br>检查点：能把指数式与对数式互化并用法则化简<\/li><li class='path-step' id='path-03'><strong>步骤 03：对数函数、幂函数与指对方程<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：对数函数、幂函数与指对方程<\/a><br>检查点：能解指数方程并验根<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 计算 lg2+lg5 的值：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> lg7<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 10<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 若 3ˣ=7，则 x 等于：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> log₇3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> log₃7<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 7/3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 3/7<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：指数的推广与指数函数<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 计算 27^(2/3) 的值：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 9<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 18<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 6<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 函数 y=(1/2)ˣ 的单调性是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 在 R 上递增<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 在 R 上递减<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 先增后减<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 不单调<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：对数与对数运算<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> log₄16 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 8<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 1/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 化简 log₂6−log₂3：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> log₂3<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 1<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 2<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> log₂9<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：对数函数、幂函数与指对方程<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> y 轴<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> x 轴<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> y=x<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> y=−x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 方程 log₂(x−3)=2 的解是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> x=7<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> x=1<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> x=4<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> x=5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='指数函数'>指数函数 — y=aˣ（a&gt;0，a≠1），值域 (0,+∞)。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='零指数'>零指数 — a⁰=1（a≠0）。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='分数指数'>分数指数 — a^(m/n)=ⁿ√(aᵐ)，把根式写成指数。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='对数'>对数 — log_a N=b 表示 aᵇ=N。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='真数'>真数 — 对数记号中的 N，必须大于 0。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='换底公式'>换底公式 — log_a N=log_b N/log_b a。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='对数函数'>对数函数 — y=log_a x，与指数函数互为反函数。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><li data-term='幂函数'>幂函数 — y=x^α，底是变量、指数是常数。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><li data-term='增根'>增根 — 解对数方程时使真数非正的解。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：指对互化三步<\/h2>\n<p>① 看结构：是指数式还是对数式；② 换成另一种写法；③ 用对应法则（指数律或对数律）化简。<\/p>\n<h2>框架：比较大小三招<\/h2>\n<p>同底看单调；同指数看底；都不同则取中间值 0 或 1 或换底。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>指数律<\/td><td>aᵐaⁿ=a^(m+n)；(aᵐ)ⁿ=a^(mn)；(ab)ⁿ=aⁿbⁿ<\/td><\/tr><tr><td>对数定义<\/td><td>aᵇ=N ⇔ log_a N=b（N&gt;0）<\/td><\/tr><tr><td>对数法则<\/td><td>log(MN)=logM+logN；log(M/N)=logM−logN；log Mⁿ=n logM<\/td><\/tr><tr><td>换底<\/td><td>log_a N=log_b N/log_b a<\/td><\/tr><tr><td>单调性<\/td><td>a&gt;1 增；0&lt;a&lt;1 减<\/td><\/tr><tr><td>对数方程<\/td><td>化同底 → 比较真数 → 检验真数&gt;0<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/07-指数与对数", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "章节", "children": [{"label": "第 1 章：指数的推广与指数函数", "href": "#/chapter/ch01"}, {"label": "第 2 章：对数与对数运算", "href": "#/chapter/ch02"}, {"label": "第 3 章：对数函数、幂函数与指对方程", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "互为逆运算", "href": "#/concept/c01"}, {"label": "底数与单调性", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：指数的推广与指数函数", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：对数与对数运算", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：对数函数、幂函数与指对方程", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<h1>第 1 章：指数的推广与指数函数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：乘方、根式\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明零指数、负指数的来源\n<\/li><li>\n把分数指数与根式互化\n<\/li><li>\n画出指数函数图象并说出单调性\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>指数每推广一步，都要求原来的运算法则继续成立；指数函数的值域恒为正。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 从正整数到整数<\/h3>\n<p>aⁿ 原本表示 n 个 a 相乘。要让 aᵐ·aⁿ=a^(m+n) 在 m&lt;n 时也成立，就必须定义 a⁰ 与负指数：<\/p>\n<ul><li>\na⁰=1（a≠0），因为 aⁿ/aⁿ=1=a^(n−n)；\n<\/li><li>\na⁻ⁿ=1/aⁿ，因为 a⁻ⁿ·aⁿ=a⁰=1。\n<\/ul>\n<h3>1.2 分数指数<\/h3>\n<p>要让 (aᵐ)^(1/n)=a^(m/n) 成立，就得把 a^(m/n) 定义为 ⁿ√(aᵐ)。例如 8^(2/3)=³√64=4。<\/p>\n<p>底数为负时分数指数会出问题（如 (−8)^(1/2) 不是实数），所以指数函数的底数规定 a&gt;0 且 a≠1。<\/p>\n<h3>1.3 实数指数与指数函数<\/h3>\n<p>无理指数用有理指数逼近定义。函数 y=aˣ（a&gt;0，a≠1）叫<strong>指数函数<\/strong>：<\/p>\n<ul><li>\n定义域是全体实数，值域是 (0,+∞)，图象恒在 x 轴上方；\n<\/li><li>\na&gt;1 时单调递增，0&lt;a&lt;1 时单调递减；\n<\/li><li>\n图象都过点 (0,1)。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：指数增长像细胞分裂，每一代翻一倍；底数就是“每代翻几倍”。<\/p>\n<p><strong>失效边界<\/strong>：翻倍模型不考虑资源限制，真实种群会在后期放缓，不是纯指数。<\/p>\n<p><strong>实例<\/strong>：2^(−3)=1/8；16^(3/4)=(⁴√16)³=2³=8；比较 2^0.3 与 2^0.4，底数 2&gt;1 单调增，故前者小。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 a⁰=0 —— 实际上 任何非零数的零次幂都是 1，来自 aⁿ/aⁿ=1。\n<\/li><li>\n别以为 指数函数的值域是全体实数 —— 实际上 aˣ 恒为正，值域是 (0,+∞)，永远取不到 0 和负数。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n计算 27^(2/3) 的值：\n<\/li><li>\n函数 y=(1/2)ˣ 的单调性是：\n<p>A. 9 ｜ B. 18 ｜ C. 3 ｜ D. 6 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：27^(2/3)=(³√27)²=3²=9。 A. 在 R 上递增 ｜ B. 在 R 上递减 ｜ C. 先增后减 ｜ D. 不单调 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：底数 0&lt;1/2&lt;1，指数函数单调递减。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\na⁰=1（a≠0）；a⁻ⁿ=1/aⁿ；a^(m/n)=ⁿ√(aᵐ)\n<\/li><li>\n指数函数值域 (0,+∞)，过 (0,1)\n<\/li><li>\na&gt;1 增，0&lt;a&lt;1 减\n<\/ul>", "ch02": "<h1>第 2 章：对数与对数运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把指数式与对数式互化\n<\/li><li>\n用三条法则化简对数式\n<\/li><li>\n用换底公式计算不同底的对数\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>对数就是“问指数”：log_a N 是“a 的几次方等于 N”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 定义<\/h3>\n<p>若 aᵇ=N（a&gt;0，a≠1，N&gt;0），则 b=log_a N。这是指数式的等价改写，不是新运算。<\/p>\n<p>由此立得：a^(log_a N)=N，log_a aᵇ=b，log_a 1=0，log_a a=1。<\/p>\n<h3>2.2 三条法则<\/h3>\n<ul><li>\nlog_a(MN)=log_a M+log_a N（乘变加）；\n<\/li><li>\nlog_a(M/N)=log_a M−log_a N（除变减）；\n<\/li><li>\nlog_a Mⁿ=n log_a M（幂变乘）。\n<\/ul>\n<p>法则只对乘、除、幂成立。log_a(M+N) 没有化简公式——这是最常见的错误。<\/p>\n<h3>2.3 换底公式<\/h3>\n<p>log_a N=log_b N / log_b a。常用底是 10（常用对数 lg）与 e（自然对数 ln）。换底把不同底的对数统一，便于计算与比较。<\/p>\n<h3>2.4 定义域<\/h3>\n<p>对数的真数必须为正：log_a N 要求 N&gt;0。解对数方程时，所有解都要满足这一条。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：对数像问“要叠多少层才够高”，指数是“叠 n 层有多高”。<\/p>\n<p><strong>失效边界<\/strong>：真数为负或为零时对数没有定义，不能靠公式硬算。<\/p>\n<p><strong>实例<\/strong>：log₂8=3，因为 2³=8；log₁₀1000=3；log₃(1/9)=−2，因为 3⁻²=1/9。 化简 lg2+lg5=lg10=1。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 log(M+N)=logM+logN —— 实际上 法则只管乘法。取 M=N=1：左边 lg2≈0.301，右边 0+0=0，明显不等。\n<\/li><li>\n别以为 真数可以为负 —— 实际上 负数的对数在实数范围内没有定义，方程解出负真数必须舍去。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nlog₄16 的值是：\n<\/li><li>\n化简 log₂6−log₂3：\n<p>A. 2 ｜ B. 4 ｜ C. 8 ｜ D. 1/2 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：4²=16，故 log₄16=2。 A. log₂3 ｜ B. 1 ｜ C. 2 ｜ D. log₂9 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：log₂6−log₂3=log₂(6/3)=log₂2=1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nlog_a N=b ⇔ aᵇ=N\n<\/li><li>\n乘变加、除变减、幂变乘；加法不能合并\n<\/li><li>\n换底：log_a N=log_b N/log_b a\n<\/ul>", "ch03": "<h1>第 3 章：对数函数、幂函数与指对方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出对数函数与指数函数的对称关系\n<\/li><li>\n区分幂函数与指数函数\n<\/li><li>\n解指数方程与对数方程并验根\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>对数函数与指数函数关于 y=x 对称；解指对方程靠“化同底”或“取对数”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 对数函数<\/h3>\n<p>y=log_a x（a&gt;0，a≠1）的定义域是 (0,+∞)，值域是全体实数，图象过 (1,0)。<\/p>\n<p>a&gt;1 时递增，0&lt;a&lt;1 时递减。它与 y=aˣ 互为反函数，图象关于直线 y=x 对称。<\/p>\n<h3>3.2 幂函数<\/h3>\n<p>y=x^α（α 为常数）叫幂函数。它与指数函数的区别在于：幂函数的底是变量、指数是常数；指数函数反过来。<\/p>\n<p>常见幂函数 x、x²、x³、x^(1/2)、x⁻¹ 的图象形状随 α 变化，但都过 (1,1)。<\/p>\n<h3>3.3 指数方程<\/h3>\n<ul><li>\n同底法：a^(f(x))=a^(g(x)) ⇒ f(x)=g(x)（a≠1）；\n<\/li><li>\n换元法：把 aˣ 设为 t，化成二次方程，注意 t&gt;0；\n<\/li><li>\n取对数：a^(f(x))=b^(g(x)) 两边取对数。\n<\/ul>\n<h3>3.4 对数方程<\/h3>\n<p>先用法则合并成 log_a F(x)=log_a G(x)，再化为 F(x)=G(x)，最后必须检验 F(x)&gt;0 且 G(x)&gt;0。<\/p>\n<p>增根几乎都来自“真数为负”这一步，验根不能省。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：指数与对数像两张对照表：一张给“层数→高度”，一张给“高度→层数”。<\/p>\n<p><strong>失效边界<\/strong>：两函数只在 a&gt;0、a≠1 时互为反函数；a=1 时退化为常数，没有反函数。<\/p>\n<p><strong>实例<\/strong>：解 2^(x+1)=8。8=2³，故 x+1=3，x=2。 解 log₂(x−1)=3。化为 x−1=2³=8，得 x=9；检验真数 8&gt;0，成立。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 幂函数与指数函数是同一类 —— 实际上 幂函数底是变量，指数函数指数是变量；两者增长方式完全不同。\n<\/li><li>\n别以为 对数方程解出即可 —— 实际上 必须检验真数为正，否则会把增根写进答案。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：\n<\/li><li>\n方程 log₂(x−3)=2 的解是：\n<p>A. y 轴 ｜ B. x 轴 ｜ C. y=x ｜ D. y=−x <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：互为反函数的图象关于直线 y=x 对称。 A. x=7 ｜ B. x=1 ｜ C. x=4 ｜ D. x=5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：x−3=2²=4，得 x=7；真数 4&gt;0，成立。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\ny=log_a x 与 y=aˣ 关于 y=x 对称\n<\/li><li>\n幂函数底变、指数函数指数变\n<\/li><li>\n对数方程必须检验真数为正\n<\/ul>", "c01": "<h1>互为逆运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>指数问“乘几次”，对数问“几次才够”，两句话说的是同一件事。<\/p>\n<h2>为什么重要<\/h2>\n<p>抓住互逆关系，指对互化、图象对称、方程解法都能自然推出，不必死记。<\/p>\n<h2>详解<\/h2>\n<p>aᵇ=N 与 b=log_a N 是同一关系的两种写法。由此得 a^(log_a N)=N 与 log_a aᵇ=b。图象上，把点 (x,y) 换成 (y,x)，指数曲线就变成对数曲线。<\/p>\n<h2>常见误解<\/h2>\n<p>把对数当成一种全新的运算去背法则，割裂了两者的联系。<\/p>\n<h2>相关概念<\/h2>\n<p>指数函数（ch01）、对数函数（ch03）<\/p>", "c02": "<h1>底数与单调性<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch01、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>底数大于 1 就增，介于 0 与 1 之间就减；同一类函数，两条相反的走势。<\/p>\n<h2>为什么重要<\/h2>\n<p>比较大小时不必算值，看底数就能定方向。<\/p>\n<h2>详解<\/h2>\n<p>aˣ 与 log_a x 的单调性都由 a 决定：a&gt;1 递增，0&lt;a&lt;1 递减。因此比较大小时，先统一底数，再看指数（或真数）大小；底不同则用换底或取中间值 1 比较。<\/p>\n<h2>常见误解<\/h2>\n<p>不同底直接比指数大小，忽略底数方向可能相反。<\/p>\n<h2>相关概念<\/h2>\n<p>指数函数（ch01）、换底公式（ch02）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：指数的推广与指数函数<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><br>检查点：能说明 a⁰=1 为什么成立<\/li><li class='path-step' id='path-02'><strong>步骤 02：对数与对数运算<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：对数与对数运算<\/a><br>检查点：能把指数式与对数式互化并用法则化简<\/li><li class='path-step' id='path-03'><strong>步骤 03：对数函数、幂函数与指对方程<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：对数函数、幂函数与指对方程<\/a><br>检查点：能解指数方程并验根<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single'><p class='quiz-q'><b>Q7.<\/b> 计算 lg2+lg5 的值：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> lg7<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 10<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single'><p class='quiz-q'><b>Q8.<\/b> 若 3ˣ=7，则 x 等于：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> log₇3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> log₃7<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 7/3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 3/7<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：指数的推广与指数函数<\/h1><div class='quiz-item' data-qid='q01' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 计算 27^(2/3) 的值：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 9<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 18<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 6<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 函数 y=(1/2)ˣ 的单调性是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 在 R 上递增<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 在 R 上递减<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 先增后减<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 不单调<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：对数与对数运算<\/h1><div class='quiz-item' data-qid='q03' data-type='single'><p class='quiz-q'><b>Q1.<\/b> log₄16 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 8<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 1/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 化简 log₂6−log₂3：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> log₂3<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 1<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 2<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> log₂9<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：对数函数、幂函数与指对方程<\/h1><div class='quiz-item' data-qid='q05' data-type='single'><p class='quiz-q'><b>Q1.<\/b> 函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> y 轴<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> x 轴<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> y=x<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> y=−x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single'><p class='quiz-q'><b>Q2.<\/b> 方程 log₂(x−3)=2 的解是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> x=7<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> x=1<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> x=4<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> x=5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='指数函数'>指数函数 — y=aˣ（a&gt;0，a≠1），值域 (0,+∞)。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='零指数'>零指数 — a⁰=1（a≠0）。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='分数指数'>分数指数 — a^(m/n)=ⁿ√(aᵐ)，把根式写成指数。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='对数'>对数 — log_a N=b 表示 aᵇ=N。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='真数'>真数 — 对数记号中的 N，必须大于 0。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='换底公式'>换底公式 — log_a N=log_b N/log_b a。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='对数函数'>对数函数 — y=log_a x，与指数函数互为反函数。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><li data-term='幂函数'>幂函数 — y=x^α，底是变量、指数是常数。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><li data-term='增根'>增根 — 解对数方程时使真数非正的解。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><\/ul>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：指对互化三步<\/h2>\n<p>① 看结构：是指数式还是对数式；② 换成另一种写法；③ 用对应法则（指数律或对数律）化简。<\/p>\n<h2>框架：比较大小三招<\/h2>\n<p>同底看单调；同指数看底；都不同则取中间值 0 或 1 或换底。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>指数律<\/td><td>aᵐaⁿ=a^(m+n)；(aᵐ)ⁿ=a^(mn)；(ab)ⁿ=aⁿbⁿ<\/td><\/tr><tr><td>对数定义<\/td><td>aᵇ=N ⇔ log_a N=b（N&gt;0）<\/td><\/tr><tr><td>对数法则<\/td><td>log(MN)=logM+logN；log(M/N)=logM−logN；log Mⁿ=n logM<\/td><\/tr><tr><td>换底<\/td><td>log_a N=log_b N/log_b a<\/td><\/tr><tr><td>单调性<\/td><td>a&gt;1 增；0&lt;a&lt;1 减<\/td><\/tr><tr><td>对数方程<\/td><td>化同底 → 比较真数 → 检验真数&gt;0<\/td><\/tr><\/tbody><\/table>"}};
+const DATA = {"manifest": {"slug": "exponents-logarithms", "title": "指数与对数", "subtitle": "同一件事的两种说法：指数增长与对数刻度", "book": {"title": "指数与对数", "author": "沈超", "source": ["数学基础知识丛书-07-指数与对数 沈超.pdf"]}, "audience": "零基础", "goal": "把指数从整数推广到实数，掌握指数函数、对数与对数函数的性质与图象，会解指数方程与对数方程。", "learningPath": [{"step": "01", "title": "指数的推广与指数函数", "chapterIds": ["ch01"], "checkpoint": "能说明 a⁰=1 为什么成立"}, {"step": "02", "title": "对数与对数运算", "chapterIds": ["ch02"], "checkpoint": "能把指数式与对数式互化并用法则化简"}, {"step": "03", "title": "对数函数、幂函数与指对方程", "chapterIds": ["ch03"], "checkpoint": "能解指数方程并验根"}], "chapters": [{"id": "ch01", "title": "第 1 章：指数的推广与指数函数", "file": "chapters/ch01-exponent.md", "difficulty": 2, "source": {"file": "数学基础知识丛书-07-指数与对数 沈超.pdf", "kind": "原书 PDF"}, "prereqNote": "乘方、根式", "depthFragment": "chapters/ch01-depth.md", "prerequisites": []}, {"id": "ch02", "title": "第 2 章：对数与对数运算", "file": "chapters/ch02-logarithm.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-07-指数与对数 沈超.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch02-depth.md", "prerequisites": ["ch01"]}, {"id": "ch03", "title": "第 3 章：对数函数、幂函数与指对方程", "file": "chapters/ch03-log-function-equations.md", "difficulty": 3, "source": {"file": "数学基础知识丛书-07-指数与对数 沈超.pdf", "kind": "原书 PDF"}, "prereqNote": "", "depthFragment": "chapters/ch03-depth.md", "prerequisites": ["ch02"]}], "concepts": [{"id": "c01", "title": "互为逆运算", "file": "concepts/c01-inverse-operation.md", "chapterIds": ["ch01", "ch02", "ch03"], "source": {"file": "数学基础知识丛书-07-指数与对数 沈超.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch01", "ch02", "ch03"]}, {"id": "c02", "title": "底数与单调性", "file": "concepts/c02-base-monotonicity.md", "chapterIds": ["ch01", "ch03"], "source": {"file": "数学基础知识丛书-07-指数与对数 沈超.pdf", "kind": "原书 PDF"}, "prerequisites": ["ch01", "ch03"]}], "glossary": [{"term": "指数函数", "def": "y=aˣ（a>0，a≠1），值域 (0,+∞)。", "chapterId": "ch01"}, {"term": "零指数", "def": "a⁰=1（a≠0）。", "chapterId": "ch01"}, {"term": "分数指数", "def": "a^(m/n)=ⁿ√(aᵐ)，把根式写成指数。", "chapterId": "ch01"}, {"term": "对数", "def": "log_a N=b 表示 aᵇ=N。", "chapterId": "ch02"}, {"term": "真数", "def": "对数记号中的 N，必须大于 0。", "chapterId": "ch02"}, {"term": "换底公式", "def": "log_a N=log_b N/log_b a。", "chapterId": "ch02"}, {"term": "对数函数", "def": "y=log_a x，与指数函数互为反函数。", "chapterId": "ch03"}, {"term": "幂函数", "def": "y=x^α，底是变量、指数是常数。", "chapterId": "ch03"}, {"term": "增根", "def": "解对数方程时使真数非正的解。", "chapterId": "ch03"}], "patterns": {"file": "patterns.md"}, "cheatsheet": {"file": "cheatsheet.md"}, "quizzes": [{"id": "q01", "chapterId": "ch01", "type": "single", "question": "计算 27^(2/3) 的值：", "options": ["9", "18", "3", "6"], "answer": 0, "explain": "27^(2/3)=(³√27)²=3²=9。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q02", "chapterId": "ch01", "type": "single", "question": "函数 y=(1/2)ˣ 的单调性是：", "options": ["在 R 上递增", "在 R 上递减", "先增后减", "不单调"], "answer": 1, "explain": "底数 0<1/2<1，指数函数单调递减。", "relatedConceptId": "c01", "prerequisites": ["ch01"]}, {"id": "q03", "chapterId": "ch02", "type": "single", "question": "log₄16 的值是：", "options": ["2", "4", "8", "1/2"], "answer": 0, "explain": "4²=16，故 log₄16=2。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q04", "chapterId": "ch02", "type": "single", "question": "化简 log₂6−log₂3：", "options": ["log₂3", "1", "2", "log₂9"], "answer": 1, "explain": "log₂6−log₂3=log₂(6/3)=log₂2=1。", "relatedConceptId": "c01", "prerequisites": ["ch02"]}, {"id": "q05", "chapterId": "ch03", "type": "single", "question": "函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：", "options": ["y 轴", "x 轴", "y=x", "y=−x"], "answer": 2, "explain": "互为反函数的图象关于直线 y=x 对称。", "relatedConceptId": "c01", "prerequisites": ["ch03"]}, {"id": "q06", "chapterId": "ch03", "type": "single", "question": "方程 log₂(x−3)=2 的解是：", "options": ["x=7", "x=1", "x=4", "x=5"], "answer": 0, "explain": "x−3=2²=4，得 x=7；真数 4>0，成立。", "relatedConceptId": "c01", "prerequisites": ["ch03"]}, {"id": "q07", "chapterId": "__all__", "type": "single", "question": "计算 lg2+lg5 的值：", "options": ["1", "lg7", "10", "0"], "answer": 0, "explain": "lg2+lg5=lg10=1。", "relatedConceptId": "", "prerequisites": ["__all__"]}, {"id": "q08", "chapterId": "__all__", "type": "single", "question": "若 3ˣ=7，则 x 等于：", "options": ["log₇3", "log₃7", "7/3", "3/7"], "answer": 1, "explain": "由定义 3ˣ=7 即 x=log₃7。", "relatedConceptId": "", "prerequisites": ["__all__"]}], "flashcards": [{"id": "f01", "chapterId": "ch01", "front": "「第 1 章：指数的推广与指数函数」的一句话核心是什么？", "back": "指数每推广一步，都要求原来的运算法则继续成立；指数函数的值域恒为正。", "tags": ["exponents-logarithms", "核心"]}, {"id": "f02", "chapterId": "ch02", "front": "「第 2 章：对数与对数运算」的一句话核心是什么？", "back": "对数就是“问指数”：log_a N 是“a 的几次方等于 N”。", "tags": ["exponents-logarithms", "核心"]}, {"id": "f03", "chapterId": "ch03", "front": "「第 3 章：对数函数、幂函数与指对方程」的一句话核心是什么？", "back": "对数函数与指数函数关于 y=x 对称；解指对方程靠“化同底”或“取对数”。", "tags": ["exponents-logarithms", "核心"]}, {"id": "f04", "chapterId": "ch01", "front": "什么是「指数函数」？", "back": "y=aˣ（a>0，a≠1），值域 (0,+∞)。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f05", "chapterId": "ch01", "front": "什么是「零指数」？", "back": "a⁰=1（a≠0）。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f06", "chapterId": "ch01", "front": "什么是「分数指数」？", "back": "a^(m/n)=ⁿ√(aᵐ)，把根式写成指数。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f07", "chapterId": "ch02", "front": "什么是「对数」？", "back": "log_a N=b 表示 aᵇ=N。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f08", "chapterId": "ch02", "front": "什么是「真数」？", "back": "对数记号中的 N，必须大于 0。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f09", "chapterId": "ch02", "front": "什么是「换底公式」？", "back": "log_a N=log_b N/log_b a。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f10", "chapterId": "ch03", "front": "什么是「对数函数」？", "back": "y=log_a x，与指数函数互为反函数。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f11", "chapterId": "ch03", "front": "什么是「幂函数」？", "back": "y=x^α，底是变量、指数是常数。", "tags": ["exponents-logarithms", "术语"]}, {"id": "f12", "chapterId": "ch03", "front": "什么是「增根」？", "back": "解对数方程时使真数非正的解。", "tags": ["exponents-logarithms", "术语"]}], "companion": "exponents-logarithms学习伴侣.html", "deriv": "exponents-logarithms从零推导.html"}, "pages": {"ch01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">乘方、根式<\/span><\/div><h1>第 1 章：指数的推广与指数函数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：乘方、根式\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明零指数、负指数的来源\n<\/li><li>\n把分数指数与根式互化\n<\/li><li>\n画出指数函数图象并说出单调性\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>指数每推广一步，都要求原来的运算法则继续成立；指数函数的值域恒为正。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 从正整数到整数<\/h3>\n<p>aⁿ 原本表示 n 个 a 相乘。要让 aᵐ·aⁿ=a<sup>m+n<\/sup> 在 m&lt;n 时也成立，就必须定义 a⁰ 与负指数：<\/p>\n<ul><li>\na⁰=1（a≠0），因为 aⁿ/aⁿ=1=a<sup>n−n<\/sup>；\n<\/li><li>\na⁻ⁿ=1/aⁿ，因为 a⁻ⁿ·aⁿ=a⁰=1。\n<\/ul>\n<h3>1.2 分数指数<\/h3>\n<p>要让 (aᵐ)<sup>1/n<\/sup>=a<sup>m/n<\/sup> 成立，就得把 a<sup>m/n<\/sup> 定义为 ⁿ√(aᵐ)。例如 8<sup>2/3<\/sup>=³√64=4。<\/p>\n<p>底数为负时分数指数会出问题（如 (−8)<sup>1/2<\/sup> 不是实数），所以指数函数的底数规定 a&gt;0 且 a≠1。<\/p>\n<h3>1.3 实数指数与指数函数<\/h3>\n<p>无理指数用有理指数逼近定义。函数 y=aˣ（a&gt;0，a≠1）叫<strong>指数函数<\/strong>：<\/p>\n<ul><li>\n定义域是全体实数，值域是 (0,+∞)，图象恒在 x 轴上方；\n<\/li><li>\na&gt;1 时单调递增，0&lt;a&lt;1 时单调递减；\n<\/li><li>\n图象都过点 (0,1)。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：指数增长像细胞分裂，每一代翻一倍；底数就是“每代翻几倍”。<\/p>\n<p><strong>失效边界<\/strong>：翻倍模型不考虑资源限制，真实种群会在后期放缓，不是纯指数。<\/p>\n<p><strong>实例<\/strong>：2<sup>−3<\/sup>=1/8；16<sup>3/4<\/sup>=(⁴√16)³=2³=8；比较 2<sup>0.3<\/sup> 与 2<sup>0.4<\/sup>，底数 2&gt;1 单调增，故前者小。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 a⁰=0 —— 实际上 任何非零数的零次幂都是 1，来自 aⁿ/aⁿ=1。\n<\/li><li>\n别以为 指数函数的值域是全体实数 —— 实际上 aˣ 恒为正，值域是 (0,+∞)，永远取不到 0 和负数。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n计算 27<sup>2/3<\/sup> 的值：\n<\/li><li>\n函数 y=(1/2)ˣ 的单调性是：\n<p>A. 9 ｜ B. 18 ｜ C. 3 ｜ D. 6 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：27<sup>2/3<\/sup>=(³√27)²=3²=9。 A. 在 R 上递增 ｜ B. 在 R 上递减 ｜ C. 先增后减 ｜ D. 不单调 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：底数 0&lt;1/2&lt;1，指数函数单调递减。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\na⁰=1（a≠0）；a⁻ⁿ=1/aⁿ；a<sup>m/n<\/sup>=ⁿ√(aᵐ)\n<\/li><li>\n指数函数值域 (0,+∞)，过 (0,1)\n<\/li><li>\na&gt;1 增，0&lt;a&lt;1 减\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：指数的推广与指数函数）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：指数的推广与指数函数<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>指数推广不是随意规定的：每扩一步，都要让原来的运算法则继续说真话。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>aˣ（a&gt;0，a≠1）叫指数函数；指数律指 aᵐ·aⁿ=a<sup>m+n<\/sup>、(aᵐ)ⁿ=a<sup>mn<\/sup>、(ab)ⁿ=aⁿbⁿ。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>指数像“复制次数”：复制 0 次还是原来那一个，所以 a⁰=1。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 零指数<\/h3>\n<div class=\"katex-block\">\\frac{a^{n}}{a^{n}}=1=a^{n-n}\\ \\Rightarrow\\ a^{0}=1<\/div>\n<p>由同底数幂相除的法则推出，不是硬性规定。<\/p>\n<h3>2. 负指数<\/h3>\n<div class=\"katex-block\">a^{-n}\\cdot a^{n}=a^{0}=1\\ \\Rightarrow\\ a^{-n}=\\frac{1}{a^{n}}<\/div>\n<p>负指数表示倒数，保证指数律继续成立。<\/p>\n<h3>3. 分数指数<\/h3>\n<div class=\"katex-block\">a^{\\frac{m}{n}}=\\sqrt[n]{a^{m}}<\/div>\n<p>把根式写成指数，乘除运算就变成指数的加减。<\/p>\n<h3>4. 指数律<\/h3>\n<div class=\"katex-block\">a^{m}a^{n}=a^{m+n},\\quad (a^{m})^{n}=a^{mn}<\/div>\n<p>所有指数变形都靠这两条，验证时优先用它们。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>底数为负时分数指数可能不是实数，因此指数函数限定底数大于 0。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《指数与对数》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 1 章：指数的推广与指数函数"}, "ch02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><\/span><\/div><h1>第 2 章：对数与对数运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把指数式与对数式互化\n<\/li><li>\n用三条法则化简对数式\n<\/li><li>\n用换底公式计算不同底的对数\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>对数就是“问指数”：log_a N 是“a 的几次方等于 N”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 定义<\/h3>\n<p>若 aᵇ=N（a&gt;0，a≠1，N&gt;0），则 b=log_a N。这是指数式的等价改写，不是新运算。<\/p>\n<p>由此立得：a<sup>log_a N<\/sup>=N，log_a aᵇ=b，log_a 1=0，log_a a=1。<\/p>\n<h3>2.2 三条法则<\/h3>\n<ul><li>\nlog_a(MN)=log_a M+log_a N（乘变加）；\n<\/li><li>\nlog_a(M/N)=log_a M−log_a N（除变减）；\n<\/li><li>\nlog_a Mⁿ=n log_a M（幂变乘）。\n<\/ul>\n<p>法则只对乘、除、幂成立。log_a(M+N) 没有化简公式——这是最常见的错误。<\/p>\n<h3>2.3 换底公式<\/h3>\n<p>log_a N=log_b N / log_b a。常用底是 10（常用对数 lg）与 e（自然对数 ln）。换底把不同底的对数统一，便于计算与比较。<\/p>\n<h3>2.4 定义域<\/h3>\n<p>对数的真数必须为正：log_a N 要求 N&gt;0。解对数方程时，所有解都要满足这一条。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：对数像问“要叠多少层才够高”，指数是“叠 n 层有多高”。<\/p>\n<p><strong>失效边界<\/strong>：真数为负或为零时对数没有定义，不能靠公式硬算。<\/p>\n<p><strong>实例<\/strong>：log₂8=3，因为 2³=8；log₁₀1000=3；log₃(1/9)=−2，因为 3⁻²=1/9。 化简 lg2+lg5=lg10=1。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 log(M+N)=logM+logN —— 实际上 法则只管乘法。取 M=N=1：左边 lg2≈0.301，右边 0+0=0，明显不等。\n<\/li><li>\n别以为 真数可以为负 —— 实际上 负数的对数在实数范围内没有定义，方程解出负真数必须舍去。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nlog₄16 的值是：\n<\/li><li>\n化简 log₂6−log₂3：\n<p>A. 2 ｜ B. 4 ｜ C. 8 ｜ D. 1/2 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：4²=16，故 log₄16=2。 A. log₂3 ｜ B. 1 ｜ C. 2 ｜ D. log₂9 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：log₂6−log₂3=log₂(6/3)=log₂2=1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nlog_a N=b ⇔ aᵇ=N\n<\/li><li>\n乘变加、除变减、幂变乘；加法不能合并\n<\/li><li>\n换底：log_a N=log_b N/log_b a\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：对数与对数运算）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：对数与对数运算<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>对数不是新东西，只是把指数式换个方向写。定义一变，三条法则就自动成立。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>若 aᵇ=N（a&gt;0，a≠1，N&gt;0），则记 b=log_a N。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>指数问“叠 n 层多高”，对数问“要多高需要叠几层”，同一件事的两个方向。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 定义<\/h3>\n<div class=\"katex-block\">a^{b}=N\\iff b=\\log_{a}N<\/div>\n<p>把指数式改写为对数式，两者说的是同一件事。<\/p>\n<h3>2. 乘法法则<\/h3>\n<div class=\"katex-block\">\\log_{a}(MN)=\\log_{a}M+\\log_{a}N<\/div>\n<p>由 a<sup>m+n<\/sup>=a<sup>m<\/sup>a<sup>n<\/sup> 两边取对数得到。<\/p>\n<h3>3. 幂法则<\/h3>\n<div class=\"katex-block\">\\log_{a}M^{n}=n\\log_{a}M<\/div>\n<p>幂在指数上变成系数，这是化简对数的主要工具。<\/p>\n<h3>4. 换底<\/h3>\n<div class=\"katex-block\">\\log_{a}N=\\frac{\\log_{b}N}{\\log_{b}a}<\/div>\n<p>把不同底的对数统一到同一个底，便于计算与比较。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>真数必须为正；底数必须大于 0 且不等于 1，否则不再是函数关系。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《指数与对数》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 2 章：对数与对数运算"}, "ch03": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：对数与对数运算<\/a><\/span><\/div><h1>第 3 章：对数函数、幂函数与指对方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出对数函数与指数函数的对称关系\n<\/li><li>\n区分幂函数与指数函数\n<\/li><li>\n解指数方程与对数方程并验根\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>对数函数与指数函数关于 y=x 对称；解指对方程靠“化同底”或“取对数”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 对数函数<\/h3>\n<p>y=log_a x（a&gt;0，a≠1）的定义域是 (0,+∞)，值域是全体实数，图象过 (1,0)。<\/p>\n<p>a&gt;1 时递增，0&lt;a&lt;1 时递减。它与 y=aˣ 互为反函数，图象关于直线 y=x 对称。<\/p>\n<h3>3.2 幂函数<\/h3>\n<p>y=x^α（α 为常数）叫幂函数。它与指数函数的区别在于：幂函数的底是变量、指数是常数；指数函数反过来。<\/p>\n<p>常见幂函数 x、x²、x³、x<sup>1/2<\/sup>、x⁻¹ 的图象形状随 α 变化，但都过 (1,1)。<\/p>\n<h3>3.3 指数方程<\/h3>\n<ul><li>\n同底法：a^(f(x))=a^(g(x)) ⇒ f(x)=g(x)（a≠1）；\n<\/li><li>\n换元法：把 aˣ 设为 t，化成二次方程，注意 t&gt;0；\n<\/li><li>\n取对数：a^(f(x))=b^(g(x)) 两边取对数。\n<\/ul>\n<h3>3.4 对数方程<\/h3>\n<p>先用法则合并成 log_a F(x)=log_a G(x)，再化为 F(x)=G(x)，最后必须检验 F(x)&gt;0 且 G(x)&gt;0。<\/p>\n<p>增根几乎都来自“真数为负”这一步，验根不能省。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：指数与对数像两张对照表：一张给“层数→高度”，一张给“高度→层数”。<\/p>\n<p><strong>失效边界<\/strong>：两函数只在 a&gt;0、a≠1 时互为反函数；a=1 时退化为常数，没有反函数。<\/p>\n<p><strong>实例<\/strong>：解 2<sup>x+1<\/sup>=8。8=2³，故 x+1=3，x=2。 解 log₂(x−1)=3。化为 x−1=2³=8，得 x=9；检验真数 8&gt;0，成立。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 幂函数与指数函数是同一类 —— 实际上 幂函数底是变量，指数函数指数是变量；两者增长方式完全不同。\n<\/li><li>\n别以为 对数方程解出即可 —— 实际上 必须检验真数为正，否则会把增根写进答案。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：\n<\/li><li>\n方程 log₂(x−3)=2 的解是：\n<p>A. y 轴 ｜ B. x 轴 ｜ C. y=x ｜ D. y=−x <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：互为反函数的图象关于直线 y=x 对称。 A. x=7 ｜ B. x=1 ｜ C. x=4 ｜ D. x=5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：x−3=2²=4，得 x=7；真数 4&gt;0，成立。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\ny=log_a x 与 y=aˣ 关于 y=x 对称\n<\/li><li>\n幂函数底变、指数函数指数变\n<\/li><li>\n对数方程必须检验真数为正\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：对数函数、幂函数与指对方程）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：对数函数、幂函数与指对方程<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>把指数函数的 x 与 y 互换，就得到对数函数；这也解释了两者图象为什么关于 y=x 对称。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>y=log_a x（a&gt;0，a≠1，x&gt;0）叫对数函数；y=x^α 叫幂函数。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像一张双向对照表：上行是层数、下行是高度，正读是乘方，倒读是对数。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 反函数关系<\/h3>\n<div class=\"katex-block\">y=a^{x}\\ \\xrightarrow{x\\leftrightarrow y}\\ x=a^{y}\\iff y=\\log_{a}x<\/div>\n<p>把指数函数的自变量与函数值互换，就得到对数函数。<\/p>\n<h3>2. 对称性<\/h3>\n<div class=\"katex-block\">(x,\\,y)\\ \\text{在}\\ y=a^{x}\\ \\text{上}\\iff (y,\\,x)\\ \\text{在}\\ y=\\log_{a}x\\ \\text{上}<\/div>\n<p>两组点关于 y=x 对称，所以两条曲线也对称。<\/p>\n<h3>3. 同底指数方程<\/h3>\n<div class=\"katex-block\">a^{f(x)}=a^{g(x)}\\iff f(x)=g(x)\\quad(a\\ne 1)<\/div>\n<p>底相同且不为 1 时，指数必须相等。<\/p>\n<h3>4. 对数方程<\/h3>\n<div class=\"katex-block\">\\log_{a}F(x)=\\log_{a}G(x)\\ \\Rightarrow\\ F(x)=G(x)\\ \\text{且}\\ F,G>0<\/div>\n<p>化成同底后比较真数，但真数为正是硬条件。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>互换 x、y 只在对数函数与原指数函数之间成立；其他函数互换后不一定仍是函数。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《指数与对数》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "kind": "chapter", "title": "第 3 章：对数函数、幂函数与指对方程"}, "c01": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：对数与对数运算<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：对数函数、幂函数与指对方程<\/a><\/span><\/div><h1>互为逆运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>指数问“乘几次”，对数问“几次才够”，两句话说的是同一件事。<\/p>\n<h2>为什么重要<\/h2>\n<p>抓住互逆关系，指对互化、图象对称、方程解法都能自然推出，不必死记。<\/p>\n<h2>详解<\/h2>\n<p>aᵇ=N 与 b=log_a N 是同一关系的两种写法。由此得 a<sup>log_a N<\/sup>=N 与 log_a aᵇ=b。图象上，把点 (x,y) 换成 (y,x)，指数曲线就变成对数曲线。<\/p>\n<h2>常见误解<\/h2>\n<p>把对数当成一种全新的运算去背法则，割裂了两者的联系。<\/p>\n<h2>相关概念<\/h2>\n<p>指数函数（ch01）、对数函数（ch03）<\/p>", "kind": "concept", "title": "互为逆运算"}, "c02": {"html": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：对数函数、幂函数与指对方程<\/a><\/span><\/div><h1>底数与单调性<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch01、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>底数大于 1 就增，介于 0 与 1 之间就减；同一类函数，两条相反的走势。<\/p>\n<h2>为什么重要<\/h2>\n<p>比较大小时不必算值，看底数就能定方向。<\/p>\n<h2>详解<\/h2>\n<p>aˣ 与 log_a x 的单调性都由 a 决定：a&gt;1 递增，0&lt;a&lt;1 递减。因此比较大小时，先统一底数，再看指数（或真数）大小；底不同则用换底或取中间值 1 比较。<\/p>\n<h2>常见误解<\/h2>\n<p>不同底直接比指数大小，忽略底数方向可能相反。<\/p>\n<h2>相关概念<\/h2>\n<p>指数函数（ch01）、换底公式（ch02）<\/p>", "kind": "concept", "title": "底数与单调性"}, "__path__": {"html": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：指数的推广与指数函数<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><br>检查点：能说明 a⁰=1 为什么成立<\/li><li class='path-step' id='path-02'><strong>步骤 02：对数与对数运算<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：对数与对数运算<\/a><br>检查点：能把指数式与对数式互化并用法则化简<\/li><li class='path-step' id='path-03'><strong>步骤 03：对数函数、幂函数与指对方程<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：对数函数、幂函数与指对方程<\/a><br>检查点：能解指数方程并验根<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "kind": "path", "title": "学习路径"}, "__graph__": {"html": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "kind": "graph", "title": "知识图谱"}, "__quiz_all__": {"html": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 计算 lg2+lg5 的值：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> lg7<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 10<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 若 3ˣ=7，则 x 等于：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> log₇3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> log₃7<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 7/3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 3/7<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "kind": "quiz", "title": "综合测验"}, "__quiz_ch01__": {"html": "<h1>测验：第 1 章：指数的推广与指数函数<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 计算 27<sup>2/3<\/sup> 的值：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 9<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 18<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 6<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 函数 y=(1/2)ˣ 的单调性是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 在 R 上递增<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 在 R 上递减<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 先增后减<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 不单调<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch02__": {"html": "<h1>测验：第 2 章：对数与对数运算<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> log₄16 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 8<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 1/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 化简 log₂6−log₂3：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> log₂3<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 1<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 2<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> log₂9<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__quiz_ch03__": {"html": "<h1>测验：第 3 章：对数函数、幂函数与指对方程<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> y 轴<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> x 轴<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> y=x<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> y=−x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 方程 log₂(x−3)=2 的解是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> x=7<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> x=1<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> x=4<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> x=5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "kind": "quiz", "title": "测验"}, "__cards__": {"html": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "kind": "cards", "title": "抽认卡"}, "__glossary__": {"html": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='指数函数'>指数函数 — y=aˣ（a&gt;0，a≠1），值域 (0,+∞)。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='零指数'>零指数 — a⁰=1（a≠0）。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='分数指数'>分数指数 — a<sup>m/n<\/sup>=ⁿ√(aᵐ)，把根式写成指数。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='对数'>对数 — log_a N=b 表示 aᵇ=N。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='真数'>真数 — 对数记号中的 N，必须大于 0。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='换底公式'>换底公式 — log_a N=log_b N/log_b a。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='对数函数'>对数函数 — y=log_a x，与指数函数互为反函数。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><li data-term='幂函数'>幂函数 — y=x^α，底是变量、指数是常数。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><li data-term='增根'>增根 — 解对数方程时使真数非正的解。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><\/ul>", "kind": "glossary", "title": "术语表"}, "__diagnosis__": {"html": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "kind": "diagnosis", "title": "诊断测试"}, "__patterns__": {"html": "<h1>模式与框架库<\/h1>\n<h2>框架：指对互化三步<\/h2>\n<p>① 看结构：是指数式还是对数式；② 换成另一种写法；③ 用对应法则（指数律或对数律）化简。<\/p>\n<h2>框架：比较大小三招<\/h2>\n<p>同底看单调；同指数看底；都不同则取中间值 0 或 1 或换底。<\/p>", "kind": "模式库", "title": "模式库"}, "__cheatsheet__": {"html": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>指数律<\/td><td>aᵐaⁿ=a<sup>m+n<\/sup>；(aᵐ)ⁿ=a<sup>mn<\/sup>；(ab)ⁿ=aⁿbⁿ<\/td><\/tr><tr><td>对数定义<\/td><td>aᵇ=N ⇔ log_a N=b（N&gt;0）<\/td><\/tr><tr><td>对数法则<\/td><td>log(MN)=logM+logN；log(M/N)=logM−logN；log Mⁿ=n logM<\/td><\/tr><tr><td>换底<\/td><td>log_a N=log_b N/log_b a<\/td><\/tr><tr><td>单调性<\/td><td>a&gt;1 增；0&lt;a&lt;1 减<\/td><\/tr><tr><td>对数方程<\/td><td>化同底 → 比较真数 → 检验真数&gt;0<\/td><\/tr><\/tbody><\/table>", "kind": "速查表", "title": "速查表"}}, "base_dir": "/home/user/Doubao/chats/38452490042879234/点化·数学基础知识丛书/07-指数与对数", "nav": [{"label": "学习路径", "href": "#/path"}, {"label": "🕸 知识图谱", "href": "#/graph"}, {"label": "🩺 诊断测试", "href": "#/diagnosis"}, {"label": "章节", "children": [{"label": "第 1 章：指数的推广与指数函数", "href": "#/chapter/ch01"}, {"label": "第 2 章：对数与对数运算", "href": "#/chapter/ch02"}, {"label": "第 3 章：对数函数、幂函数与指对方程", "href": "#/chapter/ch03"}]}, {"label": "概念", "children": [{"label": "互为逆运算", "href": "#/concept/c01"}, {"label": "底数与单调性", "href": "#/concept/c02"}]}, {"label": "测验", "children": [{"label": "综合测验", "href": "#/quiz/all"}, {"label": "测验：第 1 章：指数的推广与指数函数", "href": "#/quiz/ch01"}, {"label": "测验：第 2 章：对数与对数运算", "href": "#/quiz/ch02"}, {"label": "测验：第 3 章：对数函数、幂函数与指对方程", "href": "#/quiz/ch03"}]}, {"label": "抽认卡", "href": "#/cards"}, {"label": "术语表", "href": "#/glossary"}, {"label": "模式库", "href": "#/patterns"}, {"label": "速查表", "href": "#/cheatsheet"}], "rendered": {"ch01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-text\">乘方、根式<\/span><\/div><h1>第 1 章：指数的推广与指数函数<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★☆ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：乘方、根式\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说明零指数、负指数的来源\n<\/li><li>\n把分数指数与根式互化\n<\/li><li>\n画出指数函数图象并说出单调性\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>指数每推广一步，都要求原来的运算法则继续成立；指数函数的值域恒为正。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>1.1 从正整数到整数<\/h3>\n<p>aⁿ 原本表示 n 个 a 相乘。要让 aᵐ·aⁿ=a<sup>m+n<\/sup> 在 m&lt;n 时也成立，就必须定义 a⁰ 与负指数：<\/p>\n<ul><li>\na⁰=1（a≠0），因为 aⁿ/aⁿ=1=a<sup>n−n<\/sup>；\n<\/li><li>\na⁻ⁿ=1/aⁿ，因为 a⁻ⁿ·aⁿ=a⁰=1。\n<\/ul>\n<h3>1.2 分数指数<\/h3>\n<p>要让 (aᵐ)<sup>1/n<\/sup>=a<sup>m/n<\/sup> 成立，就得把 a<sup>m/n<\/sup> 定义为 ⁿ√(aᵐ)。例如 8<sup>2/3<\/sup>=³√64=4。<\/p>\n<p>底数为负时分数指数会出问题（如 (−8)<sup>1/2<\/sup> 不是实数），所以指数函数的底数规定 a&gt;0 且 a≠1。<\/p>\n<h3>1.3 实数指数与指数函数<\/h3>\n<p>无理指数用有理指数逼近定义。函数 y=aˣ（a&gt;0，a≠1）叫<strong>指数函数<\/strong>：<\/p>\n<ul><li>\n定义域是全体实数，值域是 (0,+∞)，图象恒在 x 轴上方；\n<\/li><li>\na&gt;1 时单调递增，0&lt;a&lt;1 时单调递减；\n<\/li><li>\n图象都过点 (0,1)。\n<\/ul>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：指数增长像细胞分裂，每一代翻一倍；底数就是“每代翻几倍”。<\/p>\n<p><strong>失效边界<\/strong>：翻倍模型不考虑资源限制，真实种群会在后期放缓，不是纯指数。<\/p>\n<p><strong>实例<\/strong>：2<sup>−3<\/sup>=1/8；16<sup>3/4<\/sup>=(⁴√16)³=2³=8；比较 2<sup>0.3<\/sup> 与 2<sup>0.4<\/sup>，底数 2&gt;1 单调增，故前者小。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 a⁰=0 —— 实际上 任何非零数的零次幂都是 1，来自 aⁿ/aⁿ=1。\n<\/li><li>\n别以为 指数函数的值域是全体实数 —— 实际上 aˣ 恒为正，值域是 (0,+∞)，永远取不到 0 和负数。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n计算 27<sup>2/3<\/sup> 的值：\n<\/li><li>\n函数 y=(1/2)ˣ 的单调性是：\n<p>A. 9 ｜ B. 18 ｜ C. 3 ｜ D. 6 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：27<sup>2/3<\/sup>=(³√27)²=3²=9。 A. 在 R 上递增 ｜ B. 在 R 上递减 ｜ C. 先增后减 ｜ D. 不单调 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：底数 0&lt;1/2&lt;1，指数函数单调递减。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\na⁰=1（a≠0）；a⁻ⁿ=1/aⁿ；a<sup>m/n<\/sup>=ⁿ√(aᵐ)\n<\/li><li>\n指数函数值域 (0,+∞)，过 (0,1)\n<\/li><li>\na&gt;1 增，0&lt;a&lt;1 减\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 1 章：指数的推广与指数函数）<\/summary><div class=\"depth-body\"><h1>第 01 章 · 从零推导：指数的推广与指数函数<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>指数推广不是随意规定的：每扩一步，都要让原来的运算法则继续说真话。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>aˣ（a&gt;0，a≠1）叫指数函数；指数律指 aᵐ·aⁿ=a<sup>m+n<\/sup>、(aᵐ)ⁿ=a<sup>mn<\/sup>、(ab)ⁿ=aⁿbⁿ。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>指数像“复制次数”：复制 0 次还是原来那一个，所以 a⁰=1。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 零指数<\/h3>\n<div class=\"katex-block\">\\frac{a^{n}}{a^{n}}=1=a^{n-n}\\ \\Rightarrow\\ a^{0}=1<\/div>\n<p>由同底数幂相除的法则推出，不是硬性规定。<\/p>\n<h3>2. 负指数<\/h3>\n<div class=\"katex-block\">a^{-n}\\cdot a^{n}=a^{0}=1\\ \\Rightarrow\\ a^{-n}=\\frac{1}{a^{n}}<\/div>\n<p>负指数表示倒数，保证指数律继续成立。<\/p>\n<h3>3. 分数指数<\/h3>\n<div class=\"katex-block\">a^{\\frac{m}{n}}=\\sqrt[n]{a^{m}}<\/div>\n<p>把根式写成指数，乘除运算就变成指数的加减。<\/p>\n<h3>4. 指数律<\/h3>\n<div class=\"katex-block\">a^{m}a^{n}=a^{m+n},\\quad (a^{m})^{n}=a^{mn}<\/div>\n<p>所有指数变形都靠这两条，验证时优先用它们。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>底数为负时分数指数可能不是实数，因此指数函数限定底数大于 0。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《指数与对数》第 01 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><\/span><\/div><h1>第 2 章：对数与对数运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch01\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n把指数式与对数式互化\n<\/li><li>\n用三条法则化简对数式\n<\/li><li>\n用换底公式计算不同底的对数\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>对数就是“问指数”：log_a N 是“a 的几次方等于 N”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>2.1 定义<\/h3>\n<p>若 aᵇ=N（a&gt;0，a≠1，N&gt;0），则 b=log_a N。这是指数式的等价改写，不是新运算。<\/p>\n<p>由此立得：a<sup>log_a N<\/sup>=N，log_a aᵇ=b，log_a 1=0，log_a a=1。<\/p>\n<h3>2.2 三条法则<\/h3>\n<ul><li>\nlog_a(MN)=log_a M+log_a N（乘变加）；\n<\/li><li>\nlog_a(M/N)=log_a M−log_a N（除变减）；\n<\/li><li>\nlog_a Mⁿ=n log_a M（幂变乘）。\n<\/ul>\n<p>法则只对乘、除、幂成立。log_a(M+N) 没有化简公式——这是最常见的错误。<\/p>\n<h3>2.3 换底公式<\/h3>\n<p>log_a N=log_b N / log_b a。常用底是 10（常用对数 lg）与 e（自然对数 ln）。换底把不同底的对数统一，便于计算与比较。<\/p>\n<h3>2.4 定义域<\/h3>\n<p>对数的真数必须为正：log_a N 要求 N&gt;0。解对数方程时，所有解都要满足这一条。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：对数像问“要叠多少层才够高”，指数是“叠 n 层有多高”。<\/p>\n<p><strong>失效边界<\/strong>：真数为负或为零时对数没有定义，不能靠公式硬算。<\/p>\n<p><strong>实例<\/strong>：log₂8=3，因为 2³=8；log₁₀1000=3；log₃(1/9)=−2，因为 3⁻²=1/9。 化简 lg2+lg5=lg10=1。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 log(M+N)=logM+logN —— 实际上 法则只管乘法。取 M=N=1：左边 lg2≈0.301，右边 0+0=0，明显不等。\n<\/li><li>\n别以为 真数可以为负 —— 实际上 负数的对数在实数范围内没有定义，方程解出负真数必须舍去。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\nlog₄16 的值是：\n<\/li><li>\n化简 log₂6−log₂3：\n<p>A. 2 ｜ B. 4 ｜ C. 8 ｜ D. 1/2 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：4²=16，故 log₄16=2。 A. log₂3 ｜ B. 1 ｜ C. 2 ｜ D. log₂9 <strong>答案<\/strong>：B ｜ <strong>解析<\/strong>：log₂6−log₂3=log₂(6/3)=log₂2=1。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\nlog_a N=b ⇔ aᵇ=N\n<\/li><li>\n乘变加、除变减、幂变乘；加法不能合并\n<\/li><li>\n换底：log_a N=log_b N/log_b a\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 2 章：对数与对数运算）<\/summary><div class=\"depth-body\"><h1>第 02 章 · 从零推导：对数与对数运算<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>对数不是新东西，只是把指数式换个方向写。定义一变，三条法则就自动成立。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>若 aᵇ=N（a&gt;0，a≠1，N&gt;0），则记 b=log_a N。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>指数问“叠 n 层多高”，对数问“要多高需要叠几层”，同一件事的两个方向。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 定义<\/h3>\n<div class=\"katex-block\">a^{b}=N\\iff b=\\log_{a}N<\/div>\n<p>把指数式改写为对数式，两者说的是同一件事。<\/p>\n<h3>2. 乘法法则<\/h3>\n<div class=\"katex-block\">\\log_{a}(MN)=\\log_{a}M+\\log_{a}N<\/div>\n<p>由 a<sup>m+n<\/sup>=a<sup>m<\/sup>a<sup>n<\/sup> 两边取对数得到。<\/p>\n<h3>3. 幂法则<\/h3>\n<div class=\"katex-block\">\\log_{a}M^{n}=n\\log_{a}M<\/div>\n<p>幂在指数上变成系数，这是化简对数的主要工具。<\/p>\n<h3>4. 换底<\/h3>\n<div class=\"katex-block\">\\log_{a}N=\\frac{\\log_{b}N}{\\log_{b}a}<\/div>\n<p>把不同底的对数统一到同一个底，便于计算与比较。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>真数必须为正；底数必须大于 0 且不等于 1，否则不再是函数关系。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《指数与对数》第 02 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "ch03": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：对数与对数运算<\/a><\/span><\/div><h1>第 3 章：对数函数、幂函数与指对方程<\/h1>\n<ul><li>\n<strong>难度<\/strong>：★★★ ｜ <strong>预估学时<\/strong>：3 小时 ｜ <strong>前置<\/strong>：ch02\n<\/ul>\n<h2>学习目标<\/h2>\n<p>学完本章，你能：<\/p>\n<ul><li>\n说出对数函数与指数函数的对称关系\n<\/li><li>\n区分幂函数与指数函数\n<\/li><li>\n解指数方程与对数方程并验根\n<\/ul>\n<h2>一句话核心<\/h2>\n<p>对数函数与指数函数关于 y=x 对称；解指对方程靠“化同底”或“取对数”。<\/p>\n<h2>零基础讲解<\/h2>\n<h3>3.1 对数函数<\/h3>\n<p>y=log_a x（a&gt;0，a≠1）的定义域是 (0,+∞)，值域是全体实数，图象过 (1,0)。<\/p>\n<p>a&gt;1 时递增，0&lt;a&lt;1 时递减。它与 y=aˣ 互为反函数，图象关于直线 y=x 对称。<\/p>\n<h3>3.2 幂函数<\/h3>\n<p>y=x^α（α 为常数）叫幂函数。它与指数函数的区别在于：幂函数的底是变量、指数是常数；指数函数反过来。<\/p>\n<p>常见幂函数 x、x²、x³、x<sup>1/2<\/sup>、x⁻¹ 的图象形状随 α 变化，但都过 (1,1)。<\/p>\n<h3>3.3 指数方程<\/h3>\n<ul><li>\n同底法：a^(f(x))=a^(g(x)) ⇒ f(x)=g(x)（a≠1）；\n<\/li><li>\n换元法：把 aˣ 设为 t，化成二次方程，注意 t&gt;0；\n<\/li><li>\n取对数：a^(f(x))=b^(g(x)) 两边取对数。\n<\/ul>\n<h3>3.4 对数方程<\/h3>\n<p>先用法则合并成 log_a F(x)=log_a G(x)，再化为 F(x)=G(x)，最后必须检验 F(x)&gt;0 且 G(x)&gt;0。<\/p>\n<p>增根几乎都来自“真数为负”这一步，验根不能省。<\/p>\n<h2>类比与实例<\/h2>\n<p><strong>类比<\/strong>：指数与对数像两张对照表：一张给“层数→高度”，一张给“高度→层数”。<\/p>\n<p><strong>失效边界<\/strong>：两函数只在 a&gt;0、a≠1 时互为反函数；a=1 时退化为常数，没有反函数。<\/p>\n<p><strong>实例<\/strong>：解 2<sup>x+1<\/sup>=8。8=2³，故 x+1=3，x=2。 解 log₂(x−1)=3。化为 x−1=2³=8，得 x=9；检验真数 8&gt;0，成立。<\/p>\n<h2>常见误解<\/h2>\n<ul><li>\n别以为 幂函数与指数函数是同一类 —— 实际上 幂函数底是变量，指数函数指数是变量；两者增长方式完全不同。\n<\/li><li>\n别以为 对数方程解出即可 —— 实际上 必须检验真数为正，否则会把增根写进答案。\n<\/ul>\n<h2>自测题（答案）<\/h2>\n<ol><li>\n函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：\n<\/li><li>\n方程 log₂(x−3)=2 的解是：\n<p>A. y 轴 ｜ B. x 轴 ｜ C. y=x ｜ D. y=−x <strong>答案<\/strong>：C ｜ <strong>解析<\/strong>：互为反函数的图象关于直线 y=x 对称。 A. x=7 ｜ B. x=1 ｜ C. x=4 ｜ D. x=5 <strong>答案<\/strong>：A ｜ <strong>解析<\/strong>：x−3=2²=4，得 x=7；真数 4&gt;0，成立。<\/p>\n<\/ol>\n<h2>复习锚点<\/h2>\n<ul><li>\ny=log_a x 与 y=aˣ 关于 y=x 对称\n<\/li><li>\n幂函数底变、指数函数指数变\n<\/li><li>\n对数方程必须检验真数为正\n<\/ul><details class=\"depth-fragment\"><summary>🔬 展开完整第一性原理推导（第 3 章：对数函数、幂函数与指对方程）<\/summary><div class=\"depth-body\"><h1>第 03 章 · 从零推导：对数函数、幂函数与指对方程<\/h1>\n<blockquote>这一节不直接给你结论，而是把结论一步步做出来。读完你应该能不看下文、自己复原每个式子。<\/blockquote>\n<h2>这一步要解决什么<\/h2>\n<p>把指数函数的 x 与 y 互换，就得到对数函数；这也解释了两者图象为什么关于 y=x 对称。<\/p>\n<h2>出发点：只用这几条<\/h2>\n<p>y=log_a x（a&gt;0，a≠1，x&gt;0）叫对数函数；y=x^α 叫幂函数。<\/p>\n<h2>先用一个熟悉的画面<\/h2>\n<p>像一张双向对照表：上行是层数、下行是高度，正读是乘方，倒读是对数。<\/p>\n<h2>推导步骤<\/h2>\n<h3>1. 反函数关系<\/h3>\n<div class=\"katex-block\">y=a^{x}\\ \\xrightarrow{x\\leftrightarrow y}\\ x=a^{y}\\iff y=\\log_{a}x<\/div>\n<p>把指数函数的自变量与函数值互换，就得到对数函数。<\/p>\n<h3>2. 对称性<\/h3>\n<div class=\"katex-block\">(x,\\,y)\\ \\text{在}\\ y=a^{x}\\ \\text{上}\\iff (y,\\,x)\\ \\text{在}\\ y=\\log_{a}x\\ \\text{上}<\/div>\n<p>两组点关于 y=x 对称，所以两条曲线也对称。<\/p>\n<h3>3. 同底指数方程<\/h3>\n<div class=\"katex-block\">a^{f(x)}=a^{g(x)}\\iff f(x)=g(x)\\quad(a\\ne 1)<\/div>\n<p>底相同且不为 1 时，指数必须相等。<\/p>\n<h3>4. 对数方程<\/h3>\n<div class=\"katex-block\">\\log_{a}F(x)=\\log_{a}G(x)\\ \\Rightarrow\\ F(x)=G(x)\\ \\text{且}\\ F,G>0<\/div>\n<p>化成同底后比较真数，但真数为正是硬条件。<\/p>\n<h2>这个说法的边界<\/h2>\n<p>互换 x、y 只在对数函数与原指数函数之间成立；其他函数互换后不一定仍是函数。<\/p>\n<h2>自检<\/h2>\n<ul><li>\n合上这一节，能不能从出发点把最后那个式子重新推一遍？\n<\/li><li>\n每一步用到的规则，是不是都在「出发点」里出现过？\n<\/li><li>\n这一步和原书《指数与对数》第 03 章的关系：推导只补“为什么”，结论仍以正文为准。\n<\/ul><\/div><\/details>", "c01": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch02\">第 2 章：对数与对数运算<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：对数函数、幂函数与指对方程<\/a><\/span><\/div><h1>互为逆运算<\/h1>\n<ul><li>\n<strong>难度<\/strong>：基础 ｜ <strong>涉及章节<\/strong>：ch01、ch02、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>指数问“乘几次”，对数问“几次才够”，两句话说的是同一件事。<\/p>\n<h2>为什么重要<\/h2>\n<p>抓住互逆关系，指对互化、图象对称、方程解法都能自然推出，不必死记。<\/p>\n<h2>详解<\/h2>\n<p>aᵇ=N 与 b=log_a N 是同一关系的两种写法。由此得 a<sup>log_a N<\/sup>=N 与 log_a aᵇ=b。图象上，把点 (x,y) 换成 (y,x)，指数曲线就变成对数曲线。<\/p>\n<h2>常见误解<\/h2>\n<p>把对数当成一种全新的运算去背法则，割裂了两者的联系。<\/p>\n<h2>相关概念<\/h2>\n<p>指数函数（ch01）、对数函数（ch03）<\/p>", "c02": "<div class=\"source-badge\">📖 出处：数学基础知识丛书-07-指数与对数 沈超.pdf<\/div><div class=\"prereq-bar\">⬅ 前置：<span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><\/span> · <span class=\"prereq-hard\"><span class=\"prereq-tag\">必<\/span> <a href=\"#/chapter/ch03\">第 3 章：对数函数、幂函数与指对方程<\/a><\/span><\/div><h1>底数与单调性<\/h1>\n<ul><li>\n<strong>难度<\/strong>：进阶 ｜ <strong>涉及章节<\/strong>：ch01、ch03\n<\/ul>\n<h2>一句话定义<\/h2>\n<p>底数大于 1 就增，介于 0 与 1 之间就减；同一类函数，两条相反的走势。<\/p>\n<h2>为什么重要<\/h2>\n<p>比较大小时不必算值，看底数就能定方向。<\/p>\n<h2>详解<\/h2>\n<p>aˣ 与 log_a x 的单调性都由 a 决定：a&gt;1 递增，0&lt;a&lt;1 递减。因此比较大小时，先统一底数，再看指数（或真数）大小；底不同则用换底或取中间值 1 比较。<\/p>\n<h2>常见误解<\/h2>\n<p>不同底直接比指数大小，忽略底数方向可能相反。<\/p>\n<h2>相关概念<\/h2>\n<p>指数函数（ch01）、换底公式（ch02）<\/p>", "__path__": "<h1>学习路径<\/h1><p>按推荐顺序学习；每步通过检查点（自测题）后再继续。<\/p><ol class='path-list'><li class='path-step' id='path-01'><strong>步骤 01：指数的推广与指数函数<\/strong><br>阅读：<a href=\"#/chapter/ch01\">第 1 章：指数的推广与指数函数<\/a><br>检查点：能说明 a⁰=1 为什么成立<\/li><li class='path-step' id='path-02'><strong>步骤 02：对数与对数运算<\/strong><br>阅读：<a href=\"#/chapter/ch02\">第 2 章：对数与对数运算<\/a><br>检查点：能把指数式与对数式互化并用法则化简<\/li><li class='path-step' id='path-03'><strong>步骤 03：对数函数、幂函数与指对方程<\/strong><br>阅读：<a href=\"#/chapter/ch03\">第 3 章：对数函数、幂函数与指对方程<\/a><br>检查点：能解指数方程并验根<\/li><\/ol><p>进度：<span id='path-progress-label'>0/0<\/span><\/p>", "__graph__": "<h1>🕸 知识图谱<\/h1><p>节点是概念，边是先修关系。拖拽节点、滚轮缩放，点击节点跳转到对应概念页。<\/p><div id=\"graph-container\" style=\"height:520px;border:1px solid var(--border);border-radius:10px;background:var(--panel)\"><\/div><p class=\"sub\">红线 = 必学前置 · 灰线 = 建议先看 · 蓝线 = 拓展阅读<\/p>", "__quiz_all__": "<div class='quiz-item' data-qid='q07' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q7.<\/b> 计算 lg2+lg5 的值：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q07' value='0'> 1<\/label><label class='quiz-opt'><input type='radio' name='q07' value='1'> lg7<\/label><label class='quiz-opt'><input type='radio' name='q07' value='2'> 10<\/label><label class='quiz-opt'><input type='radio' name='q07' value='3'> 0<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q08' data-type='single' data-concept='' data-chapter='__all__'><p class='quiz-q'><b>Q8.<\/b> 若 3ˣ=7，则 x 等于：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q08' value='0'> log₇3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='1'> log₃7<\/label><label class='quiz-opt'><input type='radio' name='q08' value='2'> 7/3<\/label><label class='quiz-opt'><input type='radio' name='q08' value='3'> 3/7<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div>", "__quiz_ch01__": "<h1>测验：第 1 章：指数的推广与指数函数<\/h1><div class='quiz-item' data-qid='q01' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q1.<\/b> 计算 27<sup>2/3<\/sup> 的值：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q01' value='0'> 9<\/label><label class='quiz-opt'><input type='radio' name='q01' value='1'> 18<\/label><label class='quiz-opt'><input type='radio' name='q01' value='2'> 3<\/label><label class='quiz-opt'><input type='radio' name='q01' value='3'> 6<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q02' data-type='single' data-concept='c01' data-chapter='ch01'><p class='quiz-q'><b>Q2.<\/b> 函数 y=(1/2)ˣ 的单调性是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q02' value='0'> 在 R 上递增<\/label><label class='quiz-opt'><input type='radio' name='q02' value='1'> 在 R 上递减<\/label><label class='quiz-opt'><input type='radio' name='q02' value='2'> 先增后减<\/label><label class='quiz-opt'><input type='radio' name='q02' value='3'> 不单调<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch02__": "<h1>测验：第 2 章：对数与对数运算<\/h1><div class='quiz-item' data-qid='q03' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q1.<\/b> log₄16 的值是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q03' value='0'> 2<\/label><label class='quiz-opt'><input type='radio' name='q03' value='1'> 4<\/label><label class='quiz-opt'><input type='radio' name='q03' value='2'> 8<\/label><label class='quiz-opt'><input type='radio' name='q03' value='3'> 1/2<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q04' data-type='single' data-concept='c01' data-chapter='ch02'><p class='quiz-q'><b>Q2.<\/b> 化简 log₂6−log₂3：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q04' value='0'> log₂3<\/label><label class='quiz-opt'><input type='radio' name='q04' value='1'> 1<\/label><label class='quiz-opt'><input type='radio' name='q04' value='2'> 2<\/label><label class='quiz-opt'><input type='radio' name='q04' value='3'> log₂9<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__quiz_ch03__": "<h1>测验：第 3 章：对数函数、幂函数与指对方程<\/h1><div class='quiz-item' data-qid='q05' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q1.<\/b> 函数 y=log₂x 与 y=2ˣ 的图象关于哪条直线对称：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q05' value='0'> y 轴<\/label><label class='quiz-opt'><input type='radio' name='q05' value='1'> x 轴<\/label><label class='quiz-opt'><input type='radio' name='q05' value='2'> y=x<\/label><label class='quiz-opt'><input type='radio' name='q05' value='3'> y=−x<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><div class='quiz-item' data-qid='q06' data-type='single' data-concept='c01' data-chapter='ch03'><p class='quiz-q'><b>Q2.<\/b> 方程 log₂(x−3)=2 的解是：<\/p><div class='quiz-opts'><label class='quiz-opt'><input type='radio' name='q06' value='0'> x=7<\/label><label class='quiz-opt'><input type='radio' name='q06' value='1'> x=1<\/label><label class='quiz-opt'><input type='radio' name='q06' value='2'> x=4<\/label><label class='quiz-opt'><input type='radio' name='q06' value='3'> x=5<\/label><\/div><div class='quiz-actions'><button class='quiz-check'>检查答案<\/button><span class='quiz-feedback'><\/span><\/div><\/div><p class='quiz-summary'>完成作答后点击「检查答案」查看得分与解析。<\/p>", "__cards__": "<h1>抽认卡<\/h1><p>点击卡片翻面；判断「认识 / 不熟」以记录复习状态。<\/p><div class='card-controls'><label>按章节筛选：<select id='card-filter'><option value=''>全部<\/option><\/select><\/label><span class='card-counts'>认识 <b id='card-known'>0<\/b> · 不熟 <b id='card-again'>0<\/b> · 剩余 <b id='card-left'>0<\/b><\/span><\/div><div id='card-stage'><div class='flashcard' id='flashcard'><div class='fc-inner'><div class='fc-front'><\/div><div class='fc-back'><\/div><\/div><\/div><\/div><div class='card-actions'><button id='card-again-btn'>不熟<\/button><button id='card-known-btn'>认识<\/button><\/div>", "__glossary__": "<h1>术语表<\/h1><input id='glossary-filter' type='search' placeholder='筛选术语…'><ul id='glossary-list'><li data-term='指数函数'>指数函数 — y=aˣ（a&gt;0，a≠1），值域 (0,+∞)。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='零指数'>零指数 — a⁰=1（a≠0）。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='分数指数'>分数指数 — a<sup>m/n<\/sup>=ⁿ√(aᵐ)，把根式写成指数。 <span class=glossary-ref>（第 1 章：指数的推广与指数函数）<\/span><\/li><li data-term='对数'>对数 — log_a N=b 表示 aᵇ=N。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='真数'>真数 — 对数记号中的 N，必须大于 0。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='换底公式'>换底公式 — log_a N=log_b N/log_b a。 <span class=glossary-ref>（第 2 章：对数与对数运算）<\/span><\/li><li data-term='对数函数'>对数函数 — y=log_a x，与指数函数互为反函数。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><li data-term='幂函数'>幂函数 — y=x^α，底是变量、指数是常数。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><li data-term='增根'>增根 — 解对数方程时使真数非正的解。 <span class=glossary-ref>（第 3 章：对数函数、幂函数与指对方程）<\/span><\/li><\/ul>", "__diagnosis__": "<h1>🩺 诊断测试<\/h1><p>系统会从全书中抽题。答错的题会自动沿知识依赖链回溯，告诉你真正需要补的前置知识点。<\/p><div class='diag-controls'><button id='diag-start'>开始诊断（随机抽 5 题）<\/button><span id='diag-progress'><\/span><\/div><div id='diag-stage'><\/div><div id='diag-result'><\/div>", "__patterns__": "<h1>模式与框架库<\/h1>\n<h2>框架：指对互化三步<\/h2>\n<p>① 看结构：是指数式还是对数式；② 换成另一种写法；③ 用对应法则（指数律或对数律）化简。<\/p>\n<h2>框架：比较大小三招<\/h2>\n<p>同底看单调；同指数看底；都不同则取中间值 0 或 1 或换底。<\/p>", "__cheatsheet__": "<h1>速查表<\/h1>\n<h2>公式 / 规则 / 结论<\/h2>\n<table><thead><tr><th>场景<\/th><th>内容<\/th><\/tr><\/thead><tbody><tr><td>指数律<\/td><td>aᵐaⁿ=a<sup>m+n<\/sup>；(aᵐ)ⁿ=a<sup>mn<\/sup>；(ab)ⁿ=aⁿbⁿ<\/td><\/tr><tr><td>对数定义<\/td><td>aᵇ=N ⇔ log_a N=b（N&gt;0）<\/td><\/tr><tr><td>对数法则<\/td><td>log(MN)=logM+logN；log(M/N)=logM−logN；log Mⁿ=n logM<\/td><\/tr><tr><td>换底<\/td><td>log_a N=log_b N/log_b a<\/td><\/tr><tr><td>单调性<\/td><td>a&gt;1 增；0&lt;a&lt;1 减<\/td><\/tr><tr><td>对数方程<\/td><td>化同底 → 比较真数 → 检验真数&gt;0<\/td><\/tr><\/tbody><\/table>"}};
 const pages = DATA.rendered;
 const manifest = DATA.manifest;
 const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const SLUG = manifest.slug || 'book';
 const store = {
   get(k){ try{ return JSON.parse(localStorage.getItem(SLUG+':'+k)||'null') }catch(e){ return null } },
   set(k,v){ try{ localStorage.setItem(SLUG+':'+k, JSON.stringify(v)) }catch(e){} }
 };
-let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{} };
+let state = { visited: store.get('visited')||[], quiz: store.get('quiz')||{}, cards: store.get('cards')||{}, mastery: store.get('mastery')||{} };
 
 /* ---------- 导航 ---------- */
 function renderNav(){
@@ -144,15 +199,27 @@ function routeIdFromHash(){
   let h = location.hash.replace(/^#\//,'');
   if(!h) return 'path';
   if(h==='path') return 'path';
+  if(h==='diagnosis') return 'diagnosis';
   const m = h.match(/^(chapter|concept)\/(.+)$/);
   if(m) return m[1]+'/'+m[2];
-  return h; // quiz/all, quiz/ch01, cards, glossary, patterns, cheatsheet
+  return h;
 }
 function showPage(rid){
-  const id = rid==='path' ? '__path__' : rid.startsWith('quiz/') ? '__quiz_'+rid.split('/')[1]+'__' : rid==='cards'?'__cards__':rid==='glossary'?'__glossary__':rid==='patterns'?'__patterns__':rid==='cheatsheet'?'__cheatsheet__':rid.startsWith('chapter/')?rid.split('/')[1]:rid.startsWith('concept/')?rid.split('/')[1]:rid;
+  let id;
+  if(rid==='path') id='__path__';
+  else if(rid==='diagnosis') id='__diagnosis__';
+  else if(rid==='graph') id='__graph__';
+  else if(rid.startsWith('quiz/')) id='__quiz_'+rid.split('/')[1]+'__';
+  else if(rid==='cards') id='__cards__';
+  else if(rid==='glossary') id='__glossary__';
+  else if(rid==='patterns') id='__patterns__';
+  else if(rid==='cheatsheet') id='__cheatsheet__';
+  else if(rid.startsWith('chapter/')) id=rid.split('/')[1];
+  else if(rid.startsWith('concept/')) id=rid.split('/')[1];
+  else id=rid;
   const html = pages[id] || '<div class="empty">页面不存在</div>';
   $('#view').innerHTML = html;
-  document.querySelectorAll('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
+  $$('.nav-item').forEach(a=>a.classList.toggle('active', routeId(a.getAttribute('href'))===rid));
   if(!state.visited.includes(rid) && (rid.startsWith('chapter/')||rid.startsWith('concept/'))){
     state.visited.push(rid); store.set('visited', state.visited); renderNav();
   }
@@ -160,8 +227,66 @@ function showPage(rid){
   if(rid==='cards') initCards();
   if(rid==='glossary') initGlossary();
   if(rid.startsWith('quiz')) initQuizzes(rid);
+  if(rid==='diagnosis') initDiagnosis();
+  if(rid==='graph') initGraph();
   if(id==='__path__') updatePath();
+  renderMath();
   renderMermaid();
+}
+
+/* ---------- KaTeX 渲染（多源回退） ---------- */
+let katexLoading = false, katexReady = false;
+function renderMath(){
+  const hasMath = document.querySelector('.katex-inline, .katex-block');
+  if(!hasMath) return;
+  if(katexReady){ doRenderMath(); return; }
+  if(katexLoading) return;
+  katexLoading = true;
+  const cssUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.css',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.css'
+  ];
+  const jsUrls = [
+    'https://registry.npmmirror.com/katex/0.16.9/files/dist/katex.min.js',
+    'https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js',
+    'https://unpkg.com/katex@0.16.9/dist/katex.min.js'
+  ];
+  let ci = 0, ji = 0;
+  const tryCss = () => {
+    if(ci >= cssUrls.length) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'; link.href = cssUrls[ci++];
+    link.onload = tryJs; link.onerror = () => { link.remove(); tryCss(); };
+    document.head.appendChild(link);
+  };
+  const tryJs = () => {
+    if(ji >= jsUrls.length){ katexLoading = false; return; }
+    const s = document.createElement('script');
+    s.src = jsUrls[ji++];
+    s.onload = () => { katexReady = true; katexLoading = false; doRenderMath(); };
+    s.onerror = () => { s.remove(); tryJs(); };
+    document.head.appendChild(s);
+  };
+  tryCss();
+}
+function doRenderMath(){
+  if(typeof katex === 'undefined') return;
+  // 行内公式：.katex-inline 里的内容
+  $$('.katex-inline').forEach(el=>{
+    try{ katex.render(el.textContent, el, {throwOnError:false}); }catch(e){}
+  });
+  // 块级公式：.katex-block 里的内容
+  $$('.katex-block').forEach(el=>{
+    try{ katex.render(el.textContent, el, {displayMode:true, throwOnError:false}); }catch(e){}
+  });
+}
+// 公式内容预处理：把 < 后跟字母的位置转成 &lt;，避免被 HTML 解析器当标签吃掉
+// （这是 first-principles-derivation 踩过的坑：$m<n$ 会变成残留 $m）
+function sanitizeMathHTML(){
+  $$('.katex-inline, .katex-block').forEach(el=>{
+    el.innerHTML = el.innerHTML.replace(/<([a-zA-Z])/g, '&lt;$1');
+  });
 }
 
 /* ---------- 进度 ---------- */
@@ -173,7 +298,7 @@ function updateProgress(){
   $('#progress-label').textContent = `进度 ${pct}% · 已学 ${done}/${chs} 章`;
 }
 function updatePath(){
-  document.querySelectorAll('.path-step').forEach(el=>{
+  $$('.path-step').forEach(el=>{
     const step = el.id.replace('path-','');
     const s = (manifest.learningPath||[]).find(x=>x.step===step);
     if(s && (s.chapterIds||[]).every(c=>state.visited.includes('chapter/'+c))){
@@ -183,9 +308,39 @@ function updatePath(){
   });
 }
 
-/* ---------- 测验 ---------- */
+/* ---------- 概念/章节依赖查找（用于诊断倒推） ---------- */
+function findConcept(id){ return (manifest.concepts||[]).find(c=>c.id===id); }
+function findChapter(id){ return (manifest.chapters||[]).find(c=>c.id===id); }
+function getPrereqs(node){
+  if(!node) return [];
+  return node.prerequisites || node.prereqs || [];
+}
+/**
+ * 答错倒推：从错题关联的概念/章节出发，沿 prerequisites 回溯，
+ * 返回一串"你可能需要先补的"节点，带跳转链接。
+ */
+function traceBack(startConceptId, startChapterId){
+  const visited = new Set();
+  const chain = [];
+  const queue = [];
+  if(startConceptId){ const c = findConcept(startConceptId); if(c) queue.push({node:c, kind:'concept'}); }
+  if(startChapterId){ const c = findChapter(startChapterId); if(c) queue.push({node:c, kind:'chapter'}); }
+  while(queue.length && chain.length < 6){
+    const {node, kind} = queue.shift();
+    if(visited.has(node.id)) continue;
+    visited.add(node.id);
+    chain.push({node, kind});
+    (getPrereqs(node)||[]).forEach(pid=>{
+      const cn = findConcept(pid); if(cn){ queue.push({node:cn, kind:'concept'}); return; }
+      const ch = findChapter(pid); if(ch) queue.push({node:ch, kind:'chapter'});
+    });
+  }
+  return chain;
+}
+
+/* ---------- 测验（带倒推） ---------- */
 function initQuizzes(rid){
-  document.querySelectorAll('.quiz-item').forEach(item=>{
+  $$('.quiz-item').forEach(item=>{
     const btn = item.querySelector('.quiz-check');
     if(!btn || item.dataset.inited){ return }
     item.dataset.inited='1';
@@ -211,8 +366,7 @@ function initQuizzes(rid){
       }
       item.querySelectorAll('input:checked').forEach(i=>{
         const val=parseInt(i.value);
-        if(Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) i.parentElement.style.color='var(--ok)';
-        else i.parentElement.style.color='var(--bad)';
+        i.parentElement.style.color = (Array.isArray(q.answer)? q.answer.includes(val) : val===q.answer) ? 'var(--ok)' : 'var(--bad)';
       });
       const feed = item.querySelector('.quiz-feedback');
       feed.className = 'quiz-feedback '+(correct?'fb-ok':'fb-bad');
@@ -220,7 +374,34 @@ function initQuizzes(rid){
       let ex = item.querySelector('.quiz-explain');
       if(!ex){ ex=document.createElement('div'); ex.className='quiz-explain'; item.appendChild(ex); }
       ex.innerHTML = '解析：' + esc(q.explain||'');
-      // 记录成绩（按章聚合）
+      // 答错时：倒推前置 + 误解卡片 + 掌握度更新
+      if(!correct){
+        let remedy = item.querySelector('.quiz-remedy');
+        if(!remedy){ remedy = document.createElement('div'); remedy.className='quiz-remedy'; item.appendChild(remedy); }
+        const chain = traceBack(item.dataset.concept, item.dataset.chapter);
+        if(chain.length > 1){
+          const links = chain.slice(1).map(({node,kind})=>{
+            const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+            return `<a href="${href}">${esc(node.title||node.id)}</a>`;
+          }).join(' → ');
+          remedy.innerHTML = '🔍 可能的根因（沿依赖链回溯）：' + links;
+        }
+        // 误解卡片：如果选错的选项标注了 misconceptionId
+        const checked = item.querySelector('input:checked');
+        const misId = checked ? checked.dataset.misconception : '';
+        if(misId){
+          const mis = (manifest.misconceptions||[]).find(m=>m.id===misId);
+          if(mis){
+            let misCard = item.querySelector('.misconception-card');
+            if(!misCard){ misCard = document.createElement('div'); misCard.className='misconception-card'; item.appendChild(misCard); }
+            misCard.innerHTML = `<b>⚠ 常见误解</b><br>你选了「${esc(mis.wrong)}」——${esc(mis.correction)}`;
+          }
+        }
+        // 掌握度下降
+        updateMastery(item.dataset.concept, -0.15);
+      } else {
+        updateMastery(item.dataset.concept, +0.15);
+      }
       const ch = q.chapterId||'__all__';
       if(!state.quiz[ch]) state.quiz[ch]={done:0,total:0};
       state.quiz[ch].done = Math.min(state.quiz[ch].total+1, state.quiz[ch].done+1);
@@ -230,7 +411,222 @@ function initQuizzes(rid){
   });
 }
 
+/* ---------- 知识图谱（vis-network） ---------- */
+let networkLoaded = false;
+function loadVisNetwork(cb){
+  if(networkLoaded){ cb(); return; }
+  const urls = [
+    'https://registry.npmmirror.com/vis-network/9.1.9/dist/dist/vis-network.min.js',
+    'https://cdn.jsdelivr.net/npm/vis-network@9.1.9/standalone/umd/vis-network.min.js',
+    'https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js'
+  ];
+  let i = 0;
+  const tryNext = () => {
+    if(i >= urls.length) return;
+    const s = document.createElement('script');
+    s.src = urls[i++];
+    s.onload = () => { networkLoaded = true; cb(); };
+    s.onerror = () => { s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
+}
+function initGraph(){
+  const container = document.getElementById('graph-container');
+  if(!container) return;
+  loadVisNetwork(() => {
+    if(typeof vis === 'undefined'){ container.innerHTML = '<p class="empty">图谱库加载失败，请联网后刷新</p>'; return; }
+    const concepts = manifest.concepts || [];
+    const chapters = manifest.chapters || [];
+    const nodes = [];
+    const edges = [];
+    concepts.forEach(c => {
+      const mastery = Math.round(getMastery(c.id)*100);
+      nodes.push({
+        id: 'c_' + c.id,
+        label: c.title || c.id,
+        title: (c.title||c.id) + '（掌握度 ' + mastery + '%）',
+        color: mastery > 70 ? '#86efac' : mastery > 40 ? '#fde68a' : '#fca5a5',
+        shape: 'dot',
+        size: mastery > 70 ? 20 : 14,
+        font: { size: 13 }
+      });
+    });
+    chapters.forEach(ch => {
+      nodes.push({
+        id: 'ch_' + ch.id,
+        label: ch.title || ch.id,
+        shape: 'box',
+        color: '#93c5fd',
+        font: { size: 12 }
+      });
+    });
+    // 前置边
+    concepts.forEach(c => {
+      (c.prerequisites || []).forEach(p => {
+        const pid = typeof p === 'string' ? p : p.id;
+        const ptype = typeof p === 'string' ? 'hard' : (p.type || 'hard');
+        const from = (pid.startsWith('ch') ? 'ch_' : 'c_') + pid;
+        const to = 'c_' + c.id;
+        if(nodes.find(n => n.id === from)){
+          edges.push({
+            from: from, to: to,
+            color: { color: ptype === 'hard' ? '#dc2626' : ptype === 'soft' ? '#9ca3af' : '#3b82f6' },
+            arrows: 'to',
+            width: ptype === 'hard' ? 2 : 1,
+            dashes: ptype !== 'hard'
+          });
+        }
+      });
+    });
+    const data = { nodes: new vis.DataSet(nodes), edges: new vis.DataSet(edges) };
+    const options = {
+      physics: { stabilization: true, barnesHut: { gravitationalConstant: -3000 } },
+      interaction: { hover: true, tooltipDelay: 200 }
+    };
+    const net = new vis.Network(container, data, options);
+    net.on('click', params => {
+      if(params.nodes.length > 0){
+        const nid = params.nodes[0];
+        if(nid.startsWith('c_')) location.hash = '#/concept/' + nid.slice(2);
+        else if(nid.startsWith('ch_')) location.hash = '#/chapter/' + nid.slice(3);
+      }
+    });
+  });
+}
+
+/* ---------- 诊断模式 ---------- */
+let diagQueue = [], diagIdx = 0, diagWrong = [];
+function initDiagnosis(){
+  const startBtn = $('#diag-start');
+  if(!startBtn || startBtn.dataset.inited) return;
+  startBtn.dataset.inited='1';
+  startBtn.addEventListener('click', ()=>{
+    const all = (manifest.quizzes||[]).slice();
+    // 随机抽 5 题（不够就全抽）
+    for(let i = all.length-1; i>0; i--){ const j = Math.floor(Math.random()*(i+1)); [all[i],all[j]]=[all[j],all[i]]; }
+    diagQueue = all.slice(0, Math.min(5, all.length));
+    diagIdx = 0; diagWrong = [];
+    showDiagQuestion();
+  });
+}
+function showDiagQuestion(){
+  const stage = $('#diag-stage');
+  const result = $('#diag-result');
+  result.innerHTML = '';
+  if(diagIdx >= diagQueue.length){ finishDiagnosis(); return; }
+  const q = diagQueue[diagIdx];
+  $('#diag-progress').textContent = `第 ${diagIdx+1} / ${diagQueue.length} 题`;
+  const fakeItem = document.createElement('div');
+  fakeItem.innerHTML = _renderQuizHTML(q, diagIdx+1);
+  stage.innerHTML = fakeItem.innerHTML;
+  // 绑定检查按钮
+  const item = stage.querySelector('.quiz-item');
+  const btn = item.querySelector('.quiz-check');
+  btn.addEventListener('click', ()=>{
+    const type = item.dataset.type;
+    let user, correct=false;
+    if(type==='single'){
+      const sel = item.querySelector('input:checked');
+      user = sel? parseInt(sel.value) : null;
+      correct = user===q.answer;
+    } else if(type==='multi'){
+      user = Array.from(item.querySelectorAll('input:checked')).map(i=>parseInt(i.value)).sort();
+      const ans = Array.isArray(q.answer)? q.answer.slice().sort(): [q.answer];
+      correct = user.length>0 && JSON.stringify(user)===JSON.stringify(ans);
+    } else if(type==='blank'){
+      const v = (item.querySelector('.quiz-blank').value||'').trim().toLowerCase();
+      correct = v===String(q.answer).trim().toLowerCase();
+    }
+    if(!correct){
+      diagWrong.push(q);
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      if(chain.length > 1){
+        const links = chain.slice(1).map(({node,kind})=>{
+          const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+          return `<div class="diag-remedy-item">建议先学：<a href="${href}">${esc(node.title||node.id)}</a></div>`;
+        }).join('');
+        $('#diag-result').innerHTML = '<h3>这道题答错了，可能的根因：</h3>' + links +
+          '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      } else {
+        $('#diag-result').innerHTML = '<p><button id="diag-next" class="quiz-check">下一题 →</button></p>';
+      }
+    } else {
+      $('#diag-result').innerHTML = '<p>✓ 正确。<button id="diag-next" class="quiz-check">下一题 →</button></p>';
+    }
+    $('#diag-next').addEventListener('click', ()=>{ diagIdx++; showDiagQuestion(); });
+  });
+}
+function _renderQuizHTML(q, idx){
+  // 复用服务端渲染的 quiz HTML 结构
+  const qtype = q.type||'single';
+  const qid = q.id||('diag'+idx);
+  let html = `<div class='quiz-item' data-qid='${qid}' data-type='${qtype}' data-concept='${esc(q.relatedConceptId||"")}' data-chapter='${esc(q.chapterId||"")}'>`;
+  html += `<p class='quiz-q'><b>Q${idx}.</b> ${esc(q.question||"")}</p>`;
+  if(qtype==='single'||qtype==='multi'){
+    const it = qtype==='single'?'radio':'checkbox';
+    html += "<div class='quiz-opts'>";
+    (q.options||[]).forEach((o,i)=>{ html += `<label class='quiz-opt'><input type='${it}' name='${qid}' value='${i}'> ${esc(String(o))}</label>`; });
+    html += '</div>';
+  } else {
+    html += `<input class='quiz-blank' type='text' placeholder='填写答案'>`;
+  }
+  html += `<div class='quiz-actions'><button class='quiz-check'>检查答案</button><span class='quiz-feedback'></span></div></div>`;
+  return html;
+}
+function finishDiagnosis(){
+  const total = diagQueue.length;
+  const wrong = diagWrong.length;
+  const right = total - wrong;
+  let html = `<h2>诊断完成：${right}/${total} 正确</h2>`;
+  if(wrong === 0){
+    html += '<p>🎉 这组题全对，可以继续往下学。</p>';
+  } else {
+    html += `<p>有 ${wrong} 道题答错。下面是按依赖链回溯的补强建议：</p>`;
+    const seen = new Set();
+    diagWrong.forEach(q=>{
+      const chain = traceBack(q.relatedConceptId, q.chapterId);
+      chain.slice(1).forEach(({node,kind})=>{
+        if(seen.has(node.id)) return;
+        seen.add(node.id);
+        const href = kind==='concept' ? `#/concept/${node.id}` : `#/chapter/${node.id}`;
+        html += `<div class="diag-remedy-item">📚 <a href="${href}">${esc(node.title||node.id)}</a></div>`;
+      });
+    });
+  }
+  html += '<p><button id="diag-restart" class="quiz-check">重新诊断</button></p>';
+  $('#diag-stage').innerHTML = '';
+  $('#diag-progress').textContent = '';
+  $('#diag-result').innerHTML = html;
+  $('#diag-restart').addEventListener('click', ()=>{
+    $('#diag-start').click();
+  });
+}
+
+/* ---------- 掌握度（简化 BKT） ---------- */
+function getMastery(cid){
+  if(!cid) return 0.5;
+  const m = (state.mastery||{})[cid];
+  return m !== undefined ? m : 0.3;
+}
+function updateMastery(cid, delta){
+  if(!cid) return;
+  if(!state.mastery) state.mastery = {};
+  const cur = state.mastery[cid] !== undefined ? state.mastery[cid] : 0.3;
+  state.mastery[cid] = Math.max(0, Math.min(1, cur + delta));
+  store.set('mastery', state.mastery);
+}
+function masteryBar(cid){
+  const v = Math.round(getMastery(cid)*100);
+  return `<div class="mastery-bar"><div style="width:${v}%"></div></div><span class="mastery-label">掌握度 ${v}%</span>`;
+}
+
 /* ---------- 抽认卡 ---------- */
+function sup(t){
+  return String(t==null?'':t).replace(/[&<>]/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[ch]))
+    .replace(/\^(?:\{([^{}]+)\}|\(([^()]*)\)|([-+]?[A-Za-z0-9.]+))/g,
+      (m,a,b,c)=>'<sup>'+(a||b||c||'')+'</sup>');
+}
 let cardIdx = 0, cardList = [];
 function initCards(){
   const cards = manifest.flashcards||[];
@@ -251,8 +647,8 @@ function showCard(){
   updateCardCounts();
   if(cardIdx>=cardList.length){ $('#card-stage').innerHTML='<div class="empty">本组卡片已全部复习完 🎉</div>'; return; }
   const c = cardList[cardIdx];
-  document.querySelector('.fc-front').textContent = c.front;
-  document.querySelector('.fc-back').textContent = c.back;
+  document.querySelector('.fc-front').innerHTML = sup(c.front);
+  document.querySelector('.fc-back').innerHTML = sup(c.back);
   $('#flashcard').classList.remove('flip');
 }
 function markCard(known){
@@ -279,7 +675,7 @@ function initGlossary(){
   input.dataset.inited='1';
   input.oninput = ()=>{
     const v = input.value.trim().toLowerCase();
-    document.querySelectorAll('#glossary-list li').forEach(li=>{
+    $$('#glossary-list li').forEach(li=>{
       li.style.display = (!v || li.dataset.term.includes(v)) ? '' : 'none';
     });
   };
@@ -308,12 +704,10 @@ $('#q').addEventListener('input', e=>{
                  : '<div class="empty">未找到相关页面，试试章节名/概念名/术语。</div>');
 });
 
-/* ---------- Mermaid 懒加载（联网渲染，离线显示源码） ---------- */
+/* ---------- Mermaid 懒加载 ---------- */
 function renderMermaid(){
   if(!document.querySelector('.mermaid')) return;
-  const s=document.createElement('script');
-  s.src='https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
-  s.onload=()=>{ try{
+  const boot=()=>{ try{
     mermaid.initialize({startOnLoad:false, theme: matchMedia('(prefers-color-scheme: dark)').matches?'dark':'default'});
     document.querySelectorAll('.mermaid').forEach(el=>{
       const code=el.textContent;
@@ -322,7 +716,19 @@ function renderMermaid(){
         .catch(()=>{ el.textContent=code; });
     });
   }catch(e){} };
-  document.head.appendChild(s);
+  const urls=['https://registry.npmmirror.com/mermaid/10/files/dist/mermaid.min.js',
+              'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js',
+              'https://unpkg.com/mermaid@10/dist/mermaid.min.js'];
+  let ui=0;
+  const tryNext=()=>{
+    if(ui>=urls.length) return;
+    const s=document.createElement('script');
+    s.src=urls[ui++];
+    s.onload=boot;
+    s.onerror=()=>{ s.remove(); tryNext(); };
+    document.head.appendChild(s);
+  };
+  tryNext();
 }
 
 /* ---------- 深色模式 ---------- */

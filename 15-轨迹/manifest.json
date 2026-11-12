@@ -42,19 +42,44 @@
    "id": "ch01",
    "title": "第 1 章：命题与充分必要条件",
    "file": "chapters/ch01-logic-conditions.md",
-   "difficulty": 2
+   "difficulty": 2,
+   "source": {
+    "file": "数学基础知识丛书-15-轨迹 杨学渊.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "逻辑常识",
+   "depthFragment": "chapters/ch01-depth.md",
+   "prerequisites": []
   },
   {
    "id": "ch02",
    "title": "第 2 章：求轨迹的五步法",
    "file": "chapters/ch02-five-steps.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-15-轨迹 杨学渊.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "坐标",
+   "depthFragment": "chapters/ch02-depth.md",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "ch03",
    "title": "第 3 章：常见轨迹与空间轨迹",
    "file": "chapters/ch03-common-locus.md",
-   "difficulty": 3
+   "difficulty": 3,
+   "source": {
+    "file": "数学基础知识丛书-15-轨迹 杨学渊.pdf",
+    "kind": "原书 PDF"
+   },
+   "prereqNote": "",
+   "depthFragment": "chapters/ch03-depth.md",
+   "prerequisites": [
+    "ch02"
+   ]
   }
  ],
  "concepts": [
@@ -64,6 +89,13 @@
    "file": "concepts/c01-necessary-sufficient.md",
    "chapterIds": [
     "ch01"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-15-轨迹 杨学渊.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
+    "ch01"
    ]
   },
   {
@@ -71,6 +103,13 @@
    "title": "完备性与纯粹性",
    "file": "concepts/c02-completeness-purity.md",
    "chapterIds": [
+    "ch02"
+   ],
+   "source": {
+    "file": "数学基础知识丛书-15-轨迹 杨学渊.pdf",
+    "kind": "原书 PDF"
+   },
+   "prerequisites": [
     "ch02"
    ]
   }
@@ -136,7 +175,11 @@
     "既不充分也不必要"
    ],
    "answer": 0,
-   "explain": "x=1 必有 x²=1；但 x²=1 还可能是 x=−1，推不出 x=1。"
+   "explain": "x=1 必有 x²=1；但 x²=1 还可能是 x=−1，推不出 x=1。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q02",
@@ -150,7 +193,11 @@
     "无关条件"
    ],
    "answer": 0,
-   "explain": "A 中每个元素都在 B 中，故 A 成立可推出 B 成立，A 是 B 的充分条件。"
+   "explain": "A 中每个元素都在 B 中，故 A 成立可推出 B 成立，A 是 B 的充分条件。",
+   "relatedConceptId": "c01",
+   "prerequisites": [
+    "ch01"
+   ]
   },
   {
    "id": "q03",
@@ -164,7 +211,11 @@
     "坐标是否为整数"
    ],
    "answer": 1,
-   "explain": "检验是查完备性与纯粹性，即有没有多算或漏算的点。"
+   "explain": "检验是查完备性与纯粹性，即有没有多算或漏算的点。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q04",
@@ -178,7 +229,11 @@
     "抛物线"
    ],
    "answer": 2,
-   "explain": "到两点等距的点集就是这两点连线的垂直平分线。"
+   "explain": "到两点等距的点集就是这两点连线的垂直平分线。",
+   "relatedConceptId": "c02",
+   "prerequisites": [
+    "ch02"
+   ]
   },
   {
    "id": "q05",
@@ -192,7 +247,11 @@
     "抛物线"
    ],
    "answer": 1,
-   "explain": "这正是圆的定义。"
+   "explain": "这正是圆的定义。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q06",
@@ -206,7 +265,11 @@
     "直线"
    ],
    "answer": 1,
-   "explain": "差为常数对应双曲线；取绝对值时为两支，不取绝对值时为靠近某定点的一支。"
+   "explain": "差为常数对应双曲线；取绝对值时为两支，不取绝对值时为靠近某定点的一支。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "ch03"
+   ]
   },
   {
    "id": "q07",
@@ -220,7 +283,11 @@
     "既不充分也不必要"
    ],
    "answer": 0,
-   "explain": "a>1 必有 a>0；a>0 推不出 a>1。"
+   "explain": "a>1 必有 a>0；a>0 推不出 a>1。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   },
   {
    "id": "q08",
@@ -234,7 +301,11 @@
     "方程次数变高"
    ],
    "answer": 1,
-   "explain": "检验就是查完备性与纯粹性，省掉会出现增点或漏点。"
+   "explain": "检验就是查完备性与纯粹性，省掉会出现增点或漏点。",
+   "relatedConceptId": "",
+   "prerequisites": [
+    "__all__"
+   ]
   }
  ],
  "flashcards": [
